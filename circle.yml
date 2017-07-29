@@ -10,7 +10,7 @@ dependencies:
 
 test:
   override:
-    - TERM=dumb build-and-test-all.sh
+    - TERM=dumb ./build-and-test-all.sh
     - TERM=dumb ./gradlew aggregateJavadocs
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
