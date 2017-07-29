@@ -2,9 +2,9 @@
 
 The TRAM framework enables a Java/Spring application to send messages as part of an database transaction.
 This enables an application atomically update state and send a message or a domain event.
-It is a foundation of ensuring data consistency within a [microservice architecture](http://microservices.io/patterns/microservices.html).
+It is a foundation of ensuring data consistency within a http://microservices.io/patterns/microservices.html[microservice architecture].
 
-TRAM (which was formerly known as Tarr) is described in more detail in my book [Microservice Patterns](https://www.manning.com/books/microservice-patterns).
+TRAM (which was formerly known as Tarr) is described in more detail in my book https://www.manning.com/books/microservice-patterns[Microservice Patterns].
 It provides several messaging abstractions:
 
 * messaging - send and receive messages over named channels
@@ -15,6 +15,3 @@ It provides several messaging abstractions:
 == Documentation
 
 TBD
-
-
-
