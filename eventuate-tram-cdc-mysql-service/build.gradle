@@ -1,3 +1,5 @@
+apply plugin: PrivateModulePlugin
+
 buildscript {
     repositories {
         mavenCentral()

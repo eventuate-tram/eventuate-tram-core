@@ -1,14 +1,36 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
 
 allprojects {
-    group = "io.eventuate.tram"
+    group = "io.eventuate.tram.core"
 }
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
+    apply plugin: 'com.jfrog.bintray'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+
+    bintray {
+        user = System.getenv('BINTRAY_USER')
+        key = System.getenv('BINTRAY_KEY')
+        configurations = ['archives']
+        pkg {
+            repo = 'eventuate-maven-release'
+            name = 'eventuate-tram'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/eventuate-tram/eventuate-tram'
+        }
+    }
+
 
     repositories {
         mavenCentral()
@@ -43,6 +65,20 @@ subprojects {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.11'
 }
+
+
+gradle.projectsEvaluated {
+    task aggregateJavaDocs(type: Javadoc) {
+        description = 'Aggregated Javadoc API documentation of all subprojects.'
+        group = JavaBasePlugin.DOCUMENTATION_GROUP
+        dependsOn subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc
+
+        source subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.source
+        destinationDir file("$buildDir/docs/javadoc")
+        classpath = files(subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.classpath)
+    }
+}
+
 
 
 
