@@ -1,0 +1,16 @@
+drop table if exists message;
+
+CREATE TABLE message (
+  ID VARCHAR(1000) PRIMARY KEY,
+  DESTINATION VARCHAR(1000) NOT NULL,
+  HEADERS VARCHAR(1000) NOT NULL,
+  PAYLOAD VARCHAR(1000) NOT NULL
+);
+
+drop table if exists received_messages;
+
+CREATE TABLE received_messages (
+  CONSUMER_ID VARCHAR(1000),
+  MESSAGE_ID VARCHAR(1000),
+  PRIMARY KEY(CONSUMER_ID, MESSAGE_ID)
+);

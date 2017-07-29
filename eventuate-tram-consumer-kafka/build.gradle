@@ -1,0 +1,12 @@
+dependencies {
+    compile project(":eventuate-tram-messaging")
+
+    compile "io.eventuate.local.java:eventuate-local-java-kafka:$eventuateLocalVersion"
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    compile 'mysql:mysql-connector-java:5.1.36'
+    compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
+
+

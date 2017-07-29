@@ -1,0 +1,9 @@
+dependencies {
+    compile project(":eventuate-tram-producer-jdbc")
+    compile project(":eventuate-tram-consumer-kafka")
+    compile project(":eventuate-tram-commands")
+
+    testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+
+}

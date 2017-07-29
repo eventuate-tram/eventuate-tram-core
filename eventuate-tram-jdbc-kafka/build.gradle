@@ -1,0 +1,6 @@
+dependencies {
+
+    compile project(":eventuate-tram-producer-jdbc")
+    compile project(":eventuate-tram-consumer-kafka")
+
+}

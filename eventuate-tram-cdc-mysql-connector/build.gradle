@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":eventuate-tram-messaging")
+    compile "io.eventuate.local.java:eventuate-local-java-cdc-mysql-connector:$eventuateLocalVersion"
+}

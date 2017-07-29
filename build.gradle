@@ -1,0 +1,48 @@
+
+allprojects {
+    group = "io.eventuate.tram"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
+    }
+
+    dependencies {
+        testCompile "junit:junit:4.12"
+        testCompile "org.mockito:mockito-all:1.10.19"
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: deployUrl)
+                pom.project {
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.11'
+}
+
+
+

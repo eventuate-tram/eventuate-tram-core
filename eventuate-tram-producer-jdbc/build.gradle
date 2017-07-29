@@ -1,0 +1,12 @@
+
+dependencies {
+    compile project(":eventuate-tram-messaging")
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    compile 'mysql:mysql-connector-java:5.1.36'
+    compile "com.fasterxml.jackson.core:jackson-databind:2.8.3"
+    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+
+}
+

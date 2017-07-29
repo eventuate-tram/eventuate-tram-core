@@ -1,0 +1,14 @@
+include 'eventuate-tram-cdc-mysql-connector'
+include 'eventuate-tram-cdc-mysql-connector-autoconfigure'
+include 'eventuate-tram-cdc-mysql-service'
+
+include 'eventuate-tram-messaging'
+include 'eventuate-tram-producer-jdbc'
+include 'eventuate-tram-in-memory'
+include 'eventuate-tram-consumer-kafka'
+include 'eventuate-tram-jdbc-kafka'
+
+include 'eventuate-tram-mysql-kafka-integration-test'
+include 'eventuate-tram-events'
+include 'eventuate-tram-commands'
+include 'eventuate-tram-commands-mysql-kafka-integration-test'

@@ -1,0 +1,10 @@
+dependencies {
+    compile project(":eventuate-tram-jdbc-kafka")
+
+    if (!project.hasProperty("excludeCdcLibs") ||  !excludeCdcLibs.toBoolean()) {
+        testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
+    }
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+
+}
