@@ -18,4 +18,5 @@ dependencies {
 }
 
 uploadArchives.dependsOn(bootRepackage)
+bintrayUpload.dependsOn(bootRepackage)
 
