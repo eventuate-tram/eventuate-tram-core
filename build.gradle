@@ -27,7 +27,7 @@ subprojects {
             repo = 'eventuate-maven-release'
             name = 'eventuate-tram'
             licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/eventuate-tram/eventuate-tram'
+            vcsUrl = 'https://github.com/eventuate-tram/eventuate-tram-core'
         }
     }
 
