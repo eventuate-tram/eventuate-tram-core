@@ -87,7 +87,7 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(MySQLCdcKafkaPublisher<MessageWithDestination> mySQLCdcKafkaPublisher,
+  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> mysqlEventTableChangesToAggregateTopicTranslator(MySQLCdcKafkaPublisher<MessageWithDestination> mySQLCdcKafkaPublisher,
                                                                                                                          MySQLCdcProcessor<MessageWithDestination> mySQLCdcProcessor,
                                                                                                                          CuratorFramework curatorFramework) {
     return new EventTableChangesToAggregateTopicTranslator<>(mySQLCdcKafkaPublisher, mySQLCdcProcessor, curatorFramework);
@@ -118,11 +118,11 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingEventTableChangesToAggregateTopicTranslator<PollingMessageBean, MessageWithDestination, String> pollingEventTableChangesToAggregateTopicTranslator(PollingCdcKafkaPublisher<MessageWithDestination> pollingCdcKafkaPublisher,
+  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> pollingEventTableChangesToAggregateTopicTranslator(PollingCdcKafkaPublisher<MessageWithDestination> pollingCdcKafkaPublisher,
     PollingCdcProcessor<PollingMessageBean, MessageWithDestination, String> pollingCdcProcessor,
     CuratorFramework curatorFramework) {
 
-    return new PollingEventTableChangesToAggregateTopicTranslator<>(pollingCdcKafkaPublisher, pollingCdcProcessor, curatorFramework);
+    return new EventTableChangesToAggregateTopicTranslator<>(pollingCdcKafkaPublisher, pollingCdcProcessor, curatorFramework);
   }
 
   @Bean
