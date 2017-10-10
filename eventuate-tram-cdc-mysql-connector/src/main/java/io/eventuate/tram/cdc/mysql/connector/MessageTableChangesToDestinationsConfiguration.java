@@ -113,7 +113,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   public PollingCdcProcessor<PollingMessageBean, MessageWithDestination, String> pollingCdcProcessor(MySqlBinaryLogClientConfigurationProperties mySqlBinaryLogClientConfigurationProperties,
     PollingDao<PollingMessageBean, MessageWithDestination, String> pollingDao) {
 
-    return new PollingCdcProcessor<>(pollingDao, mySqlBinaryLogClientConfigurationProperties.getPollingRequestPeriodInMilliseconds());
+    return new PollingCdcProcessor<>(pollingDao, mySqlBinaryLogClientConfigurationProperties.getPollingIntervalInMilliseconds());
   }
 
   @Bean
@@ -135,7 +135,7 @@ public class MessageTableChangesToDestinationsConfiguration {
       dataSource,
       mySqlBinaryLogClientConfigurationProperties.getMaxEventsPerPolling(),
       mySqlBinaryLogClientConfigurationProperties.getMaxAttemptsForPolling(),
-      mySqlBinaryLogClientConfigurationProperties.getDelayPerPollingAttemptInMilliseconds());
+      mySqlBinaryLogClientConfigurationProperties.getPollingRetryIntervalInMilliseconds());
   }
 
   @Bean
