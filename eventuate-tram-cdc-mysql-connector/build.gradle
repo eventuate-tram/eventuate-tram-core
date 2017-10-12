@@ -2,5 +2,6 @@ apply plugin: PrivateModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging")
-    compile "io.eventuate.local.java:eventuate-local-java-cdc-mysql-connector:$eventuateLocalVersion"
+    compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-mysql-binlog:$eventuateLocalVersion"
+    compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-polling:$eventuateLocalVersion"
 }

@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.local.mysql.binlog.PollingDataProvider;
+import io.eventuate.local.polling.PollingDataProvider;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
 import java.util.Map;
