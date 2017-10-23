@@ -58,7 +58,11 @@ public class InMemoryMessaging implements MessageProducer, MessageConsumer {
     logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
     for (MessageHandler handler : handlers) {
       executor.execute(() -> transactionTemplate.execute(ts -> {
-        handler.accept(message);
+        try {
+          handler.accept(message);
+        } catch (Throwable t) {
+          logger.error("message handler " + destination, t);
+        }
         return null;
       }));
     }

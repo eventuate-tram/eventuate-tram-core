@@ -20,12 +20,12 @@ public class DomainEventPublisherImpl implements DomainEventPublisher {
   }
 
   @Override
-  public void publish(String aggregateType, String aggregateId, List<DomainEvent> domainEvents) {
+  public void publish(String aggregateType, Object aggregateId, List<DomainEvent> domainEvents) {
     publish(aggregateType, aggregateId, Collections.emptyMap(), domainEvents);
   }
 
   @Override
-  public void publish(String aggregateType, String aggregateId, Map<String, String> headers, List<DomainEvent> domainEvents) {
+  public void publish(String aggregateType, Object aggregateId, Map<String, String> headers, List<DomainEvent> domainEvents) {
     for (DomainEvent event : domainEvents) {
       messageProducer.send(aggregateType,
               makeMessageForDomainEvent(aggregateType, aggregateId, headers, event));
@@ -33,12 +33,13 @@ public class DomainEventPublisherImpl implements DomainEventPublisher {
     }
   }
 
-  public static Message makeMessageForDomainEvent(String aggregateType, String aggregateId, Map<String, String> headers, DomainEvent event) {
+  public static Message makeMessageForDomainEvent(String aggregateType, Object aggregateId, Map<String, String> headers, DomainEvent event) {
+    String aggregateIdAsString = aggregateId.toString();
     return MessageBuilder
             .withPayload(JSonMapper.toJson(event))
             .withExtraHeaders("", headers)
-            .withHeader(Message.PARTITION_ID, aggregateId)
-            .withHeader(EventMessageHeaders.AGGREGATE_ID, aggregateId)
+            .withHeader(Message.PARTITION_ID, aggregateIdAsString)
+            .withHeader(EventMessageHeaders.AGGREGATE_ID, aggregateIdAsString)
             .withHeader(EventMessageHeaders.AGGREGATE_TYPE, aggregateType)
             .withHeader(EventMessageHeaders.EVENT_TYPE, event.getClass().getName())
             .build();

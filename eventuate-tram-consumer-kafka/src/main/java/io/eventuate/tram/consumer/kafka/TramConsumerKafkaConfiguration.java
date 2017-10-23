@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.kafka;
 
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,8 @@ public class TramConsumerKafkaConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean(DuplicateMessageDetector.class)
   public DuplicateMessageDetector duplicateMessageDetector() {
-    return new DuplicateMessageDetector();
+    return new SqlTableBasedDuplicateMessageDetector();
   }
 }

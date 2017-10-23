@@ -1,8 +1,11 @@
 package io.eventuate.tram.commands.consumer;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import io.eventuate.tram.messaging.common.Message;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CommandExceptionHandler {
+import java.util.List;
+
+public class CommandExceptionHandler {
+  public List<Message> invoke(Throwable cause) {
+    throw new UnsupportedOperationException();
+  }
 }

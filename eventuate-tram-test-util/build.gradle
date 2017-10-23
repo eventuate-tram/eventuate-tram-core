@@ -1,0 +1,9 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-events")
+    compile project(":eventuate-tram-commands")
+
+    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    compile "junit:junit:4.12"
+}

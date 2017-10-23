@@ -1,4 +1,4 @@
 package io.eventuate.tram.commands.common;
 
-public class Failure {
+public class Failure implements Outcome {
 }

@@ -6,13 +6,24 @@ import io.eventuate.tram.messaging.common.MessageImpl;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Builds a message
+ */
 public class MessageBuilder {
 
-  private String body;
-  private Map<String, String> headers = new HashMap<>();
+  protected String body;
+  protected Map<String, String> headers = new HashMap<>();
+
+  protected MessageBuilder() {
+  }
 
   public MessageBuilder(String body) {
     this.body = body;
+  }
+
+  public MessageBuilder(Message message) {
+    this(message.getPayload());
+    this.headers = message.getHeaders();
   }
 
   public static MessageBuilder withPayload(String payload) {
@@ -36,4 +47,7 @@ public class MessageBuilder {
     return new MessageImpl(body, headers);
   }
 
+  public static MessageBuilder withMessage(Message message) {
+    return new MessageBuilder(message);
+  }
 }

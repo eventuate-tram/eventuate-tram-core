@@ -3,6 +3,10 @@ package io.eventuate.tram.messaging.common;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A message
+ * @see io.eventuate.tram.messaging.producer.MessageBuilder
+ */
 public interface Message {
   String ID = "ID";
   String PARTITION_ID = "PARTITION_ID";

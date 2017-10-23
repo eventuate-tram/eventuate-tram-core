@@ -6,7 +6,6 @@ import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
 import io.eventuate.tram.consumer.kafka.TramConsumerKafkaConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -33,24 +32,15 @@ public class TramCommandsAndEventsIntegrationTestConfiguration {
   @Bean
   public ChannelMapping channelMapping(TramCommandsAndEventsIntegrationData data) {
     return DefaultChannelMapping.builder()
-            .with("CustomerAggregate", data.getAggregateDestination())
+            .with("ReplyTo", data.getAggregateDestination())
             .with("customerService", data.getCommandChannel())
             .build();
   }
 
   @Bean
-  public CommandDispatcher consumerCommandDispatcher(TramCommandsAndEventsIntegrationData data,
-                                                     ChannelMapping channelMapping,
-                                                     MessageConsumer messageConsumer,
-                                                     MessageProducer messageProducer,
-                                                     MyTestCommandHandler target) {
+  public CommandDispatcher consumerCommandDispatcher(MyTestCommandHandler target) {
 
-    return new CommandDispatcher("customerCommandDispatcher",
-            target,
-            data.getCommandChannel(),
-            channelMapping,
-            messageConsumer,
-            messageProducer);
+    return new CommandDispatcher("customerCommandDispatcher", target.defineCommandHandlers());
   }
 
 
@@ -61,9 +51,8 @@ public class TramCommandsAndEventsIntegrationTestConfiguration {
 
 
   @Bean
-  public MyReplyConsumer myReplyConsumer(TramCommandsAndEventsIntegrationData data, MessageConsumer messageConsumer) {
-    return new MyReplyConsumer(messageConsumer,
-            data.getAggregateDestination());
+  public MyReplyConsumer myReplyConsumer(MessageConsumer messageConsumer) {
+    return new MyReplyConsumer(messageConsumer, "ReplyTo");
   }
 
 //  @Bean

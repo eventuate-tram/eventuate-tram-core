@@ -1,18 +1,19 @@
 package io.eventuate.tram.commands.consumer;
 
+import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.commands.common.ChannelMapping;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.Success;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Test;
 
 import static java.util.Collections.singletonMap;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -22,12 +23,15 @@ public class CommandDispatcherTest {
 
   static class CommandDispatcherTestTarget {
 
-    @CommandHandlerMethod(path="/customers/{customerId}", replyChannel = "'CustomerAggregate'", partitionId="path['id']")
-    public Success reserveCredit(@PathVariable("customerId") String customerId, CommandMessage<TestCommand> cm) {
 
+    public Message reserveCredit(CommandMessage<TestCommand> cm, PathVariables pathVariables) {
+
+      String customerId = pathVariables.getString("customerId");
       System.out.println("customerId=" + customerId);
       System.out.println("cm=" + cm);
-      return new Success();
+      return MessageBuilder
+              .withPayload(JSonMapper.toJson(new Success()))
+              .build();
 
     }
 
@@ -41,12 +45,19 @@ public class CommandDispatcherTest {
 
   }
 
+  public CommandHandlers defineCommandHandlers(CommandDispatcherTestTarget target) {
+    return CommandHandlersBuilder
+            .fromChannel("customerService")
+            .resource("/customers/{customerId}")
+            .onMessage(TestCommand.class, target::reserveCredit)
+            .build();
+  }
+
   @Test
   public void shouldDispatchCommand() {
     String commandDispatcherId = "fooId";
-    String commandChannel = "commandChannel";
 
-    CommandDispatcherTestTarget spy = spy(new CommandDispatcherTestTarget());
+    CommandDispatcherTestTarget target = spy(new CommandDispatcherTestTarget());
 
     ChannelMapping channelMapping = mock(ChannelMapping.class);
 
@@ -54,7 +65,8 @@ public class CommandDispatcherTest {
 
     MessageProducer messageProducer = mock(MessageProducer.class);
 
-    CommandDispatcher dispatcher = new CommandDispatcher(commandDispatcherId, spy, commandChannel,
+    CommandDispatcher dispatcher = new CommandDispatcher(commandDispatcherId,
+            defineCommandHandlers(target),
             channelMapping,
             messageConsumer,
             messageProducer);
@@ -63,12 +75,16 @@ public class CommandDispatcherTest {
     String resource = "/customers/" + customerId;
     Command command = new TestCommand();
 
-    Message message = CommandProducerImpl.makeMessage(resource, command, singletonMap(Message.ID, "999"));
+    String replyTo = "replyTo-xxx";
+
+    String channel = "myChannel";
+
+    Message message = CommandProducerImpl.makeMessage(channel, resource, command, replyTo, singletonMap(Message.ID, "999"));
 
     dispatcher.messageHandler(message);
 
-    verify(spy).reserveCredit(eq(customerId), any(CommandMessage.class));
+    verify(target).reserveCredit(any(CommandMessage.class), any(PathVariables.class));
     verify(messageProducer).send(any(), any());
-    verifyNoMoreInteractions(messageProducer, spy);
+    verifyNoMoreInteractions(messageProducer, target);
   }
 }

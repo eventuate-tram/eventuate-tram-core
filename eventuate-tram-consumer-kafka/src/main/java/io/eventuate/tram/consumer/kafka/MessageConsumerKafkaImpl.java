@@ -7,6 +7,8 @@ import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -16,6 +18,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class MessageConsumerKafkaImpl implements MessageConsumer {
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private String bootstrapServers;
   private List<EventuateKafkaConsumer> consumers = new ArrayList<>();
@@ -38,14 +42,21 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
       // TODO If we do that here then remove TT from higher-levels
 
       transactionTemplate.execute(ts -> {
-        if (duplicateMessageDetector.isDuplicate(subscriberId, m.getId()))
+        if (duplicateMessageDetector.isDuplicate(subscriberId, m.getId())) {
+          logger.trace("Duplicate message {} {}", subscriberId, m.getId());
+          callback.accept(null, null);
           return null;
+        }
         try {
+          logger.trace("Invoking handler {} {}", subscriberId, m.getId());
           handler.accept(m);
         } catch (Throwable t) {
+          logger.trace("Got exception {} {}", subscriberId, m.getId());
+          logger.trace("Got exception ", t);
           callback.accept(null, t);
           return null;
         }
+        logger.trace("handled message {} {}", subscriberId, m.getId());
         callback.accept(null, null);
         return null;
       });

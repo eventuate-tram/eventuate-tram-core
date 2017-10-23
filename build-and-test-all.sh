@@ -6,7 +6,7 @@ set -e
 
 docker-compose down -v
 
-docker-compose up -d
+docker-compose up -d --build
 
 ./gradlew build
 

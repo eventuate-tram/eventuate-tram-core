@@ -36,7 +36,7 @@ public class MessageImpl implements Message {
   public String getRequiredHeader(String name) {
     String s = headers.get(name);
     if (s == null)
-      throw new RuntimeException("No such header: " + name);
+      throw new RuntimeException("No such header: " + name + " in this message " + this);
     else
       return s;
   }

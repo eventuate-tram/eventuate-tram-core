@@ -1,10 +1,10 @@
-= Transaction Messaging (TRAM) framework
+= Eventuate Tram (Transactional Messaging) framework
 
-The TRAM framework enables a Java/Spring application to send messages as part of an database transaction.
+The Tram framework enables a Java/Spring application to send messages as part of an database transaction.
 This enables an application atomically update state and send a message or a domain event.
 It is a foundation of ensuring data consistency within a http://microservices.io/patterns/microservices.html[microservice architecture].
 
-TRAM (which was formerly known as Tarr) is described in more detail in my book https://www.manning.com/books/microservice-patterns[Microservice Patterns].
+Eventate Tram (which was formerly known as Tarr) is described in more detail in my book https://www.manning.com/books/microservice-patterns[Microservice Patterns].
 It provides several messaging abstractions:
 
 * messaging - send and receive messages over named channels
@@ -12,6 +12,110 @@ It provides several messaging abstractions:
 * commands - asynchronously send a command to a service and receive a reply
 
 
-== Documentation
+== Transactional messaging
 
-TBD
+Send a message using `MessageProducer`:
+
+```java
+public interface MessageProducer {
+  void send(String destination, Message message);
+}
+```
+
+Receive messages using:
+
+```java
+public interface MessageConsumer {
+  void subscribe(String subscriberId, Set<String> channels, MessageHandler handler);
+}
+```
+
+See this example of https://github.com/eventuate-tram/eventuate-tram-core-examples-basic/blob/master/eventuate-tram-examples-common/src/main/java/io/eventuate/tram/examples/basic/messages/AbstractTramMessageTest.java[transactional messaging].
+
+=== Transactional domain events
+
+The domain event package builds on the core APIs.
+
+Publish domain events using the `DomainEventPublisher` interface:
+
+```java
+public interface DomainEventPublisher {
+
+  void publish(String aggregateType, Object aggregateId, List<DomainEvent> domainEvents);
+  ...
+```
+
+Subscribe to domain events using a `DomainEventDispatcher`:
+
+```java
+public class DomainEventDispatcher {
+    public DomainEventDispatcher(String eventDispatcherId,
+                DomainEventHandlers eventHandlers,
+                ...) {
+...
+}
+```
+
+Handle the events using `DomainEventHandlers`:
+
+```java
+public class RestaurantOrderEventConsumer {
+
+  public DomainEventHandlers domainEventHandlers() {
+    return DomainEventHandlersBuilder
+            .forAggregateType("net.chrisrichardson.ftgo.restaurantservice.Restaurant")
+            .onEvent(RestaurantMenuRevised.class, this::reviseMenu)
+            .build();
+  }
+
+  public void reviseMenu(DomainEventEnvelope<RestaurantMenuRevised> de) {
+```
+
+See this example of https://github.com/eventuate-tram/eventuate-tram-core-examples-basic/blob/master/eventuate-tram-examples-common/src/main/java/io/eventuate/tram/examples/basic/events/AbstractTramEventTest.java[transaction events].
+
+== Transactional commands
+
+Transaction commands are implemented using transactional messaging.
+
+Send a command using a `CommandProducer`:
+
+```java
+public interface CommandProducer {
+  String send(String channel, Command command, String replyTo, Map<String, String> headers);
+  ...
+}
+```
+
+Subscribe to commands using a `CommandDispatcher`:
+
+```java
+public class CommandDispatcher {
+
+  public CommandDispatcher(String commandDispatcherId,
+           CommandHandlers commandHandlers) {
+  ...
+}
+```
+
+Handle commands and send a reply using `CommandHandlers`:
+
+```java
+public class OrderCommandHandlers {
+
+
+  public CommandHandlers commandHandlers() {
+    return CommandHandlersBuilder
+          .fromChannel("orderService")
+          .onMessage(ApproveOrderCommand.class, this::approveOrder)
+          ...
+          .build();
+  }
+
+  public Message approveOrder(CommandMessage<ApproveOrderCommand> cm) {
+    ApproveOrderCommand command = cm.getCommand();
+    ...
+  }
+
+```
+
+See this example of https://github.com/eventuate-tram/eventuate-tram-core-examples-basic/blob/master/eventuate-tram-examples-common/src/main/java/io/eventuate/tram/examples/basic/commands/AbstractTramCommandTest.java[transactional commands].

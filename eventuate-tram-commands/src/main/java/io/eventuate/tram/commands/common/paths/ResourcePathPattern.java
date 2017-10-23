@@ -5,6 +5,8 @@ import org.springframework.util.Assert;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.toList;
 
@@ -65,6 +67,17 @@ public class ResourcePathPattern {
     return new ResourcePath(Arrays.stream(splits).map(s -> isPlaceholder(s) ? placeholderValueProvider.get(placeholderName(s)).orElseGet(() -> {
       throw new RuntimeException("Placeholder not found: " + placeholderName(s) + " in " + s + ", params=" + placeholderValueProvider.getParams());
     }) : s).collect(toList()).toArray(new String[splits.length]));
+  }
+
+  public ResourcePath replacePlaceholders(Object[] pathParams) {
+    AtomicInteger idx = new AtomicInteger(0);
+    return new ResourcePath(Arrays.stream(splits).map(s -> isPlaceholder(s) ? getPlaceholderValue(pathParams, idx.getAndIncrement()).orElseGet(() -> {
+      throw new RuntimeException("Placeholder not found: " + placeholderName(s) + " in " + s + ", params=" + Arrays.asList(pathParams));
+    }) : s).collect(toList()).toArray(new String[splits.length]));
+  }
+
+  private Optional<String> getPlaceholderValue(Object[] pathParams, int idx) {
+    return idx < pathParams.length ? Optional.of(pathParams[idx].toString()) : Optional.empty();
   }
 
 }

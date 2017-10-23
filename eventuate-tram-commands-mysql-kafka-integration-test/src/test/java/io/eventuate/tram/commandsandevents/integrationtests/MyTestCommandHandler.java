@@ -1,17 +1,29 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
+import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.commands.common.Success;
-import io.eventuate.tram.commands.consumer.CommandHandler;
-import io.eventuate.tram.commands.consumer.CommandHandlerMethod;
+import io.eventuate.tram.commands.consumer.CommandHandlers;
+import io.eventuate.tram.commands.consumer.CommandHandlersBuilder;
 import io.eventuate.tram.commands.consumer.CommandMessage;
-import io.eventuate.tram.commands.consumer.PathVariable;
+import io.eventuate.tram.commands.consumer.PathVariables;
+import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 
-@CommandHandler("customerService")
 public class MyTestCommandHandler {
 
-  @CommandHandlerMethod(path="/customers/{customerId}", replyChannel = "'CustomerAggregate'", partitionId="path['id']")
-  public Success myHandlerMethod(@PathVariable("customerId") String customerId, CommandMessage<MyTestCommand> cm) {
+
+  public CommandHandlers defineCommandHandlers() {
+    return CommandHandlersBuilder
+            .fromChannel("customerService")
+            .resource("/customers/{customerId}")
+            .onMessage(MyTestCommand.class, this::myHandlerMethod)
+            .build();
+  }
+
+  public Message myHandlerMethod(CommandMessage<MyTestCommand> cm, PathVariables pvs) {
     System.out.println("Got command: " + cm);
-    return new Success();
+    return MessageBuilder
+            .withPayload(JSonMapper.toJson(new Success()))
+            .build();
   }
 }

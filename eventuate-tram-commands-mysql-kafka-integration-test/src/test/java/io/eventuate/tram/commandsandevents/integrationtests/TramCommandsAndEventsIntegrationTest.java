@@ -2,6 +2,7 @@ package io.eventuate.tram.commandsandevents.integrationtests;
 
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.messaging.common.Message;
 import org.junit.Test;
@@ -34,10 +35,10 @@ public class TramCommandsAndEventsIntegrationTest {
   @Test
   public void shouldDoSomething() throws InterruptedException {
     String messageId = commandProducer.send("customerService", "/customers/10",
-            new MyTestCommand(),
+            new MyTestCommand(), myReplyConsumer.getReplyChannel(),
             Collections.emptyMap());
 
-    Message m = myReplyConsumer.messages.poll(5, TimeUnit.SECONDS);
+    Message m = myReplyConsumer.messages.poll(30, TimeUnit.SECONDS);
 
     assertNotNull(m);
 
@@ -45,6 +46,6 @@ public class TramCommandsAndEventsIntegrationTest {
 
     System.out.println("Received m=" + m);
 
-    verify(myTestCommandHandler).myHandlerMethod(any(String.class), any(CommandMessage.class));
+    verify(myTestCommandHandler).myHandlerMethod(any(CommandMessage.class), any(PathVariables.class));
   }
 }

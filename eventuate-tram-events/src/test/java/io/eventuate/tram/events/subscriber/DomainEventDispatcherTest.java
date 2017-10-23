@@ -7,8 +7,6 @@ import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -28,20 +26,21 @@ public class DomainEventDispatcherTest {
 
     public BlockingQueue<DomainEventEnvelope<?>> queue = new LinkedBlockingDeque<>();
 
-    @DomainEventHandler
+    public DomainEventHandlers domainEventHandlers() {
+      return DomainEventHandlersBuilder
+                .forAggregateType(aggregateType)
+                .onEvent(MyDomainEvent.class, this::handleAccountDebited)
+                .build();
+    }
     public void handleAccountDebited(DomainEventEnvelope<MyDomainEvent> event) {
       queue.add(event);
     }
 
   }
 
-
   static class MyDomainEvent implements DomainEvent {
 
   }
-
-  private Map<String, Set<String>> aggregateTypesAndEvents = Collections.singletonMap(aggregateType,
-          Collections.singleton(MyDomainEvent.class.getName()));
 
   @Test
   public void shouldDispatchMessage() {
@@ -50,7 +49,7 @@ public class DomainEventDispatcherTest {
     MessageConsumer messageConsumer = mock(MessageConsumer.class);
 
     DomainEventDispatcher dispatcher =
-            new DomainEventDispatcher(eventDispatcherId, aggregateTypesAndEvents, target, messageConsumer);
+            new DomainEventDispatcher(eventDispatcherId, target.domainEventHandlers(), messageConsumer);
 
     dispatcher.initialize();
 
