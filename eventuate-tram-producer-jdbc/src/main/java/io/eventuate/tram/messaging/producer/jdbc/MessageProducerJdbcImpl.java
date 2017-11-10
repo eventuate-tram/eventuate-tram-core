@@ -7,6 +7,8 @@ import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.Optional;
+
 public class MessageProducerJdbcImpl implements MessageProducer {
 
   @Autowired
@@ -15,11 +17,17 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   @Autowired
   private IdGenerator idGenerator;
 
+  private Optional<String> database;
+
+  public MessageProducerJdbcImpl(Optional<String> database) {
+    this.database = database;
+  }
+
   @Override
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
     message.getHeaders().put(Message.ID, id);
-    jdbcTemplate.update("insert into message(id, destination, headers, payload) values(?, ?, ?, ?)",
+    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", database.map(db -> db + ".").orElse("") + "message"),
             id,
             destination,
             JSonMapper.toJson(message.getHeaders()),

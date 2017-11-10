@@ -6,7 +6,7 @@ set -e
 
 docker-compose down -v
 
-docker-compose up -d --build
+docker-compose up --build -d
 
 ./wait-for-mysql.sh
 

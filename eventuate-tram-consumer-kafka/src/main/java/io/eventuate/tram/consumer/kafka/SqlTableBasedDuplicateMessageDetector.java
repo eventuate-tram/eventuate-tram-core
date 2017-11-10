@@ -9,10 +9,16 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
+  private String database;
+
+  public SqlTableBasedDuplicateMessageDetector(String database) {
+    this.database = database;
+  }
+
   @Override
   public boolean isDuplicate(String consumerId, String messageId) {
     try {
-      jdbcTemplate.update("insert into received_messages(consumer_id, message_id) values(?, ?)",
+      jdbcTemplate.update(String.format("insert into %s.received_messages(consumer_id, message_id) values(?, ?)", database),
               consumerId, messageId);
       return false;
     } catch (DuplicateKeyException e) {

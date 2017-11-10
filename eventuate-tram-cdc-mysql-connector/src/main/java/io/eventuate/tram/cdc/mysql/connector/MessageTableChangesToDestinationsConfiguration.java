@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @Configuration
@@ -38,13 +39,12 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public IWriteRowsEventDataParser eventDataParser(DataSource dataSource) {
-    return new WriteRowsEventDataParser(dataSource);
+  public IWriteRowsEventDataParser eventDataParser(DataSource dataSource, EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new WriteRowsEventDataParser(dataSource, Optional.ofNullable(eventuateConfigurationProperties.getEventuateDatabase()));
   }
 
   @Bean
-    @Profile("!EventuatePolling")
-
+  @Profile("!EventuatePolling")
   public MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
                                                                            EventuateConfigurationProperties eventuateConfigurationProperties,
                                                                            SourceTableNameSupplier sourceTableNameSupplier,
@@ -145,8 +145,8 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider() {
-    return new PollingMessageDataProvider();
+  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new PollingMessageDataProvider(Optional.of(eventuateConfigurationProperties.getEventuateDatabase()));
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {

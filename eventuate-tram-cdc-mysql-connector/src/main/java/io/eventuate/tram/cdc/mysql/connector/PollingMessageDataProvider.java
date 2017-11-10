@@ -5,13 +5,23 @@ import io.eventuate.local.polling.PollingDataProvider;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class PollingMessageDataProvider implements PollingDataProvider<PollingMessageBean, MessageWithDestination, String> {
+  private Optional<String> database;
 
-  @Override
-  public String table() {
-    return "message";
+  public PollingMessageDataProvider() {
+    this(Optional.empty());
   }
+
+  public PollingMessageDataProvider(Optional<String> database) {
+    this.database = database;
+  }
+
+   @Override
+   public String table() {
+    return database.map(db -> db + ".").orElse("") + "message";
+   }
 
   @Override
   public Class<PollingMessageBean> eventBeanClass() {
