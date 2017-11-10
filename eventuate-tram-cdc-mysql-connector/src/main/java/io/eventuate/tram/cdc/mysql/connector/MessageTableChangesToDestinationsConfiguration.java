@@ -56,7 +56,8 @@ public class MessageTableChangesToDestinationsConfiguration {
             jdbcUrl.getHost(),
             jdbcUrl.getPort(),
             eventuateConfigurationProperties.getBinlogClientId(),
-            sourceTableNameSupplier.getSourceTableName());
+            sourceTableNameSupplier.getSourceTableName(),
+            eventuateConfigurationProperties.getMySqlBinLogClientName());
   }
 
   @Bean
@@ -77,8 +78,16 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public CdcProcessor<MessageWithDestination> mySQLCdcProcessor(MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient, DatabaseBinlogOffsetKafkaStore binlogOffsetKafkaStore) {
-    return new MySQLCdcProcessor<>(mySqlBinaryLogClient, binlogOffsetKafkaStore);
+  public DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
+          EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
+
+    return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(), eventuateKafkaConfigurationProperties);
+  }
+
+  @Bean
+  @Profile("!EventuatePolling")
+  public CdcProcessor<MessageWithDestination> mySQLCdcProcessor(MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient, DatabaseBinlogOffsetKafkaStore binlogOffsetKafkaStore, DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore) {
+    return new MySQLCdcProcessor<>(mySqlBinaryLogClient, binlogOffsetKafkaStore, debeziumBinlogOffsetKafkaStore);
   }
 
   @Bean
@@ -91,10 +100,11 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher,
+  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                                                                                         CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher,
                                                                                                                          CdcProcessor<MessageWithDestination> cdcProcessor,
                                                                                                                          CuratorFramework curatorFramework) {
-    return new EventTableChangesToAggregateTopicTranslator<>(cdcKafkaPublisher, cdcProcessor, curatorFramework);
+    return new EventTableChangesToAggregateTopicTranslator<>(cdcKafkaPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
   }
 
   @Bean(destroyMethod = "close")
