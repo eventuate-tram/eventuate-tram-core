@@ -8,19 +8,19 @@ import java.util.Map;
 import java.util.Optional;
 
 public class PollingMessageDataProvider implements PollingDataProvider<PollingMessageBean, MessageWithDestination, String> {
-  private Optional<String> database;
+  private String database;
 
   public PollingMessageDataProvider() {
-    this(Optional.empty());
+    this("eventuate");
   }
 
-  public PollingMessageDataProvider(Optional<String> database) {
+  public PollingMessageDataProvider(String database) {
     this.database = database;
   }
 
    @Override
    public String table() {
-    return database.map(db -> db + ".").orElse("") + "message";
+    return database + ".message";
    }
 
   @Override

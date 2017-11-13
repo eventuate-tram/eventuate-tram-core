@@ -17,9 +17,9 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   @Autowired
   private IdGenerator idGenerator;
 
-  private Optional<String> database;
+  private String database;
 
-  public MessageProducerJdbcImpl(Optional<String> database) {
+  public MessageProducerJdbcImpl(String database) {
     this.database = database;
   }
 
@@ -27,7 +27,7 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
     message.getHeaders().put(Message.ID, id);
-    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", database.map(db -> db + ".").orElse("") + "message"),
+    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", database + ".message"),
             id,
             destination,
             JSonMapper.toJson(message.getHeaders()),

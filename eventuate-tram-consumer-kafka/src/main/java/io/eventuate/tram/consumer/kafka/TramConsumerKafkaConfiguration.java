@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(EventuateKafkaConfigurationProperties.class)
 public class TramConsumerKafkaConfiguration {
 
-  @Value("${eventuateLocal.cdc.eventuate.database:#{null}}")
+  @Value("${eventuateLocal.cdc.eventuate.database:#{\"eventuate\"}}")
   private String eventuateDatabase;
 
   @Bean

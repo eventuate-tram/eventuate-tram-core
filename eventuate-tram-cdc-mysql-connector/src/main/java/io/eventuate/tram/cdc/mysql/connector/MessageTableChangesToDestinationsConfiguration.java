@@ -40,7 +40,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Profile("!EventuatePolling")
   public IWriteRowsEventDataParser eventDataParser(DataSource dataSource, EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new WriteRowsEventDataParser(dataSource, Optional.ofNullable(eventuateConfigurationProperties.getEventuateDatabase()));
+    return new WriteRowsEventDataParser(dataSource, eventuateConfigurationProperties.getEventuateDatabase());
   }
 
   @Bean
@@ -146,7 +146,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Profile("EventuatePolling")
   public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new PollingMessageDataProvider(Optional.of(eventuateConfigurationProperties.getEventuateDatabase()));
+    return new PollingMessageDataProvider(eventuateConfigurationProperties.getEventuateDatabase());
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {

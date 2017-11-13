@@ -31,9 +31,9 @@ public class WriteRowsEventDataParser implements IWriteRowsEventDataParser<Messa
 
   private Map<String, Integer> columnOrders = new HashMap<>();
 
-  private Optional<String> database;
+  private String database;
 
-  public WriteRowsEventDataParser(DataSource dataSource, Optional<String> database) {
+  public WriteRowsEventDataParser(DataSource dataSource, String database) {
     this.dataSource = dataSource;
     this.database = database;
   }
@@ -71,7 +71,7 @@ public class WriteRowsEventDataParser implements IWriteRowsEventDataParser<Messa
       DatabaseMetaData metaData = connection.getMetaData();
 
       try (ResultSet columnResultSet =
-                   metaData.getColumns(database.orElse(null), "public", MySQLTableConfig.EVENTS_TABLE_NAME.toLowerCase(), null)) {
+                   metaData.getColumns(database, "public", MySQLTableConfig.EVENTS_TABLE_NAME.toLowerCase(), null)) {
 
         while (columnResultSet.next()) {
           columnOrders.put(columnResultSet.getString("COLUMN_NAME").toLowerCase(),
