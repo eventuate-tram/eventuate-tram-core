@@ -26,3 +26,8 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - run:
+          name: Publish artifacts
+          command: |
+            TERM=dumb ./deploy-artifacts.sh
+          when: on_success
