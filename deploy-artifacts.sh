@@ -21,6 +21,9 @@ function tagAndPush() {
   REMOTE=$2
   $PREFIX docker tag ${DOCKER_COMPOSE_PREFIX?}$LOCAL $DOCKER_REPO/$REMOTE:$VERSION
   $PREFIX docker tag ${DOCKER_COMPOSE_PREFIX?}$LOCAL $DOCKER_REPO/$REMOTE:latest
+  echo Pushing $DOCKER_REPO/$REMOTE:$VERSION
+  $PREFIX docker push $DOCKER_REPO/$REMOTE:$VERSION
+  $PREFIX docker push $DOCKER_REPO/$REMOTE:latest
 }
 
 $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}

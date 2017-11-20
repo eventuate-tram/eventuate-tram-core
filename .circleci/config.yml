@@ -14,8 +14,8 @@ jobs:
           key: eventuate-tram-core-{{ checksum "build.gradle" }}
       - run: TERM=dumb ./build-and-test-all.sh
       - run: TERM=dumb ./build-and-test-all-cdc.sh
-      - run: TERM=dumb ./build-and-test-all-cdc-postgres.sh
       - run: TERM=dumb ./build-and-test-all-postgres.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-postgres.sh
       - run:
           name: Save test results
           command: |
