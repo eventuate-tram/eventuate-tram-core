@@ -4,7 +4,7 @@ set -e
 
 if [ -z "$DOCKER_COMPOSE" ]; then
     echo setting DOCKER_COMPOSE
-    export DOCKER_COMPOSE="docker-compose -f docker-compose.yml -f docker-compose-cdc.yml"
+    export DOCKER_COMPOSE="docker-compose -f docker-compose.yml -f docker-compose-images.yml"
 else
     echo using existing DOCKER_COMPOSE = $DOCKER_COMPOSE
 fi
@@ -15,17 +15,18 @@ export GRADLE_OPTIONS="-P excludeCdcLibs=true"
 
 . ./set-env.sh
 
-$DOCKER_COMPOSE down -v
+$DOCKER_COMPOSE stop
+$DOCKER_COMPOSE rm --force -v
 
 $DOCKER_COMPOSE build
 $DOCKER_COMPOSE up -d mysql
 
-./wait-for-mysql.sh
+echo waiting for MySQL
+sleep 10
 
 $DOCKER_COMPOSE up -d
 
-./wait-for-services.sh $DOCKER_HOST_IP 8099
-
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
 
-docker-compose down -v
+$DOCKER_COMPOSE stop
+$DOCKER_COMPOSE rm --force -v
