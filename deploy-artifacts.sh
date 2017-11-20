@@ -14,7 +14,7 @@ $PREFIX ./gradlew -P version=${VERSION} \
   testClasses bintrayUpload
 
 DOCKER_REPO=eventuateio
-DOCKER_COMPOSE_PREFIX=eventuatecoretram_
+DOCKER_COMPOSE_PREFIX=eventuatetramcore_
 
 function tagAndPush() {
   LOCAL=$1
