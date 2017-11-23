@@ -8,5 +8,6 @@ dependencies {
     }
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "io.eventuate.local.java:eventuate-local-java-test-util:$eventuateLocalVersion"
 
 }

@@ -31,6 +31,9 @@ import java.util.concurrent.TimeoutException;
 @Import(EventuateDriverConfiguration.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
+  @Value("${eventuate.database.schema:#{\"" + EventuateConstants.DEFAULT_DATABASE_SCHEMA + "\"}}")
+  private String eventuateDatabaseSchema;
+
   @Bean
   @Profile("!EventuatePolling")
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
@@ -40,7 +43,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Profile("!EventuatePolling")
   public IWriteRowsEventDataParser eventDataParser(DataSource dataSource, EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new WriteRowsEventDataParser(dataSource, eventuateConfigurationProperties.getEventuateDatabase());
+    return new WriteRowsEventDataParser(dataSource, eventuateDatabaseSchema);
   }
 
   @Bean
@@ -146,7 +149,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Profile("EventuatePolling")
   public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new PollingMessageDataProvider(eventuateConfigurationProperties.getEventuateDatabase());
+    return new PollingMessageDataProvider(eventuateDatabaseSchema);
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {

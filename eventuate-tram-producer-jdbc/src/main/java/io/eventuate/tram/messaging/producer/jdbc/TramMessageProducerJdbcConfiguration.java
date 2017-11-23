@@ -2,22 +2,21 @@ package io.eventuate.tram.messaging.producer.jdbc;
 
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
 import io.eventuate.javaclient.spring.jdbc.IdGeneratorImpl;
+import io.eventuate.local.common.EventuateConstants;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Optional;
-
 @Configuration
 public class TramMessageProducerJdbcConfiguration {
 
-  @Value("${eventuateLocal.cdc.eventuate.database:#{\"eventuate\"}}")
-  private String eventuateDatabase;
+  @Value("${eventuate.database.schema:#{\"" + EventuateConstants.DEFAULT_DATABASE_SCHEMA + "\"}}")
+  private String eventuateDatabaseSchema;
 
   @Bean
   public MessageProducer messageProducer() {
-    return new MessageProducerJdbcImpl(eventuateDatabase);
+    return new MessageProducerJdbcImpl(eventuateDatabaseSchema);
   }
 
   @Bean

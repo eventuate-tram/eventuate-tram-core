@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.kafka;
 
+import io.eventuate.local.common.EventuateConstants;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(EventuateKafkaConfigurationProperties.class)
 public class TramConsumerKafkaConfiguration {
 
-  @Value("${eventuateLocal.cdc.eventuate.database:#{\"eventuate\"}}")
-  private String eventuateDatabase;
+  @Value("${eventuate.database.schema:#{\"" + EventuateConstants.DEFAULT_DATABASE_SCHEMA + "\"}}")
+  private String eventuateDatabaseSchema;
 
   @Bean
   public MessageConsumerKafkaImpl messageConsumerKafka(EventuateKafkaConfigurationProperties props) {
@@ -22,6 +23,6 @@ public class TramConsumerKafkaConfiguration {
   @Bean
   @ConditionalOnMissingBean(DuplicateMessageDetector.class)
   public DuplicateMessageDetector duplicateMessageDetector() {
-    return new SqlTableBasedDuplicateMessageDetector(eventuateDatabase);
+    return new SqlTableBasedDuplicateMessageDetector(eventuateDatabaseSchema);
   }
 }

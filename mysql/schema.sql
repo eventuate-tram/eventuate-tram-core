@@ -1,6 +1,3 @@
-create database custom;
-GRANT ALL PRIVILEGES ON custom.* TO 'mysqluser'@'%' WITH GRANT OPTION;
-
 USE eventuate;
 
 DROP Table IF Exists message;

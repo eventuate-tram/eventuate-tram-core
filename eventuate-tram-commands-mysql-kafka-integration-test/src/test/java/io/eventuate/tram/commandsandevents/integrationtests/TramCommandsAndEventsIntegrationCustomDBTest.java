@@ -1,5 +1,7 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
+import io.eventuate.local.testutil.CustomDBCreator;
+import io.eventuate.local.testutil.CustomDBTestConfiguration;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +16,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.sql.DataSource;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TramCommandsAndEventsIntegrationTestConfiguration.class, TramCommandsAndEventsIntegrationCustomDBTest.Configuration.class})
+@SpringBootTest(classes = {TramCommandsAndEventsIntegrationTestConfiguration.class, CustomDBTestConfiguration.class})
 public class TramCommandsAndEventsIntegrationCustomDBTest extends AbstractTramCommandsAndEventsIntegrationTest {
 
-  @org.springframework.context.annotation.Configuration
-  @EnableAutoConfiguration
-  @PropertySource({"/customdb.properties"})
-  public static class Configuration {
-  }
-
   @Autowired
-  private DataSource dataSource;
+  private CustomDBCreator customDBCreator;
 
   @Before
-  public void createDefaultDB() {
-    Resource resource = new ClassPathResource("custom-db-mysql-schema.sql");
-    ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
-    databasePopulator.execute(dataSource);
+  public void createCustomDB() {
+    customDBCreator.create();
   }
 }

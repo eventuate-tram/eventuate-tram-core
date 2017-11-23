@@ -2,6 +2,7 @@ package io.eventuate.tram.messaging.producer.jdbc;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
+import io.eventuate.local.common.EventuateConstants;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,10 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
     message.getHeaders().put(Message.ID, id);
-    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", database + ".message"),
+
+    String table = EventuateConstants.EMPTY_DATABASE_SCHEMA.equals(database) ? "message" : database + ".message";
+
+    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", table),
             id,
             destination,
             JSonMapper.toJson(message.getHeaders()),
