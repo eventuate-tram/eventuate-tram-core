@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
@@ -31,8 +32,9 @@ import java.util.concurrent.TimeoutException;
 @Import(EventuateDriverConfiguration.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
-  @Value("${eventuate.database.schema:#{\"" + EventuateConstants.DEFAULT_DATABASE_SCHEMA + "\"}}")
-  private String eventuateDatabaseSchema;
+  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+    return new EventuateSchema(eventuateDatabaseSchema);
+  }
 
   @Bean
   @Profile("!EventuatePolling")
@@ -42,8 +44,10 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public IWriteRowsEventDataParser eventDataParser(DataSource dataSource, EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new WriteRowsEventDataParser(dataSource, eventuateDatabaseSchema);
+  public IWriteRowsEventDataParser eventDataParser(EventuateSchema eventuateSchema,
+          DataSource dataSource,
+          EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new WriteRowsEventDataParser(dataSource, eventuateSchema);
   }
 
   @Bean
@@ -148,8 +152,9 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new PollingMessageDataProvider(eventuateDatabaseSchema);
+  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema,
+          EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new PollingMessageDataProvider(eventuateSchema);
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {

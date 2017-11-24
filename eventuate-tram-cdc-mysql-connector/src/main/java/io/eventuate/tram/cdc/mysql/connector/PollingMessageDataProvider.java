@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.local.common.EventuateConstants;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.polling.PollingDataProvider;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
@@ -12,11 +12,11 @@ public class PollingMessageDataProvider implements PollingDataProvider<PollingMe
   private String table;
 
   public PollingMessageDataProvider() {
-    this("eventuate");
+    this(new EventuateSchema());
   }
 
-  public PollingMessageDataProvider(String database) {
-    this.table = EventuateConstants.EMPTY_DATABASE_SCHEMA.equals(database) ? "message" : database + ".message";
+  public PollingMessageDataProvider(EventuateSchema eventuateSchema) {
+    this.table = eventuateSchema.qualifyTable("message");
   }
 
    @Override

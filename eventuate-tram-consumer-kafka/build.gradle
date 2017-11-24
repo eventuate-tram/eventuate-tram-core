@@ -11,6 +11,7 @@ dependencies {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
     compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
+    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }

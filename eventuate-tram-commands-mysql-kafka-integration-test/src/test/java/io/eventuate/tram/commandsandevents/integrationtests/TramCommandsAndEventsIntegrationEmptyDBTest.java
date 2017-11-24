@@ -1,6 +1,6 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
-import io.eventuate.local.common.EventuateConstants;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.testutil.EmptyDBTestConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,6 +18,6 @@ public class TramCommandsAndEventsIntegrationEmptyDBTest extends AbstractTramCom
 
   @Test
   public void testProperty() {
-    Assert.assertEquals(EventuateConstants.EMPTY_DATABASE_SCHEMA, eventuateDatabaseSchema);
+    Assert.assertEquals(EventuateSchema.EMPTY_SCHEMA, eventuateDatabaseSchema);
   }
 }
