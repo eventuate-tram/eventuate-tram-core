@@ -20,7 +20,7 @@ public class TramInMemoryConfiguration {
   @Bean
   public DataSource dataSource() {
     EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-    return builder.setType(EmbeddedDatabaseType.H2).addScript("embedded-schema.sql").build();
+    return builder.setType(EmbeddedDatabaseType.H2).addScript("eventuate-tram-embedded-schema.sql").build();
   }
 
   @Bean

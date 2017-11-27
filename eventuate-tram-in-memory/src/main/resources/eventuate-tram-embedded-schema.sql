@@ -1,3 +1,6 @@
+CREATE SCHEMA IF NOT EXISTS eventuate AUTHORIZATION SA;
+SET SCHEMA eventuate;
+
 drop table if exists message;
 
 CREATE TABLE message (
