@@ -1,17 +1,28 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.polling.PollingDataProvider;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class PollingMessageDataProvider implements PollingDataProvider<PollingMessageBean, MessageWithDestination, String> {
+  private String table;
 
-  @Override
-  public String table() {
-    return "message";
+  public PollingMessageDataProvider() {
+    this(new EventuateSchema());
   }
+
+  public PollingMessageDataProvider(EventuateSchema eventuateSchema) {
+    this.table = eventuateSchema.qualifyTable("message");
+  }
+
+   @Override
+   public String table() {
+    return table;
+   }
 
   @Override
   public Class<PollingMessageBean> eventBeanClass() {

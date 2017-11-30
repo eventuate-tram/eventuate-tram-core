@@ -2,6 +2,7 @@ package io.eventuate.tram.cdc.mysql.connector;
 
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogFileOffset;
 import io.eventuate.local.mysql.binlog.IWriteRowsEventDataParser;
 import io.eventuate.tram.messaging.common.Message;
@@ -18,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class WriteRowsEventDataParser implements IWriteRowsEventDataParser<MessageWithDestination> {
 
@@ -30,8 +32,11 @@ public class WriteRowsEventDataParser implements IWriteRowsEventDataParser<Messa
 
   private Map<String, Integer> columnOrders = new HashMap<>();
 
-  public WriteRowsEventDataParser(DataSource dataSource) {
+  private EventuateSchema eventuateSchema;
+
+  public WriteRowsEventDataParser(DataSource dataSource, EventuateSchema eventuateSchema) {
     this.dataSource = dataSource;
+    this.eventuateSchema = eventuateSchema;
   }
 
   @Override
@@ -67,7 +72,7 @@ public class WriteRowsEventDataParser implements IWriteRowsEventDataParser<Messa
       DatabaseMetaData metaData = connection.getMetaData();
 
       try (ResultSet columnResultSet =
-                   metaData.getColumns(null, "public", MySQLTableConfig.EVENTS_TABLE_NAME.toLowerCase(), null)) {
+                   metaData.getColumns(eventuateSchema.isEmpty() ? null : eventuateSchema.getEventuateDatabaseSchema() , "public", MySQLTableConfig.EVENTS_TABLE_NAME.toLowerCase(), null)) {
 
         while (columnResultSet.next()) {
           columnOrders.put(columnResultSet.getString("COLUMN_NAME").toLowerCase(),

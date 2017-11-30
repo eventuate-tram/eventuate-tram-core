@@ -6,7 +6,7 @@ set -e
 
 docker-compose -f docker-compose-postgres.yml down -v
 
-docker-compose -f docker-compose-postgres.yml up -d
+docker-compose -f docker-compose-postgres.yml up --build -d
 
 ./wait-for-postgres.sh
 

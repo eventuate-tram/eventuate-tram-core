@@ -7,5 +7,11 @@ dependencies {
 
     testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "io.eventuate.local.java:eventuate-local-java-test-util:$eventuateLocalVersion"
+}
 
+test {
+    if (System.env['SPRING_PROFILES_ACTIVE'] == 'EventuatePolling') {
+        exclude '**/TramCommandsAndEventsIntegrationCustomDBTest**'
+    }
 }

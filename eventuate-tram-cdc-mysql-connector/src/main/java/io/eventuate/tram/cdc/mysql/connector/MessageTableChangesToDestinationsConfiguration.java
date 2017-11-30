@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @Configuration
@@ -29,6 +31,10 @@ import java.util.concurrent.TimeoutException;
 )
 @Import(EventuateDriverConfiguration.class)
 public class MessageTableChangesToDestinationsConfiguration {
+
+  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+    return new EventuateSchema(eventuateDatabaseSchema);
+  }
 
   @Bean
   @Profile("!EventuatePolling")
@@ -38,13 +44,14 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public IWriteRowsEventDataParser eventDataParser(DataSource dataSource) {
-    return new WriteRowsEventDataParser(dataSource);
+  public IWriteRowsEventDataParser eventDataParser(EventuateSchema eventuateSchema,
+          DataSource dataSource,
+          EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new WriteRowsEventDataParser(dataSource, eventuateSchema);
   }
 
   @Bean
-    @Profile("!EventuatePolling")
-
+  @Profile("!EventuatePolling")
   public MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
                                                                            EventuateConfigurationProperties eventuateConfigurationProperties,
                                                                            SourceTableNameSupplier sourceTableNameSupplier,
@@ -145,8 +152,9 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider() {
-    return new PollingMessageDataProvider();
+  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema,
+          EventuateConfigurationProperties eventuateConfigurationProperties) {
+    return new PollingMessageDataProvider(eventuateSchema);
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {
