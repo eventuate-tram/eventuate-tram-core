@@ -15,6 +15,7 @@ It provides several messaging abstractions:
 
 There are the following examples applications:
 
+* https://github.com/eventuate-tram/eventuate-tram-core-examples-basic[Basic examples]
 * https://github.com/eventuate-tram/eventuate-tram-examples-java-spring-todo-list[Todo list] - a Java/JPA/Spring Boot Todo list application, which publishes domain event using Eventuate Tram
 * https://github.com/eventuate-tram/eventuate-tram-sagas-examples-customers-and-orders[Customers and Orders], which is built using the [Eventuate Tram Sagas framework](https://github.com/eventuate-tram/eventuate-tram-sagas)
 * https://github.com/microservice-patterns/ftgo-application[FTGO Example application for Microservice Patterns book]
