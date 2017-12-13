@@ -1,5 +1,7 @@
 = Eventuate Tram (Transactional Messaging) framework
 
+image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+
 The Eventuate Tram framework enables a Java/Spring application to send messages as part of an database transaction.
 This enables an application atomically update state and send a message or a domain event.
 It is a foundation of ensuring data consistency within a http://microservices.io/patterns/microservices.html[microservice architecture].
@@ -17,7 +19,7 @@ There are the following examples applications:
 
 * https://github.com/eventuate-tram/eventuate-tram-core-examples-basic[Basic examples]
 * https://github.com/eventuate-tram/eventuate-tram-examples-java-spring-todo-list[Todo list] - a Java/JPA/Spring Boot Todo list application, which publishes domain event using Eventuate Tram
-* https://github.com/eventuate-tram/eventuate-tram-sagas-examples-customers-and-orders[Customers and Orders], which is built using the [Eventuate Tram Sagas framework](https://github.com/eventuate-tram/eventuate-tram-sagas)
+* https://github.com/eventuate-tram/eventuate-tram-sagas-examples-customers-and-orders[Customers and Orders], which is built using the https://github.com/eventuate-tram/eventuate-tram-sagas[Eventuate Tram Sagas framework]
 * https://github.com/microservice-patterns/ftgo-application[FTGO Example application for Microservice Patterns book]
 
 == Got questions?
@@ -135,3 +137,29 @@ public class OrderCommandHandlers {
 ```
 
 See this example of https://github.com/eventuate-tram/eventuate-tram-core-examples-basic/blob/master/eventuate-tram-examples-common/src/main/java/io/eventuate/tram/examples/basic/commands/AbstractTramCommandTest.java[transactional commands].
+
+== Maven/Gradle artifacts
+
+The artifacts are in https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram[JCenter].
+The latest version is:
+
+image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+
+There are the following API artifacts:
+
+* `io.eventuate.tram.core:eventuate-tram-messaging:$eventuateTramVersion` - core messaging APIs
+* `io.eventuate.tram.core:eventuate-tram-events:$eventuateTramVersion` - domain event API
+* `io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion` - commands/reply API
+
+There are the following 'implementation' artifacts:
+
+* `io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion` - JDBC database and Apache Kafka message broker
+* `io.eventuate.tram.core:eventuate-tram-in-memory:$eventuateTramVersion` - In-memory JDBC database and in-memory messaging for testing
+
+== Running the CDC service
+
+In addition to a database, you will need to run the Eventuate Tram CDC service.
+It reads events inserted into the database and publishes them to Apache Kafka.
+It is written using Spring Boot.
+The easiest way to run this service during development is to use Docker Compose.
+The https://github.com/eventuate-tram/eventuate-tram-core-examples-basic[Eventuate Tram Code Basic examples] project has an example https://github.com/eventuate-tram/eventuate-tram-core-examples-basic/blob/master/docker-compose.yml[docker-compose.yml file].
