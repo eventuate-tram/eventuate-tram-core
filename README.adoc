@@ -13,6 +13,19 @@ It provides several messaging abstractions:
 * events - publish domain events and subscribe to domain events
 * commands - asynchronously send a command to a service and receive a reply
 
+== How it works
+
+Eventuate Tram messaging implements the http://microservices.io/patterns/data/application-events.html[Application events pattern].
+An message producer inserts events into an `OUTBOX` table as part of the ACID transaction that updates data, such as JPA entities.
+A separate message relay publishes messages to the message broker.
+
+image::https://raw.githubusercontent.com/eventuate-tram/eventuate-tram-core/master/ReliablePublication.png[]
+
+The message relay works in one of two ways:
+
+* http://microservices.io/patterns/data/transaction-log-tailing.html[Transaction log tailing] - currently implemented for MySQL
+* Polling - for other databases
+
 == Example applications
 
 There are the following examples applications:
