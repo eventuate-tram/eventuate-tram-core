@@ -17,7 +17,7 @@ It provides several messaging abstractions:
 
 Eventuate Tram messaging implements the http://microservices.io/patterns/data/application-events.html[Application events pattern].
 An message producer inserts events into an `OUTBOX` table as part of the ACID transaction that updates data, such as JPA entities.
-A separate message relay publishes messages to the message broker.
+A separate message relay (a.k.a. CDC service) publishes messages to the message broker.
 
 image::https://raw.githubusercontent.com/eventuate-tram/eventuate-tram-core/master/ReliablePublication.png[]
 
