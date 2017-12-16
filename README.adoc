@@ -158,7 +158,7 @@ There are the following 'implementation' artifacts:
 
 == Running the CDC service
 
-In addition to a database, you will need to run the Eventuate Tram CDC service.
+In addition to a database and message broker, you will need to run the Eventuate Tram CDC service.
 It reads events inserted into the database and publishes them to Apache Kafka.
 It is written using Spring Boot.
 The easiest way to run this service during development is to use Docker Compose.
