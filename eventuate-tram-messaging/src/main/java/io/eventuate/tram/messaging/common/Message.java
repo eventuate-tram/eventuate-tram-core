@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface Message {
   String ID = "ID";
   String PARTITION_ID = "PARTITION_ID";
+  String DESTINATION = "DESTINATION";
 
   String getId();
   Map<String, String> getHeaders();

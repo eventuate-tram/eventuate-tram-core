@@ -26,6 +26,7 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
     message.getHeaders().put(Message.ID, id);
+    message.getHeaders().put(Message.DESTINATION, destination);
 
     String table = eventuateSchema.qualifyTable("message");
 
