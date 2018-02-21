@@ -50,14 +50,15 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
         try {
           logger.trace("Invoking handler {} {}", subscriberId, m.getId());
           handler.accept(m);
+          logger.trace("handled message {} {}", subscriberId, m.getId());
+          callback.accept(null, null);
         } catch (Throwable t) {
           logger.trace("Got exception {} {}", subscriberId, m.getId());
           logger.trace("Got exception ", t);
           callback.accept(null, t);
           return null;
         }
-        logger.trace("handled message {} {}", subscriberId, m.getId());
-        callback.accept(null, null);
+
         return null;
       });
     };
