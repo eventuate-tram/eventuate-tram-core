@@ -27,13 +27,21 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @Configuration
-@EnableConfigurationProperties({EventuateConfigurationProperties.class, EventuateLocalZookeperConfigurationProperties.class}
-)
 @Import(EventuateDriverConfiguration.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
   public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
     return new EventuateSchema(eventuateDatabaseSchema);
+  }
+
+  @Bean
+  public EventuateConfigurationProperties eventuateConfigurationProperties() {
+    return new EventuateConfigurationProperties();
+  }
+
+  @Bean
+  public EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties() {
+    return new EventuateLocalZookeperConfigurationProperties();
   }
 
   @Bean
@@ -64,7 +72,9 @@ public class MessageTableChangesToDestinationsConfiguration {
             jdbcUrl.getPort(),
             eventuateConfigurationProperties.getBinlogClientId(),
             sourceTableNameSupplier.getSourceTableName(),
-            eventuateConfigurationProperties.getMySqlBinLogClientName());
+            eventuateConfigurationProperties.getMySqlBinLogClientName(),
+            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
+            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection());
   }
 
   @Bean

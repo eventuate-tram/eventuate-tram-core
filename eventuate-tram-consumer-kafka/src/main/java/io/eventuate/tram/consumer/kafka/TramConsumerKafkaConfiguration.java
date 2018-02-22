@@ -9,8 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(EventuateKafkaConfigurationProperties.class)
 public class TramConsumerKafkaConfiguration {
+
+  @Bean
+  public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
+    return new EventuateKafkaConfigurationProperties();
+  }
+
 
   @Bean
   public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
