@@ -1,11 +1,12 @@
 package io.eventuate.tram.mysqlkafka.integrationtests;
 
 import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
-import io.eventuate.tram.cdc.mysql.connector.MessageTableChangesToDestinationsConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+@Configuration
+@EnableAutoConfiguration
 @Import(TramJdbcKafkaConfiguration.class)
-@SpringBootApplication(exclude = MessageTableChangesToDestinationsConfiguration.class)
 public class TramIntegrationTestConfiguration {
 }

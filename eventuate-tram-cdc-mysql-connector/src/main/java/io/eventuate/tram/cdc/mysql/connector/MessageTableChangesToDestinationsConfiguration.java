@@ -79,17 +79,6 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Profile("!EventuatePolling")
-  public CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                             DatabaseOffsetKafkaStore databaseOffsetKafkaStore,
-                                                             PublishingStrategy<MessageWithDestination> publishingStrategy) {
-
-    return new DbLogBasedCdcKafkaPublisher<>(databaseOffsetKafkaStore,
-            eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            publishingStrategy);
-  }
-
-  @Bean
   public PublishingStrategy<MessageWithDestination> publishingStrategy() {
     return new MessageWithDestinationPublishingStrategy();
   }
@@ -100,6 +89,32 @@ public class MessageTableChangesToDestinationsConfiguration {
           EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
 
     return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(), eventuateKafkaConfigurationProperties);
+  }
+
+
+  @Bean
+  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                                                                                         CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher,
+                                                                                                                         CdcProcessor<MessageWithDestination> cdcProcessor,
+                                                                                                                         CuratorFramework curatorFramework) {
+    return new EventTableChangesToAggregateTopicTranslator<>(cdcKafkaPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
+  }
+
+  @Bean(destroyMethod = "close")
+  public CuratorFramework curatorFramework(EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties) {
+    String connectionString = eventuateLocalZookeperConfigurationProperties.getConnectionString();
+    return makeStartedCuratorClient(connectionString);
+  }
+
+  @Bean
+  @Profile("!EventuatePolling")
+  public CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                                     DatabaseOffsetKafkaStore databaseOffsetKafkaStore,
+                                                                     PublishingStrategy<MessageWithDestination> publishingStrategy) {
+
+    return new DbLogBasedCdcKafkaPublisher<>(databaseOffsetKafkaStore,
+            eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            publishingStrategy);
   }
 
   @Bean
@@ -121,21 +136,6 @@ public class MessageTableChangesToDestinationsConfiguration {
             eventuateKafkaProducer,
             eventuateKafkaConfigurationProperties);
   }
-
-  @Bean
-  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                                                                         CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher,
-                                                                                                                         CdcProcessor<MessageWithDestination> cdcProcessor,
-                                                                                                                         CuratorFramework curatorFramework) {
-    return new EventTableChangesToAggregateTopicTranslator<>(cdcKafkaPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
-  }
-
-  @Bean(destroyMethod = "close")
-  public CuratorFramework curatorFramework(EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties) {
-    String connectionString = eventuateLocalZookeperConfigurationProperties.getConnectionString();
-    return makeStartedCuratorClient(connectionString);
-  }
-
 
   @Bean
   @Profile("EventuatePolling")

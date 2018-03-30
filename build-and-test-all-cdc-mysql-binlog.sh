@@ -28,4 +28,5 @@ $DOCKER_COMPOSE up -d
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
 
-docker-compose down -v
+$DOCKER_COMPOSE stop
+$DOCKER_COMPOSE rm --force -v
