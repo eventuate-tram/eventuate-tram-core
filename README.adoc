@@ -6,7 +6,7 @@ The Eventuate Tram framework enables a Java/Spring application to send messages 
 This enables an application atomically update state and send a message or a domain event.
 It is a foundation of ensuring data consistency within a http://microservices.io/patterns/microservices.html[microservice architecture].
 
-Eventuate Tram (which was formerly known as Tarr) is described in more detail in my book https://www.manning.com/books/microservice-patterns[Microservice Patterns].
+Eventuate Tram (which was formerly known as Tarr) is described in more detail in my book https://www.manning.com/books/microservice-patterns[Microservice Patterns] and the http://eventuate.io/tram/gettingstarted.html[getting started guide].
 It provides several messaging abstractions:
 
 * messaging - send and receive messages over named channels
@@ -25,6 +25,10 @@ The message relay works in one of two ways:
 
 * http://microservices.io/patterns/data/transaction-log-tailing.html[Transaction log tailing] - currently implemented for MySQL
 * Polling - for other databases
+
+== Getting started
+
+Please see the http://eventuate.io/tram/gettingstarted.html[getting started guide].
 
 == Example applications
 
