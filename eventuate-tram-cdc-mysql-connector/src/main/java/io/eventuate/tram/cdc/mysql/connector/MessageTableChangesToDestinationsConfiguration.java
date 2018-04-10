@@ -3,6 +3,7 @@ package io.eventuate.tram.cdc.mysql.connector;
 import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
+import io.eventuate.local.db.log.common.*;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.*;
@@ -10,26 +11,22 @@ import io.eventuate.local.polling.PollingCdcKafkaPublisher;
 import io.eventuate.local.polling.PollingCdcProcessor;
 import io.eventuate.local.polling.PollingDao;
 import io.eventuate.local.polling.PollingDataProvider;
+import io.eventuate.local.postgres.wal.PostgresWalClient;
+import io.eventuate.local.postgres.wal.PostgresWalMessageParser;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 
 @Configuration
 @Import(EventuateDriverConfiguration.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
+  @Bean
   public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
     return new EventuateSchema(eventuateDatabaseSchema);
   }
@@ -45,25 +42,24 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Profile("!EventuatePolling")
+  @Conditional(MySqlBinlogCondition.class)
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
     return new SourceTableNameSupplier(eventuateConfigurationProperties.getSourceTableName(), MySQLTableConfig.EVENTS_TABLE_NAME);
   }
 
   @Bean
-  @Profile("!EventuatePolling")
+  @Conditional(MySqlBinlogCondition.class)
   public IWriteRowsEventDataParser eventDataParser(EventuateSchema eventuateSchema,
-          DataSource dataSource,
-          EventuateConfigurationProperties eventuateConfigurationProperties) {
+          DataSource dataSource) {
     return new WriteRowsEventDataParser(dataSource, eventuateSchema);
   }
 
   @Bean
-  @Profile("!EventuatePolling")
-  public MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
+  @Conditional(MySqlBinlogCondition.class)
+  public DbLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
                                                                            EventuateConfigurationProperties eventuateConfigurationProperties,
                                                                            SourceTableNameSupplier sourceTableNameSupplier,
-                                                                           IWriteRowsEventDataParser<MessageWithDestination> eventDataParser) throws IOException, TimeoutException {
+                                                                           IWriteRowsEventDataParser<MessageWithDestination> eventDataParser) {
     JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceURL);
     return new MySqlBinaryLogClient<>(eventDataParser,
             eventuateConfigurationProperties.getDbUserName(),
@@ -83,38 +79,18 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Profile("!EventuatePolling")
-  public CdcKafkaPublisher<MessageWithDestination> mySQLCdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties, DatabaseBinlogOffsetKafkaStore binlogOffsetKafkaStore, PublishingStrategy<MessageWithDestination> publishingStrategy) {
-    return new MySQLCdcKafkaPublisher<>(binlogOffsetKafkaStore, eventuateKafkaConfigurationProperties.getBootstrapServers(), publishingStrategy);
-  }
-
-  @Bean
   public PublishingStrategy<MessageWithDestination> publishingStrategy() {
     return new MessageWithDestinationPublishingStrategy();
   }
 
   @Bean
-  @Profile("!EventuatePolling")
+  @Conditional(MySqlBinlogCondition.class)
   public DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
           EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
 
     return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(), eventuateKafkaConfigurationProperties);
   }
 
-  @Bean
-  @Profile("!EventuatePolling")
-  public CdcProcessor<MessageWithDestination> mySQLCdcProcessor(MySqlBinaryLogClient<MessageWithDestination> mySqlBinaryLogClient, DatabaseBinlogOffsetKafkaStore binlogOffsetKafkaStore, DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore) {
-    return new MySQLCdcProcessor<>(mySqlBinaryLogClient, binlogOffsetKafkaStore, debeziumBinlogOffsetKafkaStore);
-  }
-
-  @Bean
-  @Profile("!EventuatePolling")
-  public DatabaseBinlogOffsetKafkaStore binlogOffsetKafkaStore(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                               EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                               MySqlBinaryLogClient mySqlBinaryLogClient,
-                                                               EventuateKafkaProducer eventuateKafkaProducer) {
-    return new DatabaseBinlogOffsetKafkaStore(eventuateConfigurationProperties.getDbHistoryTopicName(), mySqlBinaryLogClient.getName(), eventuateKafkaProducer, eventuateKafkaConfigurationProperties);
-  }
 
   @Bean
   public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
@@ -130,6 +106,36 @@ public class MessageTableChangesToDestinationsConfiguration {
     return makeStartedCuratorClient(connectionString);
   }
 
+  @Bean
+  @Profile("!EventuatePolling")
+  public CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                                     DatabaseOffsetKafkaStore databaseOffsetKafkaStore,
+                                                                     PublishingStrategy<MessageWithDestination> publishingStrategy) {
+
+    return new DbLogBasedCdcKafkaPublisher<>(databaseOffsetKafkaStore,
+            eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            publishingStrategy);
+  }
+
+  @Bean
+  @Profile("!EventuatePolling")
+  public CdcProcessor<MessageWithDestination> cdcProcessor(DbLogClient<MessageWithDestination> dbLogClient,
+                                                   DatabaseOffsetKafkaStore databaseOffsetKafkaStore) {
+
+    return new DbLogBasedCdcProcessor<>(dbLogClient, databaseOffsetKafkaStore);
+  }
+
+  @Bean
+  @Profile("!EventuatePolling")
+  public DatabaseOffsetKafkaStore databaseOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                           EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                           EventuateKafkaProducer eventuateKafkaProducer) {
+
+    return new DatabaseOffsetKafkaStore(eventuateConfigurationProperties.getDbHistoryTopicName(),
+            eventuateConfigurationProperties.getMySqlBinLogClientName(),
+            eventuateKafkaProducer,
+            eventuateKafkaConfigurationProperties);
+  }
 
   @Bean
   @Profile("EventuatePolling")
@@ -162,8 +168,7 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema,
-          EventuateConfigurationProperties eventuateConfigurationProperties) {
+  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema) {
     return new PollingMessageDataProvider(eventuateSchema);
   }
 
@@ -175,5 +180,30 @@ public class MessageTableChangesToDestinationsConfiguration {
             .build();
     client.start();
     return client;
+  }
+
+  @Bean
+  @Profile("PostgresWal")
+  public DbLogClient<MessageWithDestination> dbLogClient(@Value("${spring.datasource.url}") String dbUrl,
+                                                 @Value("${spring.datasource.username}") String dbUserName,
+                                                 @Value("${spring.datasource.password}") String dbPassword,
+                                                 EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                 PostgresWalMessageParser<MessageWithDestination> postgresWalMessageParser) {
+
+    return new PostgresWalClient<>(postgresWalMessageParser,
+            dbUrl,
+            dbUserName,
+            dbPassword,
+            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
+            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection(),
+            eventuateConfigurationProperties.getPostgresWalIntervalInMilliseconds(),
+            eventuateConfigurationProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
+            eventuateConfigurationProperties.getPostgresReplicationSlotName());
+  }
+
+  @Bean
+  @Profile("PostgresWal")
+  public PostgresWalMessageParser<MessageWithDestination> postgresReplicationMessageParser() {
+    return new PostgresWalJsonMessageParser();
   }
 }

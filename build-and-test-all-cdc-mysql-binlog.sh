@@ -4,7 +4,7 @@ set -e
 
 if [ -z "$DOCKER_COMPOSE" ]; then
     echo setting DOCKER_COMPOSE
-    export DOCKER_COMPOSE="docker-compose -f docker-compose.yml -f docker-compose-cdc.yml"
+    export DOCKER_COMPOSE="docker-compose -f docker-compose-mysql-binlog.yml -f docker-compose-cdc-mysql-binlog.yml"
 else
     echo using existing DOCKER_COMPOSE = $DOCKER_COMPOSE
 fi
@@ -13,7 +13,7 @@ export GRADLE_OPTIONS="-P excludeCdcLibs=true"
 
 ./gradlew $GRADLE_OPTIONS $* :eventuate-tram-cdc-mysql-service:clean :eventuate-tram-cdc-mysql-service:assemble
 
-. ./set-env.sh
+. ./set-env-mysql-binlog.sh
 
 $DOCKER_COMPOSE down -v
 
@@ -28,4 +28,5 @@ $DOCKER_COMPOSE up -d
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
 
-docker-compose down -v
+$DOCKER_COMPOSE stop
+$DOCKER_COMPOSE rm --force -v

@@ -6,5 +6,5 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TramIntegrationTestConfiguration.class)
-public class TramIntegrationTest extends AbstractTramIntegrationTest{
+public class TramIntegrationTest extends AbstractTramIntegrationTest {
 }

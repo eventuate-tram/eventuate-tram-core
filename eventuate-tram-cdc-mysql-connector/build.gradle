@@ -4,4 +4,5 @@ dependencies {
     compile project(":eventuate-tram-messaging")
     compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-mysql-binlog:$eventuateLocalVersion"
     compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-polling:$eventuateLocalVersion"
+    compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-postgres-wal:$eventuateLocalVersion"
 }
