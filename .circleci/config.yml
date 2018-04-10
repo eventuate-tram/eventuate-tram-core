@@ -12,10 +12,12 @@ jobs:
           paths:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "build.gradle" }}
-      - run: TERM=dumb ./build-and-test-all.sh
-      - run: TERM=dumb ./build-and-test-all-cdc.sh
-      - run: TERM=dumb ./build-and-test-all-postgres.sh
-      - run: TERM=dumb ./build-and-test-all-cdc-postgres.sh
+      - run: TERM=dumb ./build-and-test-all-mysql-binlog.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-mysql-binlog
+      - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-postgres-polling.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-postgres-wal.sh
+      - run: TERM=dumb ./build-and-test-all-postgres-wal.sh
       - run:
           name: Save test results
           command: |
