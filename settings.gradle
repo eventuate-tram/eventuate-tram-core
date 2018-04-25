@@ -4,8 +4,11 @@ include 'eventuate-tram-cdc-mysql-service'
 
 include 'eventuate-tram-messaging'
 include 'eventuate-tram-producer-jdbc'
+include 'eventuate-tram-producer-activemq'
 include 'eventuate-tram-in-memory'
+include 'eventuate-tram-consumer-common'
 include 'eventuate-tram-consumer-kafka'
+include 'eventuate-tram-consumer-activemq'
 include 'eventuate-tram-jdbc-kafka'
 
 include 'eventuate-tram-mysql-kafka-integration-test'

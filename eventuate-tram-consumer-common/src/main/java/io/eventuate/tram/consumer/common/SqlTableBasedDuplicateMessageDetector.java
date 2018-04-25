@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.kafka;
+package io.eventuate.tram.consumer.common;
 
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import org.springframework.beans.factory.annotation.Autowired;

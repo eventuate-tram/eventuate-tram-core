@@ -3,6 +3,7 @@ apply plugin: PrivateModulePlugin
 dependencies {
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-consumer-kafka")
+    compile project(":eventuate-tram-consumer-activemq")
     compile project(":eventuate-tram-commands")
 
     testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")

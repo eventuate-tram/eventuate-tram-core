@@ -1,0 +1,8 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile "io.eventuate.local.java:eventuate-local-java-common-broker:$eventuateLocalVersion"
+
+    compile "org.apache.activemq:activemq-core:5.7.0"
+}
+
