@@ -2,6 +2,8 @@
 
 set -e
 
+export SPRING_PROFILES_ACTIVE=EventuatePolling
+
 if [ -z "$DOCKER_COMPOSE" ]; then
     echo setting DOCKER_COMPOSE
     export DOCKER_COMPOSE="docker-compose -f docker-compose-postgres-polling.yml -f docker-compose-cdc-postgres-polling.yml"
@@ -25,7 +27,23 @@ $DOCKER_COMPOSE up -d postgres
 
 $DOCKER_COMPOSE up -d
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
+docker-compose -f docker-compose-postgres-polling.yml pause activemq
+
+#./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
+#./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
+#./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
+
+$DOCKER_COMPOSE stop cdcservice
+$DOCKER_COMPOSE rm --force cdcservice
+export ACTIVEMQ_URL=tcp://${DOCKER_HOST_IP}:61616
+export SPRING_PROFILES_ACTIVE=EventuatePolling,ActiveMQ
+$DOCKER_COMPOSE up -d cdcservice
+$DOCKER_COMPOSE unpause activemq
+$DOCKER_COMPOSE stop kafka
+
+sleep 20
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-activemq:cleanTest :eventuate-tram-e2e-tests-jdbc-activemq:test
 
 $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v

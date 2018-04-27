@@ -1,0 +1,11 @@
+dependencies {
+
+    testCompile project(":eventuate-tram-jdbc-activemq")
+
+    testCompile project(":eventuate-tram-e2e-tests-common")
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
+
+test {
+    forkEvery 1
+}

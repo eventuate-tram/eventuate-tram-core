@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.activemq;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.messaging.common.ChannelType;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -13,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,10 +36,16 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
   private Session session;
   private List<javax.jms.MessageConsumer> consumers = new ArrayList<>();
   private List<Future<Void>> processingFutures = new ArrayList<>();
+  private Map<String, ChannelType> messageModes;
 
   private AtomicBoolean runFlag = new AtomicBoolean(true);
 
   public MessageConsumerActiveMQImpl(String url) {
+    this(url, Collections.emptyMap());
+  }
+
+  public MessageConsumerActiveMQImpl(String url, Map<String, ChannelType> messageModes) {
+    this.messageModes = messageModes;
     connectionFactory = new ActiveMQConnectionFactory(url);
     try {
       connection = connectionFactory.createConnection();
@@ -57,7 +62,14 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     try {
       for (String channel : channels) {
-        Destination destination = session.createQueue(channel);
+        ChannelType mode = messageModes.getOrDefault(channel, ChannelType.TOPIC);
+
+        String destinationName = mode == ChannelType.TOPIC ?
+                String.format("Consumer.%s.VirtualTopic.%s", subscriberId, channel) :
+                channel;
+
+        Destination destination = session.createQueue(destinationName);
+
         javax.jms.MessageConsumer consumer = session.createConsumer(destination);
         consumers.add(consumer);
 
