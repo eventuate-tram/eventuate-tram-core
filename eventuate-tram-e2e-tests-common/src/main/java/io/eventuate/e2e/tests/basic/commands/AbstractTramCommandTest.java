@@ -37,7 +37,7 @@ public abstract class AbstractTramCommandTest {
             config.getCustomerChannel(),
             Collections.emptyMap());
 
-    Message m = queue.poll(5, TimeUnit.SECONDS);
+    Message m = queue.poll(10, TimeUnit.SECONDS);
 
     System.out.println("Got message = " + m);
 

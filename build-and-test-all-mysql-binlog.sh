@@ -2,14 +2,7 @@
 
 set -e
 
-. ./set-env-mysql-binlog.sh
+export DATABASE=mysql
+export MODE=binlog
 
-docker-compose -f docker-compose-mysql-binlog.yml down -v
-
-docker-compose -f docker-compose-mysql-binlog.yml up --build -d
-
-./wait-for-mysql.sh
-
-./gradlew $* build
-
-docker-compose -f docker-compose-mysql-binlog.yml down -v
+./_build-and-test-all.sh

@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.kafka;
 
+import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

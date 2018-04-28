@@ -32,7 +32,7 @@ public abstract class AbstractTramEventTest {
     domainEventPublisher.publish(config.getAggregateType(), config.getAggregateId(), Collections.singletonList(domainEvent));
 
 
-    AccountDebited event = tramEventTestEventConsumer.getQueue().poll(5, TimeUnit.SECONDS);
+    AccountDebited event = tramEventTestEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
 
     assertNotNull(event);
     assertEquals(uniqueId, event.getAmount());

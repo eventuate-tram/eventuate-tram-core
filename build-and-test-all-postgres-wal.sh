@@ -2,14 +2,7 @@
 
 set -e
 
-. ./set-env-postgres-wal.sh
+export DATABASE=postgres
+export MODE=wal
 
-docker-compose -f docker-compose-postgres-wal.yml down -v
-
-docker-compose -f docker-compose-postgres-wal.yml up --build -d
-
-./wait-for-postgres.sh
-
-./gradlew build
-
-docker-compose -f docker-compose-postgres-wal.yml down -v
+./_build-and-test-all.sh

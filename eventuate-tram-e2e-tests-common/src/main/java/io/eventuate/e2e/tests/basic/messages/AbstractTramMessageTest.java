@@ -36,7 +36,7 @@ public abstract class AbstractTramMessageTest {
     messageConsumer.subscribe(subscriberId, Collections.singleton(destination), this::handleMessage);
     messageProducer.send(destination, MessageBuilder.withPayload(payload).build());
 
-    Message m = queue.poll(5, TimeUnit.SECONDS);
+    Message m = queue.poll(10, TimeUnit.SECONDS);
 
     assertNotNull(m);
     assertEquals(payload, m.getPayload());
