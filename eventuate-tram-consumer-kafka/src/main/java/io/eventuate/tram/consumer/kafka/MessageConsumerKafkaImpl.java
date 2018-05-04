@@ -15,6 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 public class MessageConsumerKafkaImpl implements MessageConsumer {
@@ -34,32 +35,35 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;
 
+
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+    SwimlaneBasedDispatcher swimlaneBasedDispatcher = new SwimlaneBasedDispatcher(subscriberId, Executors.newCachedThreadPool());
+
     BiConsumer<ConsumerRecord<String, String>, BiConsumer<Void, Throwable>> kcHandler = (record, callback) -> {
-      Message m = toMessage(record);
+      swimlaneBasedDispatcher.dispatch(toMessage(record), record.key().hashCode() % 8, message ->
 
-      // TODO If we do that here then remove TT from higher-levels
-
-      transactionTemplate.execute(ts -> {
-        if (duplicateMessageDetector.isDuplicate(subscriberId, m.getId())) {
-          logger.trace("Duplicate message {} {}", subscriberId, m.getId());
+        transactionTemplate.execute(ts -> {
+          if (duplicateMessageDetector.isDuplicate(subscriberId, message.getId())) {
+            logger.trace("Duplicate message {} {}", subscriberId, message.getId());
+            callback.accept(null, null);
+            return null;
+          }
+          try {
+            logger.trace("Invoking handler {} {}", subscriberId, message.getId());
+            handler.accept(message);
+          } catch (Throwable t) {
+            logger.trace("Got exception {} {}", subscriberId, message.getId());
+            logger.trace("Got exception ", t);
+            callback.accept(null, t);
+            return null;
+          }
+          logger.trace("handled message {} {}", subscriberId, message.getId());
           callback.accept(null, null);
           return null;
-        }
-        try {
-          logger.trace("Invoking handler {} {}", subscriberId, m.getId());
-          handler.accept(m);
-        } catch (Throwable t) {
-          logger.trace("Got exception {} {}", subscriberId, m.getId());
-          logger.trace("Got exception ", t);
-          callback.accept(null, t);
-          return null;
-        }
-        logger.trace("handled message {} {}", subscriberId, m.getId());
-        callback.accept(null, null);
-        return null;
-      });
+        })
+
+      );
     };
 
     EventuateKafkaConsumer kc = new EventuateKafkaConsumer(subscriberId, kcHandler, new ArrayList<>(channels), bootstrapServers);
