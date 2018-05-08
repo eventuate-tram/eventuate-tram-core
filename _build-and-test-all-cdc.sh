@@ -26,10 +26,13 @@ $DOCKER_COMPOSE up -d ${DATABASE}
 $DOCKER_COMPOSE up -d
 ./wait-for-services.sh $DOCKER_HOST_IP 8099
 $DOCKER_COMPOSE pause activemq
+$DOCKER_COMPOSE pause rabbitmq
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
+
+
 
 $DOCKER_COMPOSE stop cdcservice
 $DOCKER_COMPOSE rm --force cdcservice
@@ -46,6 +49,22 @@ $DOCKER_COMPOSE unpause activemq
 $DOCKER_COMPOSE stop kafka
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-activemq:cleanTest :eventuate-tram-e2e-tests-jdbc-activemq:test
+
+
+
+$DOCKER_COMPOSE stop cdcservice
+$DOCKER_COMPOSE rm --force cdcservice
+
+export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
+
+$DOCKER_COMPOSE up -d cdcservice
+./wait-for-services.sh $DOCKER_HOST_IP 8099
+$DOCKER_COMPOSE unpause rabbitmq
+$DOCKER_COMPOSE stop activemq
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-rabbitmq:cleanTest :eventuate-tram-e2e-tests-jdbc-rabbitmq:test
+
+
 
 $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v

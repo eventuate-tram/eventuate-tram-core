@@ -8,6 +8,7 @@ public class DbLogKafkaCondition implements Condition {
   @Override
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     return !context.getEnvironment().acceptsProfiles("EventuatePolling") &&
-            !context.getEnvironment().acceptsProfiles("ActiveMQ");
+            !context.getEnvironment().acceptsProfiles("ActiveMQ") &&
+            !context.getEnvironment().acceptsProfiles("RabbitMQ");
   }
 }

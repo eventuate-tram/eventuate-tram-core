@@ -82,16 +82,16 @@ public class QueueTest {
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
 
+    for (int i = 0; i < consumers; i ++) {
+      messageConsumerActiveMQ.subscribe("subscriber", ImmutableSet.of(destination), message ->
+              concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
+    }
+
     for (int i = 0; i < messages; i++) {
       eventuateActiveMQProducer.send(destination,
               key,
               JSonMapper.toJson(new MessageImpl(String.valueOf(i),
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
-    }
-
-    for (int i = 0; i < consumers; i ++) {
-      messageConsumerActiveMQ.subscribe("subscriber", ImmutableSet.of(destination), message ->
-              concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
     }
 
     Eventually.eventually(() -> Assert.assertEquals(messages, concurrentLinkedQueue.size()));

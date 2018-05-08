@@ -16,9 +16,9 @@ import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
-import io.eventuate.tram.cdc.mysql.connector.configuration.condition.DbLogAvtiveMQCondition;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.DbLogActiveMQOrRabbitMQCondition;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.DbLogKafkaCondition;
-import io.eventuate.tram.cdc.mysql.connector.configuration.condition.MysqlBinlogActiveMQCondition;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.MysqlBinlogActiveMQOrRabbitMQCondition;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.MysqlBinlogKafkaCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -32,6 +32,7 @@ import java.util.Optional;
         MySqlBinlogMessageTableChangesToDestinationsConfiguration.class,
         KafkaMessageTableChangesToDestinationsConfiguration.class,
         ActiveMQMessageTableChangesToDestinationsConfiguration.class,
+        RabbitMQMessageTableChangesToDestinationsConfiguration.class,
         EventuateDriverConfiguration.class})
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
@@ -45,7 +46,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Conditional(MysqlBinlogActiveMQCondition.class)
+  @Conditional(MysqlBinlogActiveMQOrRabbitMQCondition.class)
   public DebeziumBinlogOffsetKafkaStore emptyDebeziumBinlogOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
                                                                             EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
 
@@ -84,7 +85,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Conditional(DbLogAvtiveMQCondition.class)
+  @Conditional(DbLogActiveMQOrRabbitMQCondition.class)
   @Primary
   public OffsetStore databaseOffsetJdbcStore(EventuateConfigurationProperties eventuateConfigurationProperties) {
     return new JdbcOffsetStore(eventuateConfigurationProperties.getMySqlBinLogClientName());

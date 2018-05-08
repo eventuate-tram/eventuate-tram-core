@@ -22,10 +22,14 @@ activemq:
   ports:
     - 8161:8161
     - 61616:61616
-    - 5672:5672
     - 61613:61613
     - 1883:1883
     - 61614:61614
+
+rabbitmq:
+  image: rabbitmq:3.6
+  ports:
+    - 5672:5672
 
 mysql:
   build: ./mysql

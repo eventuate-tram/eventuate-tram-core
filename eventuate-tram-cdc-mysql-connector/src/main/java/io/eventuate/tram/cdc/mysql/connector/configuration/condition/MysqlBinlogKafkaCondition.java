@@ -9,6 +9,7 @@ public class MysqlBinlogKafkaCondition implements Condition {
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     return !context.getEnvironment().acceptsProfiles("EventuatePolling") &&
             !context.getEnvironment().acceptsProfiles("PostgresWal") &&
-            !context.getEnvironment().acceptsProfiles("ActiveMQ");
+            !context.getEnvironment().acceptsProfiles("ActiveMQ") &&
+            !context.getEnvironment().acceptsProfiles("RabbitMQ");
   }
 }

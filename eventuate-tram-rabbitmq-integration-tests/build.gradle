@@ -1,0 +1,13 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-producer-rabbitmq")
+    compile project(":eventuate-tram-consumer-rabbitmq")
+    compile project(":eventuate-tram-cdc-mysql-connector")
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+}
+
+test {
+    forkEvery 1
+}
