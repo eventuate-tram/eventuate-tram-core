@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Import;
 @Import(TramConsumerCommonConfiguration.class)
 public class TramConsumerRabbitMQConfiguration {
   @Bean
-  public MessageConsumer messageConsumer(@Value("${rabbitmq.url}") String rabbitMQURL) {
-    return new MessageConsumerRabbitMQImpl(rabbitMQURL);
+  public MessageConsumer messageConsumer(@Value("${rabbitmq.url}") String rabbitMQUrl,
+                                         @Value("${eventuatelocal.zookeeper.connection.string}") String zkUrl) {
+    return new MessageConsumerRabbitMQImpl(rabbitMQUrl, zkUrl, 2);
   }
 }

@@ -3,7 +3,6 @@ package io.eventuate.tram.consumer.rabbitmq;
 import com.rabbitmq.client.*;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.eventuate.tram.messaging.common.ChannelType;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -16,7 +15,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
@@ -28,20 +26,21 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;
 
-  private Map<String, ChannelType> messageModes;
-
   private Connection connection;
   private List<Channel> channels = new ArrayList<>();
+  private int partitionCount;
+  private List<Coordinator> coordinators = new ArrayList<>();
+  private String zkUrl;
 
-  public MessageConsumerRabbitMQImpl(String url) {
-    this(url, Collections.emptyMap());
+  public MessageConsumerRabbitMQImpl(String rabbitMQUrl, String zkUrl, int partitionCount) {
+    this.partitionCount = partitionCount;
+    this.zkUrl = zkUrl;
+    prepareRabbitMQConnection(rabbitMQUrl);
   }
 
-  public MessageConsumerRabbitMQImpl(String url, Map<String, ChannelType> messageModes) {
-    this.messageModes = messageModes;
-
+  private void prepareRabbitMQConnection(String rabbitMQUrl) {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(url);
+    factory.setHost(rabbitMQUrl);
     try {
       connection = factory.newConnection();
     } catch (IOException | TimeoutException e) {
@@ -52,37 +51,147 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+
+    for (String channelName : channels) {
+      Channel consumerChannel = createRabbitMQChannel();
+      this.channels.add(consumerChannel);
+
+      Channel leaderChannel = createRabbitMQChannel();
+
+      Coordinator coordinator = new Coordinator(zkUrl,
+              subscriberId,
+              channelName,
+              () -> leaderSelected(leaderChannel, channelName, subscriberId),
+              () -> leaderRemoved(leaderChannel),
+              assignmentData -> assignmentUpdated(consumerChannel, channelName, subscriberId, assignmentData, handler),
+              this::manageAssignments);
+
+      coordinators.add(coordinator);
+    }
+  }
+
+  private void leaderSelected(Channel leaderChannel, String channelName, String subscriberId) {
     try {
-      for (String channelName : channels) {
-        ChannelType channelType = messageModes.getOrDefault(channelName, ChannelType.TOPIC);
+      leaderChannel.exchangeDeclare(makeConsistentHashExchangeName(channelName, subscriberId), "x-consistent-hash");
 
-        String queueName;
-        Channel channel = connection.createChannel();
-
-        if (channelType == ChannelType.TOPIC) {
-          channel.exchangeDeclare(channelName, "fanout");
-          queueName = channel.queueDeclare().getQueue();
-          channel.queueBind(queueName, channelName, "");
-        } else {
-          channel.queueDeclare(channelName, true, false, false, null);
-          queueName = channelName;
-        }
-
-        channel.basicConsume(queueName, false, createConsumer(subscriberId, handler, channel));
-        this.channels.add(channel);
+      for (int i = 0; i < partitionCount; i++) {
+        leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
+        leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
       }
+
+      leaderChannel.exchangeDeclare(channelName, "fanout");
+      String fanoutQueueName = leaderChannel.queueDeclare().getQueue();
+      leaderChannel.queueBind(fanoutQueueName, channelName, "");
+
+      leaderChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(leaderChannel) {
+        @Override
+        public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+          leaderChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
+                  properties.getHeaders().get("key").toString(),
+                  null,
+                  body);
+        }
+      });
+
     } catch (IOException e) {
       logger.error(e.getMessage(), e);
     }
   }
 
-  private Consumer createConsumer(String subscriberId, MessageHandler handler, Channel channel) {
+  private void leaderRemoved(Channel leaderChannel) {
+    try {
+      leaderChannel.close();
+    } catch (IOException | TimeoutException e) {
+      logger.error(e.getMessage(), e);
+    }
+  }
+
+  private void assignmentUpdated(Channel channel, String channelName, String subscriberId, AssignmentData assignmentData, MessageHandler messageHandler) {
+    assignmentData.getResignedQueues().forEach(partition -> {
+      try {
+        channel.queueUnbind(makeConsistentHashQueueName(channelName, subscriberId, partition),
+                makeConsistentHashExchangeName(channelName, subscriberId),
+                "10");
+
+        assignmentData.getCurrentQueues().remove(partition);
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+        throw new RuntimeException(e);
+      }
+    });
+
+    assignmentData.setResignedQueues(Collections.emptySet());
+
+    assignmentData.getAssignedQueues().forEach(partition -> {
+      try {
+        channel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, partition),
+                makeConsistentHashExchangeName(channelName, subscriberId),
+                "10");
+
+        assignmentData.getCurrentQueues().add(partition);
+
+        channel.basicConsume(makeConsistentHashQueueName(channelName, subscriberId, partition),
+                false,
+                createConsumer(subscriberId, messageHandler, channel, makeConsistentHashQueueName(channelName, subscriberId, partition)));
+
+      } catch (IOException e) {
+        logger.error(e.getMessage(), e);
+        throw new RuntimeException(e);
+      }
+    });
+
+    assignmentData.setAssignedQueues(Collections.emptySet());
+
+    assignmentData.setState(AssignmentState.NORMAL);
+  }
+
+  private void manageAssignments(List<AssignmentData> assignments) {
+    int subscribers = assignments.size() > partitionCount ? partitionCount : assignments.size();
+
+    int partitionCounter = 0;
+    for (int i = 0; i < subscribers - 1; i++) {
+      Set<Integer> partitionsToAssign = new HashSet<>();
+
+      for (int j = 0; j < partitionCount / subscribers; j++) {
+        partitionsToAssign.add(partitionCounter++);
+      }
+
+      assignments.get(i).setAssignedQueues(partitionsToAssign);
+    }
+
+    if (subscribers - 1 >= 0) {
+      Set<Integer> queuesToAssign = new HashSet<>();
+      for (int i = 0; i < partitionCount /subscribers + partitionCount % subscribers; i++) {
+        queuesToAssign.add(partitionCounter++);
+      }
+      assignments.get(subscribers - 1).setAssignedQueues(queuesToAssign);
+    }
+
+    for (int i = partitionCount; i < assignments.size(); i++) {
+      assignments.get(i).setResignedQueues(assignments.get(i).getCurrentQueues());
+    }
+
+    assignments.forEach(assignment -> assignment.setState(AssignmentState.REBALANSING));
+  }
+
+  private Channel createRabbitMQChannel() {
+    try {
+      return connection.createChannel();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Consumer createConsumer(String subscriberId, MessageHandler handler, Channel channel, String queueName) {
     return new DefaultConsumer(channel) {
+
       @Override
       public void handleDelivery(String consumerTag,
                                  Envelope envelope,
                                  AMQP.BasicProperties properties,
                                  byte[] body) throws IOException {
+
+        logger.info("Got message from queue {}", queueName);
 
         String message = new String(body, "UTF-8");
         Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
@@ -119,16 +228,27 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     }
   }
 
+  private String makeConsistentHashExchangeName(String channelName, String subscriberId) {
+    return String.format("%s-%s", channelName, subscriberId);
+  }
+
+  private String makeConsistentHashQueueName(String channelName, String subscriberId, int partition) {
+    return String.format("%s-%s-%s", channelName, subscriberId, partition);
+  }
+
   public void close() {
+    coordinators.forEach(Coordinator::close);
+
+    channels.forEach(channel -> {
+      try {
+        channel.close();
+      } catch (IOException | TimeoutException e) {
+        logger.error(e.getMessage(), e);
+      }
+    });
+
     try {
       connection.close();
-      channels.forEach(channel -> {
-        try {
-          channel.close();
-        } catch (IOException | TimeoutException e) {
-          logger.error(e.getMessage(), e);
-        }
-      });
     } catch (IOException e) {
       logger.error(e.getMessage(), e);
     }

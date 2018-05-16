@@ -15,33 +15,6 @@ import java.util.UUID;
 
 @Configuration
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
-@EnableAutoConfiguration
 public class CommonQueueTopicTestConfiguration {
 
-  @Bean
-  @Qualifier("uniquePostfix")
-  public String uniquePostfix() {
-    return UUID.randomUUID().toString();
-  }
-
-  @Bean
-  public MessageConsumerRabbitMQImpl messageConsumerRabbitMQ(@Value("${rabbitmq.url}") String rabbitMQURL,
-                                                             @Qualifier("uniquePostfix") String uniquePostfix,
-                                                             @Qualifier("testChannelType") ChannelType channelType) {
-    return new MessageConsumerRabbitMQImpl(rabbitMQURL,
-            Collections.singletonMap("destination" + uniquePostfix, channelType));
-  }
-
-  @Bean
-  public EventuateRabbitMQProducer rabbitMQMessageProducer(@Value("${rabbitmq.url}") String rabbitMQURL,
-                                                           @Qualifier("uniquePostfix") String uniquePostfix,
-                                                           @Qualifier("testChannelType") ChannelType channelType) {
-    return new EventuateRabbitMQProducer(rabbitMQURL,
-            Collections.singletonMap("destination" + uniquePostfix, channelType));
-  }
-
-  @Bean
-  public DuplicateMessageDetector duplicateMessageDetector() {
-    return (consumerId, messageId) -> false;
-  }
 }

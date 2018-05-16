@@ -1,8 +1,6 @@
 package io.eventuate.tram.data.producer.rabbitmq;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import io.eventuate.local.java.common.broker.DataProducer;
 import io.eventuate.tram.messaging.common.ChannelType;
 import org.slf4j.Logger;
@@ -44,13 +42,10 @@ public class EventuateRabbitMQProducer implements DataProducer {
     try {
       ChannelType channelType = messageModes.getOrDefault(topic, ChannelType.TOPIC);
 
-      if (channelType == ChannelType.TOPIC) {
-        channel.exchangeDeclare(topic, "fanout");
-        channel.basicPublish(topic, "", null, body.getBytes("UTF-8"));
-      } else {
-        channel.queueDeclare(topic, true, false, false, null);
-        channel.basicPublish("", topic, null, body.getBytes("UTF-8"));
-      }
+      AMQP.BasicProperties bp = new AMQP.BasicProperties.Builder().headers(Collections.singletonMap("key", key)).build();
+
+      channel.exchangeDeclare(topic, "fanout");
+      channel.basicPublish(topic, "", bp, body.getBytes("UTF-8"));
 
     } catch (IOException e) {
       logger.error(e.getMessage(), e);

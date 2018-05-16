@@ -26,7 +26,7 @@ activemq:
     - 61614:61614
 
 rabbitmq:
-  image: rabbitmq:3.6
+  build: ./rabbitmq
   ports:
     - 5672:5672
 
