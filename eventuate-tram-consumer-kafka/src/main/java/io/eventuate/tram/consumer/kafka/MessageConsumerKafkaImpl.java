@@ -41,7 +41,7 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     SwimlaneBasedDispatcher swimlaneBasedDispatcher = new SwimlaneBasedDispatcher(subscriberId, Executors.newCachedThreadPool());
 
     BiConsumer<ConsumerRecord<String, String>, BiConsumer<Void, Throwable>> kcHandler = (record, callback) -> {
-      swimlaneBasedDispatcher.dispatch(toMessage(record), record.key().hashCode() % 8, message ->
+      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message ->
 
         transactionTemplate.execute(ts -> {
           if (duplicateMessageDetector.isDuplicate(subscriberId, message.getId())) {
