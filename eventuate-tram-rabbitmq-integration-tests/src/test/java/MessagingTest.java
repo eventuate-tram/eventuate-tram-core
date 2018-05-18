@@ -18,9 +18,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.AbstractQueue;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
@@ -56,13 +59,14 @@ public class MessagingTest {
   private ApplicationContext applicationContext;
 
   @Test
-  public void testOneConsumerTwoQueues() throws Exception {
+  public void test1Consumer2Queues() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
+    String subscriberId = "subscriber" + UUID.randomUUID();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
 
-    createConsumer().subscribe("subscriber", ImmutableSet.of(destination), message ->
+    createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
 
     Thread.sleep(3000);
@@ -74,21 +78,22 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> Assert.assertEquals(messages, concurrentLinkedQueue.size()));
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue.size()));
   }
 
   @Test
-  public void testTwoSubscribersTwoQueues() throws Exception {
+  public void test2Consumers2Queues() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
+    String subscriberId = "subscriber" + UUID.randomUUID();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue1 = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue2 = new ConcurrentLinkedQueue<>();
 
-    createConsumer().subscribe("subscriber", ImmutableSet.of(destination), message ->
+    createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue1.add(Integer.parseInt(message.getPayload())));
 
-    createConsumer().subscribe("subscriber", ImmutableSet.of(destination), message ->
+    createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
     Thread.sleep(3000);
@@ -100,7 +105,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> {
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -108,13 +113,14 @@ public class MessagingTest {
  }
 
   @Test
-  public void testOneConsumerTwoQueuesThenTwoConsumersTwoQueues() throws Exception {
+  public void test1Consumer2QueuesThenAddedConsumer() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
+    String subscriberId = "subscriber" + UUID.randomUUID();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue1 = new ConcurrentLinkedQueue<>();
 
-    createConsumer().subscribe("subscriber", ImmutableSet.of(destination), message ->
+    createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue1.add(Integer.parseInt(message.getPayload())));
 
     Thread.sleep(3000);
@@ -126,12 +132,12 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> Assert.assertEquals(messages, concurrentLinkedQueue1.size()));
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue1.size()));
     concurrentLinkedQueue1.clear();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue2 = new ConcurrentLinkedQueue<>();
 
-    createConsumer().subscribe("subscriber", ImmutableSet.of(destination), message ->
+    createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
     Thread.sleep(3000);
@@ -143,7 +149,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> {
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -151,19 +157,20 @@ public class MessagingTest {
   }
 
   @Test
-  public void testTwoSubscribersTwoQueuesThenOneSubscriberTwoQueues() throws Exception {
+  public void test2Consumers2QueuesThenRemovedConsumer() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
+    String subscriberId = "subscriber" + UUID.randomUUID();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue1 = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue2 = new ConcurrentLinkedQueue<>();
 
-    MessageConsumerRabbitMQImpl consumer1 = createConsumer();
-    consumer1.subscribe("subscriber", ImmutableSet.of(destination), message ->
+    MessageConsumerRabbitMQImpl consumer1 = createConsumer(2);
+    consumer1.subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue1.add(Integer.parseInt(message.getPayload())));
 
-    MessageConsumerRabbitMQImpl consumer2 = createConsumer();
-    consumer2.subscribe("subscriber", ImmutableSet.of(destination), message ->
+    MessageConsumerRabbitMQImpl consumer2 = createConsumer(2);
+    consumer2.subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
     Thread.sleep(3000);
@@ -175,7 +182,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> {
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -195,14 +202,86 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(() -> {
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
       Assert.assertTrue(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size());
     });
   }
 
-  private MessageConsumerRabbitMQImpl createConsumer() {
-    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(rabbitMQURL,zkUrl, 2);
+  @Test
+  public void test5Consumers9QueuesThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
+    int messages = 100;
+    String destination = "destination" + UUID.randomUUID();
+    String subscriberId = "subscriber" + UUID.randomUUID();
+
+    LinkedList<ConcurrentLinkedQueue<Integer>> queues = new LinkedList<>();
+    LinkedList<MessageConsumerRabbitMQImpl> consumers = new LinkedList<>();
+
+
+    for (int i = 0; i < 5; i++) {
+      ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
+      queues.add(concurrentLinkedQueue);
+
+      MessageConsumerRabbitMQImpl consumer = createConsumer(9);
+
+      consumer.subscribe(subscriberId, ImmutableSet.of(destination), message ->
+              concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
+
+      consumers.add(consumer);
+    }
+
+
+    Thread.sleep(3000);
+
+    for (int i = 0; i < messages; i++) {
+      eventuateRabbitMQProducer.send(destination,
+              String.valueOf(Math.random()),
+              JSonMapper.toJson(new MessageImpl(String.valueOf(i),
+                      Collections.singletonMap("ID", UUID.randomUUID().toString()))));
+    }
+
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+      queues.forEach(q -> Assert.assertFalse(q.isEmpty()));
+      Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
+    });
+
+    queues.forEach(AbstractQueue::clear);
+
+    consumers.poll().close();
+    consumers.poll().close();
+
+    queues.poll();
+    queues.poll();
+
+    for (int i = 0; i < 3; i++) {
+      ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
+      queues.add(concurrentLinkedQueue);
+
+      MessageConsumerRabbitMQImpl consumer = createConsumer(9);
+
+      consumer.subscribe(subscriberId, ImmutableSet.of(destination), message ->
+              concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
+
+      consumers.add(consumer);
+    }
+
+    Thread.sleep(5000);
+
+    for (int i = 0; i < messages; i++) {
+      eventuateRabbitMQProducer.send(destination,
+              String.valueOf(Math.random()),
+              JSonMapper.toJson(new MessageImpl(String.valueOf(i),
+                      Collections.singletonMap("ID", UUID.randomUUID().toString()))));
+    }
+
+    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+      queues.forEach(q -> Assert.assertFalse(q.isEmpty()));
+      Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
+    });
+  }
+
+  private MessageConsumerRabbitMQImpl createConsumer(int partitionCount) {
+    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(rabbitMQURL,zkUrl, partitionCount);
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRabbitMQ);
     return messageConsumerRabbitMQ;
   }

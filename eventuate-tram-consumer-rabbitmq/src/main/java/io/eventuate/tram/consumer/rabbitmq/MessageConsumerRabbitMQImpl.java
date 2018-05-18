@@ -31,9 +31,11 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   private int partitionCount;
   private List<Coordinator> coordinators = new ArrayList<>();
   private String zkUrl;
+  private PartitionManager partitionManager;
 
   public MessageConsumerRabbitMQImpl(String rabbitMQUrl, String zkUrl, int partitionCount) {
     this.partitionCount = partitionCount;
+    partitionManager = new PartitionManager(partitionCount);
     this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
   }
@@ -52,7 +54,6 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
 
-    for (String channelName : channels) {
       Channel consumerChannel = createRabbitMQChannel();
       this.channels.add(consumerChannel);
 
@@ -60,41 +61,42 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
       Coordinator coordinator = new Coordinator(zkUrl,
               subscriberId,
-              channelName,
-              () -> leaderSelected(leaderChannel, channelName, subscriberId),
+              channels,
+              () -> leaderSelected(leaderChannel, channels, subscriberId),
               () -> leaderRemoved(leaderChannel),
-              assignmentData -> assignmentUpdated(consumerChannel, channelName, subscriberId, assignmentData, handler),
-              this::manageAssignments);
+              assignment -> assignmentUpdated(consumerChannel, subscriberId, assignment, handler),
+              partitionManager::rebalance);
 
       coordinators.add(coordinator);
-    }
   }
 
-  private void leaderSelected(Channel leaderChannel, String channelName, String subscriberId) {
-    try {
-      leaderChannel.exchangeDeclare(makeConsistentHashExchangeName(channelName, subscriberId), "x-consistent-hash");
+  private void leaderSelected(Channel leaderChannel, Set<String> channels, String subscriberId) {
+    for (String channelName : channels) {
+      try {
+        leaderChannel.exchangeDeclare(makeConsistentHashExchangeName(channelName, subscriberId), "x-consistent-hash");
 
-      for (int i = 0; i < partitionCount; i++) {
-        leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
-        leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
-      }
-
-      leaderChannel.exchangeDeclare(channelName, "fanout");
-      String fanoutQueueName = leaderChannel.queueDeclare().getQueue();
-      leaderChannel.queueBind(fanoutQueueName, channelName, "");
-
-      leaderChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(leaderChannel) {
-        @Override
-        public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-          leaderChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
-                  properties.getHeaders().get("key").toString(),
-                  null,
-                  body);
+        for (int i = 0; i < partitionCount; i++) {
+          leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
+          leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
         }
-      });
 
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+        leaderChannel.exchangeDeclare(channelName, "fanout");
+        String fanoutQueueName = leaderChannel.queueDeclare().getQueue();
+        leaderChannel.queueBind(fanoutQueueName, channelName, "");
+
+        leaderChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(leaderChannel) {
+          @Override
+          public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+            leaderChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
+                    properties.getHeaders().get("key").toString(),
+                    null,
+                    body);
+          }
+        });
+
+      } catch (IOException e) {
+        logger.error(e.getMessage(), e);
+      }
     }
   }
 
@@ -106,29 +108,31 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     }
   }
 
-  private void assignmentUpdated(Channel channel, String channelName, String subscriberId, AssignmentData assignmentData, MessageHandler messageHandler) {
-    assignmentData.getResignedQueues().forEach(partition -> {
+  private void assignmentUpdated(Channel channel, String subscriberId, Assignment assignment, MessageHandler messageHandler) {
+    String channelName = assignment.getChannelName();
+
+    assignment.getResignedPartitions().forEach(partition -> {
       try {
         channel.queueUnbind(makeConsistentHashQueueName(channelName, subscriberId, partition),
                 makeConsistentHashExchangeName(channelName, subscriberId),
                 "10");
 
-        assignmentData.getCurrentQueues().remove(partition);
+        assignment.getCurrentPartitions().remove(partition);
       } catch (Exception e) {
         logger.error(e.getMessage(), e);
         throw new RuntimeException(e);
       }
     });
 
-    assignmentData.setResignedQueues(Collections.emptySet());
+    assignment.setResignedPartitions(Collections.emptySet());
 
-    assignmentData.getAssignedQueues().forEach(partition -> {
+    assignment.getAssignedPartitions().forEach(partition -> {
       try {
         channel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, partition),
                 makeConsistentHashExchangeName(channelName, subscriberId),
                 "10");
 
-        assignmentData.getCurrentQueues().add(partition);
+        assignment.getCurrentPartitions().add(partition);
 
         channel.basicConsume(makeConsistentHashQueueName(channelName, subscriberId, partition),
                 false,
@@ -140,39 +144,39 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
       }
     });
 
-    assignmentData.setAssignedQueues(Collections.emptySet());
+    assignment.setAssignedPartitions(Collections.emptySet());
 
-    assignmentData.setState(AssignmentState.NORMAL);
+    assignment.setState(AssignmentState.NORMAL);
   }
 
-  private void manageAssignments(List<AssignmentData> assignments) {
-    int subscribers = assignments.size() > partitionCount ? partitionCount : assignments.size();
-
-    int partitionCounter = 0;
-    for (int i = 0; i < subscribers - 1; i++) {
-      Set<Integer> partitionsToAssign = new HashSet<>();
-
-      for (int j = 0; j < partitionCount / subscribers; j++) {
-        partitionsToAssign.add(partitionCounter++);
-      }
-
-      assignments.get(i).setAssignedQueues(partitionsToAssign);
-    }
-
-    if (subscribers - 1 >= 0) {
-      Set<Integer> queuesToAssign = new HashSet<>();
-      for (int i = 0; i < partitionCount /subscribers + partitionCount % subscribers; i++) {
-        queuesToAssign.add(partitionCounter++);
-      }
-      assignments.get(subscribers - 1).setAssignedQueues(queuesToAssign);
-    }
-
-    for (int i = partitionCount; i < assignments.size(); i++) {
-      assignments.get(i).setResignedQueues(assignments.get(i).getCurrentQueues());
-    }
-
-    assignments.forEach(assignment -> assignment.setState(AssignmentState.REBALANSING));
-  }
+//  private void manageAssignments(List<Assignment> assignments) {
+//    int subscribers = assignments.size() > partitionCount ? partitionCount : assignments.size();
+//
+//    int partitionCounter = 0;
+//    for (int i = 0; i < subscribers - 1; i++) {
+//      Set<Integer> partitionsToAssign = new HashSet<>();
+//
+//      for (int j = 0; j < partitionCount / subscribers; j++) {
+//        partitionsToAssign.add(partitionCounter++);
+//      }
+//
+//      assignments.get(i).setAssignedPartitions(partitionsToAssign);
+//    }
+//
+//    if (subscribers - 1 >= 0) {
+//      Set<Integer> queuesToAssign = new HashSet<>();
+//      for (int i = 0; i < partitionCount /subscribers + partitionCount % subscribers; i++) {
+//        queuesToAssign.add(partitionCounter++);
+//      }
+//      assignments.get(subscribers - 1).setAssignedPartitions(queuesToAssign);
+//    }
+//
+//    for (int i = partitionCount; i < assignments.size(); i++) {
+//      assignments.get(i).setResignedPartitions(assignments.get(i).getCurrentPartitions());
+//    }
+//
+//    assignments.forEach(assignment -> assignment.setState(AssignmentState.REBALANSING));
+//  }
 
   private Channel createRabbitMQChannel() {
     try {
