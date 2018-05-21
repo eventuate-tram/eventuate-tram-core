@@ -65,7 +65,7 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
               () -> leaderSelected(leaderChannel, channels, subscriberId),
               () -> leaderRemoved(leaderChannel),
               assignment -> assignmentUpdated(consumerChannel, subscriberId, assignment, handler),
-              partitionManager::rebalance);
+              partitionManager::rebalance/*this::manageAssignments*/);
 
       coordinators.add(coordinator);
   }
@@ -87,6 +87,12 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
         leaderChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(leaderChannel) {
           @Override
           public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+
+            for (int i = 0; i < partitionCount; i++) {
+              leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
+              leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
+            }
+
             leaderChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
                     properties.getHeaders().get("key").toString(),
                     null,

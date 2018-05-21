@@ -59,7 +59,7 @@ public class MessagingTest {
   private ApplicationContext applicationContext;
 
   @Test
-  public void test1Consumer2Queues() throws Exception {
+  public void test1Consumer2Partitions() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
     String subscriberId = "subscriber" + UUID.randomUUID();
@@ -82,7 +82,7 @@ public class MessagingTest {
   }
 
   @Test
-  public void test2Consumers2Queues() throws Exception {
+  public void test2Consumers2Partitions() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
     String subscriberId = "subscriber" + UUID.randomUUID();
@@ -110,10 +110,10 @@ public class MessagingTest {
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
     });
- }
+  }
 
   @Test
-  public void test1Consumer2QueuesThenAddedConsumer() throws Exception {
+  public void test1Consumer2PartitionsThenAddedConsumer() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
     String subscriberId = "subscriber" + UUID.randomUUID();
@@ -157,7 +157,7 @@ public class MessagingTest {
   }
 
   @Test
-  public void test2Consumers2QueuesThenRemovedConsumer() throws Exception {
+  public void test2Consumers2PartitionsThenRemovedConsumer() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
     String subscriberId = "subscriber" + UUID.randomUUID();
@@ -193,7 +193,7 @@ public class MessagingTest {
 
     consumer2.close();
 
-    Thread.sleep(5000);
+    Thread.sleep(3000);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -209,7 +209,7 @@ public class MessagingTest {
   }
 
   @Test
-  public void test5Consumers9QueuesThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
+  public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
     int messages = 100;
     String destination = "destination" + UUID.randomUUID();
     String subscriberId = "subscriber" + UUID.randomUUID();
@@ -241,7 +241,7 @@ public class MessagingTest {
     }
 
     Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
-      queues.forEach(q -> Assert.assertFalse(q.isEmpty()));
+      Assert.assertTrue(queues.stream().noneMatch(ConcurrentLinkedQueue::isEmpty));
       Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
     });
 
@@ -265,7 +265,7 @@ public class MessagingTest {
       consumers.add(consumer);
     }
 
-    Thread.sleep(5000);
+    Thread.sleep(3000);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -275,7 +275,7 @@ public class MessagingTest {
     }
 
     Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
-      queues.forEach(q -> Assert.assertFalse(q.isEmpty()));
+      Assert.assertTrue(queues.stream().noneMatch(ConcurrentLinkedQueue::isEmpty));
       Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
     });
   }

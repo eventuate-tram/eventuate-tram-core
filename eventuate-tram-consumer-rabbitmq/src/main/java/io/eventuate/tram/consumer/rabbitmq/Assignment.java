@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public class Assignment {
-  private String instanceId;
+  private String memberInstanceId;
   private String channelName;
   private AssignmentState state = AssignmentState.NORMAL;
   private Set<Integer> assignedPartitions = Collections.emptySet();
@@ -15,18 +15,18 @@ public class Assignment {
 
   }
 
-  public Assignment(String instanceId, String channelName) {
-    this.instanceId = instanceId;
+  public Assignment(String memberInstanceId, String channelName) {
+    this.memberInstanceId = memberInstanceId;
     this.channelName = channelName;
   }
 
-  public Assignment(String instanceId,
+  public Assignment(String memberInstanceId,
                     String channelName,
                     AssignmentState state,
                     Set<Integer> assignedPartitions,
                     Set<Integer> resignedPartitions,
                     Set<Integer> currentPartitions) {
-    this.instanceId = instanceId;
+    this.memberInstanceId = memberInstanceId;
     this.channelName = channelName;
     this.state = state;
     this.assignedPartitions = assignedPartitions;
@@ -34,12 +34,12 @@ public class Assignment {
     this.currentPartitions = currentPartitions;
   }
 
-  public String getInstanceId() {
-    return instanceId;
+  public String getMemberInstanceId() {
+    return memberInstanceId;
   }
 
-  public void setInstanceId(String subscriberId) {
-    this.instanceId = subscriberId;
+  public void setMemberInstanceId(String subscriberId) {
+    this.memberInstanceId = subscriberId;
   }
 
   public String getChannelName() {

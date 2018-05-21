@@ -1,9 +1,6 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PartitionManager {
   private int partitionCount;
@@ -21,7 +18,7 @@ public class PartitionManager {
     notActivePartitions.forEach(partition ->
             findAssignmentWithMinPartitions(assignments).getAssignedPartitions().add(partition));
 
-    while (maxPartitionAssignment.getCurrentPartitions().size() - minPartitionAssignment.getCurrentPartitions().size() > 1) {
+    while (calculateRebalancedPartitions(maxPartitionAssignment) - calculateRebalancedPartitions(minPartitionAssignment) > 1) {
       int partition = maxPartitionAssignment.getCurrentPartitions().stream().findAny().get();
       maxPartitionAssignment.getResignedPartitions().add(partition);
       minPartitionAssignment.getAssignedPartitions().add(partition);
@@ -40,8 +37,8 @@ public class PartitionManager {
       Set<Integer> expectedPartitions = new HashSet<>();
 
       expectedPartitions.addAll(a.getCurrentPartitions());
-      expectedPartitions.removeAll(a.getResignedPartitions());
       expectedPartitions.addAll(a.getAssignedPartitions());
+      expectedPartitions.removeAll(a.getResignedPartitions());
 
       activePartitions.addAll(expectedPartitions);
     });
@@ -60,22 +57,19 @@ public class PartitionManager {
   private Assignment findAssignmentWithMinPartitions(List<Assignment> assignments) {
     return assignments
             .stream()
-            .min((a1, a2) -> {
-              int p1 = a1.getCurrentPartitions().size() + a1.getAssignedPartitions().size() - a1.getResignedPartitions().size();
-              int p2 = a2.getCurrentPartitions().size() + a2.getAssignedPartitions().size() - a2.getResignedPartitions().size();
-              return Integer.compare(p1, p2);
-            })
+            .min(Comparator.comparingInt(this::calculateRebalancedPartitions))
             .get();
   }
 
   private Assignment findAssignmentWithMaxPartitions(List<Assignment> assignments) {
     return assignments
             .stream()
-            .max((a1, a2) -> {
-              int p1 = a1.getCurrentPartitions().size() + a1.getAssignedPartitions().size() - a1.getResignedPartitions().size();
-              int p2 = a2.getCurrentPartitions().size() + a2.getAssignedPartitions().size() - a2.getResignedPartitions().size();
-              return Integer.compare(p1, p2);
-            })
+            .max(Comparator.comparingInt(this::calculateRebalancedPartitions))
             .get();
+  }
+
+
+  private int calculateRebalancedPartitions(Assignment assignment) {
+    return assignment.getCurrentPartitions().size() + assignment.getAssignedPartitions().size() - assignment.getResignedPartitions().size();
   }
 }

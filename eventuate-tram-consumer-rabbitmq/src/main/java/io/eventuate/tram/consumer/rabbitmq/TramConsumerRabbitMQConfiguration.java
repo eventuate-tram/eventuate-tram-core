@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Import;
 public class TramConsumerRabbitMQConfiguration {
   @Bean
   public MessageConsumer messageConsumer(@Value("${rabbitmq.url}") String rabbitMQUrl,
-                                         @Value("${eventuatelocal.zookeeper.connection.string}") String zkUrl) {
-    return new MessageConsumerRabbitMQImpl(rabbitMQUrl, zkUrl, 2);
+                                         @Value("${eventuatelocal.zookeeper.connection.string}") String zkUrl,
+                                         @Value("${eventuate.rabbitmq.partition.count:#{2}}") int partitionCount) {
+
+    return new MessageConsumerRabbitMQImpl(rabbitMQUrl, zkUrl, partitionCount);
   }
 }

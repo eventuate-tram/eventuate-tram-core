@@ -4,6 +4,7 @@ import io.eventuate.javaclient.commonimpl.JSonMapper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.NodeCache;
+import org.apache.curator.framework.recipes.leader.CancelLeadershipException;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
 import org.apache.curator.framework.recipes.nodes.GroupMember;
@@ -63,7 +64,7 @@ public class Coordinator {
     leaderPath = String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId);
 
     curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
-            new ExponentialBackoffRetry(1000, 10));
+            new ExponentialBackoffRetry(1000, 5));
 
     curatorFramework.start();
 
@@ -126,56 +127,67 @@ public class Coordinator {
     leaderSelector = new LeaderSelector(curatorFramework, leaderPath, new LeaderSelectorListener() {
       @Override
       public void takeLeadership(CuratorFramework client) {
-        leaderSelectedCallback.run();
+        try {
+          leaderSelectedCallback.run();
 
-        while (running) {
+          while (running) {
 
-          Map<String, Set<String>> currentGroupMembers = groupMember
-                  .getCurrentMembers()
-                  .entrySet()
-                  .stream()
-                  .collect(toMap(Map.Entry::getKey,
-                          e -> JSonMapper.fromJson(byteArrayToString(e.getValue()), Set.class)));
-
-          if (previousGroupMembers.equals(currentGroupMembers)) {
-            waitIteration();
-            continue;
-          }
-
-          previousGroupMembers.clear();
-          previousGroupMembers.putAll(currentGroupMembers);
-
-
-          Map<String, List<Assignment>> assignments = new HashMap<>();
-
-          currentGroupMembers.keySet().forEach(memberId -> {
-            currentGroupMembers.get(memberId).forEach(channel -> {
-              assignments.putIfAbsent(channel, new ArrayList<>());
-              assignments.get(channel).add(readAssignment(memberId, channel));
-            });
-          });
-
-          for (String channel : assignments.keySet()) {
-            if (assignments
-                    .get(channel)
+            Map<String, Set<String>> currentGroupMembers = groupMember
+                    .getCurrentMembers()
+                    .entrySet()
                     .stream()
-                    .map(Assignment::getState)
-                    .noneMatch(state -> state == AssignmentState.REBALANSING)) {
+                    .collect(toMap(Map.Entry::getKey,
+                            e -> JSonMapper.fromJson(byteArrayToString(e.getValue()), Set.class)));
 
-              manageAssignmentsCallback.accept(assignments.get(channel));
-              assignments.get(channel).forEach(a -> saveAssignment(a, channel));
+            if (previousGroupMembers.equals(currentGroupMembers)) {
+              if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
+                break;
+              }
+              continue;
+            }
+
+            previousGroupMembers.clear();
+            previousGroupMembers.putAll(currentGroupMembers);
+
+            Map<String, List<Assignment>> assignments = new HashMap<>();
+
+            currentGroupMembers.keySet().forEach(memberId -> {
+              currentGroupMembers.get(memberId).forEach(channel -> {
+                assignments.putIfAbsent(channel, new ArrayList<>());
+                assignments.get(channel).add(readAssignment(memberId, channel));
+              });
+            });
+
+            for (String channel : assignments.keySet()) {
+              if (assignments
+                      .get(channel)
+                      .stream()
+                      .map(Assignment::getState)
+                      .noneMatch(state -> state == AssignmentState.REBALANSING)) {
+
+                manageAssignmentsCallback.accept(assignments.get(channel));
+                assignments.get(channel).forEach(a -> saveAssignment(a, channel));
+              }
+            }
+
+            if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
+              break;
             }
           }
-
-          waitIteration();
+        } finally {
+          leaderRemovedCallback.run();
         }
       }
 
       @Override
       public void stateChanged(CuratorFramework client, ConnectionState newState) {
-
+        if (newState == ConnectionState.SUSPENDED || newState == ConnectionState.LOST) {
+          throw new CancelLeadershipException();
+        }
       }
     });
+
+    leaderSelector.autoRequeue();
 
     leaderSelector.start();
   }
@@ -193,7 +205,7 @@ public class Coordinator {
 
   private void saveAssignment(Assignment assignment, String channel) {
     try {
-      String assignmentPath = makeAssignmentPath(assignment.getInstanceId(), channel, subscriberId);
+      String assignmentPath = makeAssignmentPath(assignment.getMemberInstanceId(), channel, subscriberId);
       byte[] binaryData = stringToByteArray(JSonMapper.toJson(assignment));
       curatorFramework.setData().forPath(assignmentPath, binaryData);
     } catch (Exception e) {
@@ -202,11 +214,13 @@ public class Coordinator {
     }
   }
 
-  private void waitIteration() {
+  private boolean waitIterationAndCheckIfLeadershipShouldBeReturned() {
     try {
       Thread.sleep(100);
+      return false;
     } catch (InterruptedException e) {
-      logger.error(e.getMessage(), e);
+      Thread.currentThread().interrupt();
+      return true;
     }
   }
 
@@ -217,7 +231,6 @@ public class Coordinator {
   public void close() {
     running = false;
     leaderSelector.close();
-    leaderRemovedCallback.run();
 
     try {
       nodeCache.close();
