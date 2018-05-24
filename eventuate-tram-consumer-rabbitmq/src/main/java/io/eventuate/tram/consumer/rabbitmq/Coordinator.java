@@ -24,15 +24,14 @@ import static java.util.stream.Collectors.toMap;
 public class Coordinator {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private String instanceId = UUID.randomUUID().toString();
+  private final String groupMemberId;
   private String subscriberId;
   private Set<String> channels;
 
   private Runnable leaderSelectedCallback;
   private Runnable leaderRemovedCallback;
   private Consumer<Assignment> assignmentUpdatedCallback;
-  private Consumer<List<Assignment>> manageAssignmentsCallback;
-
+  private Consumer<Map<String, Assignment>> manageAssignmentsCallback;
 
   private String groupPath;
   private String leaderPath;
@@ -44,14 +43,16 @@ public class Coordinator {
   private NodeCache nodeCache;
   private LeaderSelector leaderSelector;
 
-  public Coordinator(String zkUrl,
+  public Coordinator(String groupMemberId,
+                     String zkUrl,
                      String subscriberId,
                      Set<String> channels,
                      Runnable leaderSelectedCallback,
                      Runnable leaderRemovedCallback,
                      Consumer<Assignment> assignmentUpdatedCallback,
-                     Consumer<List<Assignment>> manageAssignmentsCallback) {
+                     Consumer<Map<String, Assignment>> manageAssignmentsCallback) {
 
+    this.groupMemberId = groupMemberId;
     this.subscriberId = subscriberId;
     this.channels = channels;
 
@@ -75,25 +76,28 @@ public class Coordinator {
   }
 
   private void createAssignmentNodes() {
-    channels.forEach(channel -> {
-      try {
-        curatorFramework
-                .create()
-                .creatingParentsIfNeeded()
-                .withMode(CreateMode.EPHEMERAL)
-                .forPath(makeAssignmentPath(instanceId, channel, subscriberId),
-                        stringToByteArray(JSonMapper.toJson(new Assignment(instanceId, channel))));
-      } catch (Exception e) {
-        logger.error(e.getMessage(), e);
-        throw new RuntimeException(e);
-      }
-    });
+    try {
+      Map<String, Set<Integer>> partitionAssignmentsByChannel = new HashMap<>();
+      channels.forEach(channel -> partitionAssignmentsByChannel.put(channel, new HashSet<>()));
+      Assignment assignment = new Assignment(channels, partitionAssignmentsByChannel);
+
+      curatorFramework
+              .create()
+              .creatingParentsIfNeeded()
+              .withMode(CreateMode.EPHEMERAL)
+              .forPath(makeAssignmentPath(groupMemberId, subscriberId),
+                      stringToByteArray(JSonMapper.toJson(assignment)));
+
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
   }
 
   private void createGroupMember() {
       groupMember = new GroupMember(curatorFramework,
               groupPath,
-              instanceId,
+              groupMemberId,
               stringToByteArray(JSonMapper.toJson(channels)));
 
       groupMember.start();
@@ -101,7 +105,7 @@ public class Coordinator {
 
   private void createNodeCaches() {
     channels.forEach(channel -> {
-      nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(instanceId, channel, subscriberId));
+      nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupMemberId, subscriberId));
 
       try {
         nodeCache.start();
@@ -113,10 +117,7 @@ public class Coordinator {
         Assignment assignment = JSonMapper.fromJson(byteArrayToString(nodeCache.getCurrentData().getData()),
                 Assignment.class);
 
-        if (assignment.getState() == AssignmentState.REBALANSING) {
-          assignmentUpdatedCallback.accept(assignment);
-          saveAssignment(assignment, channel);
-        }
+        assignmentUpdatedCallback.accept(assignment);
       });
     });
   }
@@ -128,6 +129,7 @@ public class Coordinator {
       @Override
       public void takeLeadership(CuratorFramework client) {
         try {
+
           leaderSelectedCallback.run();
 
           while (running) {
@@ -137,7 +139,7 @@ public class Coordinator {
                     .entrySet()
                     .stream()
                     .collect(toMap(Map.Entry::getKey,
-                            e -> JSonMapper.fromJson(byteArrayToString(e.getValue()), Set.class)));
+                            entry -> JSonMapper.fromJson(byteArrayToString(entry.getValue()), Set.class)));
 
             if (previousGroupMembers.equals(currentGroupMembers)) {
               if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
@@ -149,31 +151,17 @@ public class Coordinator {
             previousGroupMembers.clear();
             previousGroupMembers.putAll(currentGroupMembers);
 
-            Map<String, List<Assignment>> assignments = new HashMap<>();
-
-            currentGroupMembers.keySet().forEach(memberId -> {
-              currentGroupMembers.get(memberId).forEach(channel -> {
-                assignments.putIfAbsent(channel, new ArrayList<>());
-                assignments.get(channel).add(readAssignment(memberId, channel));
-              });
-            });
-
-            for (String channel : assignments.keySet()) {
-              if (assignments
-                      .get(channel)
-                      .stream()
-                      .map(Assignment::getState)
-                      .noneMatch(state -> state == AssignmentState.REBALANSING)) {
-
-                manageAssignmentsCallback.accept(assignments.get(channel));
-                assignments.get(channel).forEach(a -> saveAssignment(a, channel));
-              }
-            }
+            HashMap<String, Assignment> assignments = new HashMap<>();
+            currentGroupMembers.keySet().forEach(groupMemberId -> assignments.put(groupMemberId, readAssignment(groupMemberId)));
+            manageAssignmentsCallback.accept(assignments);
+            assignments.forEach((memberId, assignment) -> saveAssignment(assignment, memberId));
 
             if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
               break;
             }
           }
+        } catch (Exception e) {
+          logger.error(e.getMessage(), e);
         } finally {
           leaderRemovedCallback.run();
         }
@@ -192,9 +180,9 @@ public class Coordinator {
     leaderSelector.start();
   }
 
-  private Assignment readAssignment(String memberId, String channel) {
+  private Assignment readAssignment(String groupMemberId) {
     try {
-      String assignmentPath = makeAssignmentPath(memberId, channel, subscriberId);
+      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
       byte[] binaryData = curatorFramework.getData().forPath(assignmentPath);
       return JSonMapper.fromJson(byteArrayToString(binaryData), Assignment.class);
     } catch (Exception e) {
@@ -203,9 +191,9 @@ public class Coordinator {
     }
   }
 
-  private void saveAssignment(Assignment assignment, String channel) {
+  private void saveAssignment(Assignment assignment, String groupMemberId) {
     try {
-      String assignmentPath = makeAssignmentPath(assignment.getMemberInstanceId(), channel, subscriberId);
+      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
       byte[] binaryData = stringToByteArray(JSonMapper.toJson(assignment));
       curatorFramework.setData().forPath(assignmentPath, binaryData);
     } catch (Exception e) {
@@ -224,8 +212,8 @@ public class Coordinator {
     }
   }
 
-  private String makeAssignmentPath(String instanceId, String channelName, String subscriberId) {
-    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s/%s", subscriberId, channelName, instanceId);
+  private String makeAssignmentPath(String groupMemberId, String subscriberId) {
+    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", subscriberId, groupMemberId);
   }
 
   public void close() {
