@@ -1,10 +1,9 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
-import com.rabbitmq.client.*;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import org.slf4j.Logger;
@@ -13,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
@@ -27,15 +28,13 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   private DuplicateMessageDetector duplicateMessageDetector;
 
   private Connection connection;
-  private List<Channel> channels = new ArrayList<>();
   private int partitionCount;
-  private List<Coordinator> coordinators = new ArrayList<>();
   private String zkUrl;
-  private PartitionManager partitionManager;
+
+  private List<Subscription> subscriptions = new ArrayList<>();
 
   public MessageConsumerRabbitMQImpl(String rabbitMQUrl, String zkUrl, int partitionCount) {
     this.partitionCount = partitionCount;
-    partitionManager = new PartitionManager(partitionCount);
     this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
   }
@@ -53,194 +52,41 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
-      Channel consumerChannel = createRabbitMQChannel();
-      this.channels.add(consumerChannel);
+    Subscription subscription = new Subscription(connection,
+            zkUrl,
+            subscriberId,
+            channels,
+            partitionCount,
+            (message, acknowledgeCallback) -> handleMessage(subscriberId, handler, message, acknowledgeCallback));
 
-      Channel leaderChannel = createRabbitMQChannel();
-
-      String groupMemberId = UUID.randomUUID().toString();
-
-      Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
-      channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
-
-      Coordinator coordinator = new Coordinator(groupMemberId,
-              zkUrl,
-              subscriberId,
-              channels,
-              () -> leaderSelected(leaderChannel, channels, subscriberId),
-              () -> leaderRemoved(leaderChannel),
-              assignment -> assignmentUpdated(currentPartitionsByChannel, consumerChannel, subscriberId, assignment, handler),
-              partitionManager::rebalance);
-
-      coordinators.add(coordinator);
+    subscriptions.add(subscription);
   }
 
-  private void leaderSelected(Channel leaderChannel, Set<String> channels, String subscriberId) {
-    for (String channelName : channels) {
+  private void handleMessage(String subscriberId, MessageHandler handler, Message tramMessage, Runnable acknowledgeCallback) {
+    transactionTemplate.execute(ts -> {
+      if (duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
+        logger.trace("Duplicate message {} {}", subscriberId, tramMessage.getId());
+        acknowledgeCallback.run();
+        return null;
+      }
+
       try {
-        leaderChannel.exchangeDeclare(makeConsistentHashExchangeName(channelName, subscriberId), "x-consistent-hash");
-
-        for (int i = 0; i < partitionCount; i++) {
-          leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
-          leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
-        }
-
-        leaderChannel.exchangeDeclare(channelName, "fanout");
-        String fanoutQueueName = leaderChannel.queueDeclare().getQueue();
-        leaderChannel.queueBind(fanoutQueueName, channelName, "");
-
-        leaderChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(leaderChannel) {
-          @Override
-          public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-
-            for (int i = 0; i < partitionCount; i++) {
-              leaderChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
-              leaderChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
-            }
-
-            leaderChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
-                    properties.getHeaders().get("key").toString(),
-                    null,
-                    body);
-          }
-        });
-
-      } catch (IOException e) {
-        logger.error(e.getMessage(), e);
+        logger.trace("Invoking handler {} {}", subscriberId, tramMessage.getId());
+        handler.accept(tramMessage);
+        logger.trace("handled message {} {}", subscriberId, tramMessage.getId());
+      } catch (Throwable t) {
+        logger.trace("Got exception {} {}", subscriberId, tramMessage.getId());
+        logger.trace("Got exception ", t);
+      } finally {
+        acknowledgeCallback.run();
       }
-    }
-  }
 
-  private void leaderRemoved(Channel leaderChannel) {
-    try {
-      leaderChannel.close();
-    } catch (IOException | TimeoutException e) {
-      logger.error(e.getMessage(), e);
-    }
-  }
-
-  private void assignmentUpdated(Map<String, Set<Integer>> currentPartitionsByChannel, Channel channel, String subscriberId, Assignment assignment, MessageHandler messageHandler) {
-    for (String channelName : currentPartitionsByChannel.keySet()) {
-      Set<Integer> currentPartitions = currentPartitionsByChannel.get(channelName);
-      Set<Integer> expectedPartitions = assignment.getPartitionAssignmentsByChannel().get(channelName);
-      Set<Integer> resignedPartitions = new HashSet<>();
-
-      currentPartitions.forEach(cp -> {
-        if (!expectedPartitions.contains(cp)) {
-          resignedPartitions.add(cp);
-        }
-      });
-
-      Set<Integer> assignedPartitions = new HashSet<>();
-      expectedPartitions.forEach(ep -> {
-        if (!currentPartitions.contains(ep)) {
-          assignedPartitions.add(ep);
-        }
-      });
-
-      currentPartitions.clear();
-      currentPartitions.addAll(expectedPartitions);
-
-      resignedPartitions.forEach(rp -> {
-        try {
-          channel.queueUnbind(makeConsistentHashQueueName(channelName, subscriberId, rp),
-                  makeConsistentHashExchangeName(channelName, subscriberId),
-                  "10");
-        } catch (Exception e) {
-          logger.error(e.getMessage(), e);
-          throw new RuntimeException(e);
-        }
-      });
-
-      assignedPartitions.forEach(ap -> {
-        try {
-          channel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, ap),
-                  makeConsistentHashExchangeName(channelName, subscriberId),
-                  "10");
-
-          channel.basicConsume(makeConsistentHashQueueName(channelName, subscriberId, ap),
-                  false,
-                  createConsumer(subscriberId, messageHandler, channel, makeConsistentHashQueueName(channelName, subscriberId, ap)));
-        } catch (IOException e) {
-          logger.error(e.getMessage(), e);
-          throw new RuntimeException(e);
-        }
-      });
-    }
-  }
-
-  private Channel createRabbitMQChannel() {
-    try {
-      return connection.createChannel();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Consumer createConsumer(String subscriberId, MessageHandler handler, Channel channel, String queueName) {
-    return new DefaultConsumer(channel) {
-
-      @Override
-      public void handleDelivery(String consumerTag,
-                                 Envelope envelope,
-                                 AMQP.BasicProperties properties,
-                                 byte[] body) throws IOException {
-
-        logger.info("Got message from queue {}", queueName);
-
-        String message = new String(body, "UTF-8");
-        Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
-
-        transactionTemplate.execute(ts -> {
-          if (duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-            logger.trace("Duplicate message {} {}", subscriberId, tramMessage.getId());
-            acknowledge(envelope, channel);
-            return null;
-          }
-
-          try {
-            logger.trace("Invoking handler {} {}", subscriberId, tramMessage.getId());
-            handler.accept(tramMessage);
-            logger.trace("handled message {} {}", subscriberId, tramMessage.getId());
-          } catch (Throwable t) {
-            logger.trace("Got exception {} {}", subscriberId, tramMessage.getId());
-            logger.trace("Got exception ", t);
-          } finally {
-            acknowledge(envelope, channel);
-          }
-
-          return null;
-        });
-      }
-    };
-  }
-
-  private void acknowledge(Envelope envelope, Channel channel) {
-    try {
-      channel.basicAck(envelope.getDeliveryTag(), false);
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
-    }
-  }
-
-  private String makeConsistentHashExchangeName(String channelName, String subscriberId) {
-    return String.format("%s-%s", channelName, subscriberId);
-  }
-
-  private String makeConsistentHashQueueName(String channelName, String subscriberId, int partition) {
-    return String.format("%s-%s-%s", channelName, subscriberId, partition);
+      return null;
+    });
   }
 
   public void close() {
-    coordinators.forEach(Coordinator::close);
-
-    channels.forEach(channel -> {
-      try {
-        channel.close();
-      } catch (IOException | TimeoutException e) {
-        logger.error(e.getMessage(), e);
-      }
-    });
+    subscriptions.forEach(Subscription::close);
 
     try {
       connection.close();
