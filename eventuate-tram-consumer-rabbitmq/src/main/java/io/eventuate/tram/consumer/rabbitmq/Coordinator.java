@@ -7,7 +7,6 @@ import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.leader.CancelLeadershipException;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
-import org.apache.curator.framework.recipes.nodes.GroupMember;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
@@ -17,9 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
-
-import static java.util.stream.Collectors.toMap;
 
 public class Coordinator {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -95,12 +93,7 @@ public class Coordinator {
   }
 
   private void createGroupMember() {
-      groupMember = new GroupMember(curatorFramework,
-              groupPath,
-              groupMemberId,
-              stringToByteArray(JSonMapper.toJson(channels)));
-
-      groupMember.start();
+    groupMember = new GroupMember(curatorFramework, groupPath, groupMemberId);
   }
 
   private void createNodeCaches() {
@@ -123,46 +116,41 @@ public class Coordinator {
   }
 
   private void createLeaderSelector() {
-    Map<String, Set<String>>  previousGroupMembers = new HashMap<>();
-
     leaderSelector = new LeaderSelector(curatorFramework, leaderPath, new LeaderSelectorListener() {
       @Override
       public void takeLeadership(CuratorFramework client) {
+        Set<String> previousGroupMembers = new HashSet<>();
+        leaderSelectedCallback.run();
+
+        BlockingQueue<Set<String>> memberIdsUpdates = new LinkedBlockingQueue<>();
+
+        GroupManager groupManager = new GroupManager(curatorFramework, groupPath, memberIdsUpdates::add);
+
         try {
-
-          leaderSelectedCallback.run();
-
           while (running) {
-
-            Map<String, Set<String>> currentGroupMembers = groupMember
-                    .getCurrentMembers()
-                    .entrySet()
-                    .stream()
-                    .collect(toMap(Map.Entry::getKey,
-                            entry -> JSonMapper.fromJson(byteArrayToString(entry.getValue()), Set.class)));
+            Set<String> currentGroupMembers;
+            try {
+              currentGroupMembers = memberIdsUpdates.poll(Long.MAX_VALUE, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+              break;
+            }
 
             if (previousGroupMembers.equals(currentGroupMembers)) {
-              if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
-                break;
-              }
               continue;
             }
 
             previousGroupMembers.clear();
-            previousGroupMembers.putAll(currentGroupMembers);
+            previousGroupMembers.addAll(currentGroupMembers);
 
             HashMap<String, Assignment> assignments = new HashMap<>();
-            currentGroupMembers.keySet().forEach(groupMemberId -> assignments.put(groupMemberId, readAssignment(groupMemberId)));
+            currentGroupMembers.forEach(groupMemberId -> assignments.put(groupMemberId, readAssignment(groupMemberId)));
             manageAssignmentsCallback.accept(assignments);
             assignments.forEach((memberId, assignment) -> saveAssignment(assignment, memberId));
-
-            if (waitIterationAndCheckIfLeadershipShouldBeReturned()) {
-              break;
-            }
           }
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
         } finally {
+          groupManager.stop();
           leaderRemovedCallback.run();
         }
       }
@@ -202,16 +190,6 @@ public class Coordinator {
     }
   }
 
-  private boolean waitIterationAndCheckIfLeadershipShouldBeReturned() {
-    try {
-      Thread.sleep(100);
-      return false;
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      return true;
-    }
-  }
-
   private String makeAssignmentPath(String groupMemberId, String subscriberId) {
     return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", subscriberId, groupMemberId);
   }
@@ -226,7 +204,7 @@ public class Coordinator {
       logger.error(e.getMessage(), e);
     }
 
-    groupMember.close();
+    groupMember.remove();
     try {
       nodeCache.close();
     } catch (IOException e) {

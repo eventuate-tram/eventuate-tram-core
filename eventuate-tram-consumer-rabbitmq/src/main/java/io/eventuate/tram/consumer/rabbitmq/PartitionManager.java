@@ -30,14 +30,11 @@ public class PartitionManager {
 
       rebalance(assignmentDescriptions);
 
-      assignmentDescriptions.forEach(assignmentDescription -> {
-        Set<Integer> expectedPartitions = new HashSet<>(assignmentDescription.getCurrentPartitions());
-
-        expectedPartitions.removeAll(assignmentDescription.getResignedPartitions());
-        expectedPartitions.addAll(assignmentDescription.getAssignedPartitions());
-
-        assignmentDescription.getAssignment().getPartitionAssignmentsByChannel().put(channel, expectedPartitions);
-      });
+      assignmentDescriptions.forEach(assignmentDescription ->
+        assignmentDescription
+                .getAssignment()
+                .getPartitionAssignmentsByChannel()
+                .put(channel, calculateExpectedPartitions(assignmentDescription)));
     });
   }
 
@@ -57,7 +54,8 @@ public class PartitionManager {
         maxPartitionAssignment.getAssignedPartitions().remove(partitionToReassign.get());
         minPartitionAssignment.getAssignedPartitions().add(partitionToReassign.get());
       } else {
-        partitionToReassign = maxPartitionAssignment.getCurrentPartitions().stream().findAny();
+        Set<Integer> expectedPartitions = calculateExpectedPartitions(maxPartitionAssignment);
+        partitionToReassign = expectedPartitions.stream().findAny();
         maxPartitionAssignment.getResignedPartitions().add(partitionToReassign.get());
         minPartitionAssignment.getAssignedPartitions().add(partitionToReassign.get());
       }
@@ -65,6 +63,13 @@ public class PartitionManager {
       minPartitionAssignment = findAssignmentDescriptionWithMinPartitions(assignmentDescriptions);
       maxPartitionAssignment = findAssignmentDescriptionWithMaxPartitions(assignmentDescriptions);
     }
+  }
+
+  private Set<Integer> calculateExpectedPartitions(AssignmentDescription assignmentDescription) {
+    HashSet<Integer> expectedPartitions = new HashSet<>(assignmentDescription.currentPartitions);
+    expectedPartitions.removeAll(assignmentDescription.resignedPartitions);
+    expectedPartitions.addAll(assignmentDescription.assignedPartitions);
+    return expectedPartitions;
   }
 
   private Set<Integer> findNotActivePartitions(Set<AssignmentDescription> assignmentDescriptions) {
