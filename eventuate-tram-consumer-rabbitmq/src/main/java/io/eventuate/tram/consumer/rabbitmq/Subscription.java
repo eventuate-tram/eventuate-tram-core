@@ -46,9 +46,9 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    PartitionManager partitionManager = new PartitionManager(partitionCount);
+    PartitionManager partitionManager = createPartitionManager(partitionCount);
 
-    coordinator = new Coordinator(subscriptionId,
+    coordinator = createCoordinator(subscriptionId,
             zkUrl,
             subscriberId,
             channels,
@@ -56,6 +56,29 @@ public class Subscription {
             this::leaderRemoved,
             this::assignmentUpdated,
             partitionManager::rebalance);
+  }
+
+  protected PartitionManager createPartitionManager(int partitionCount) {
+    return new PartitionManager(partitionCount);
+  }
+
+  protected Coordinator createCoordinator(String groupMemberId,
+                                          String zkUrl,
+                                          String subscriberId,
+                                          Set<String> channels,
+                                          Runnable leaderSelectedCallback,
+                                          Runnable leaderRemovedCallback,
+                                          java.util.function.Consumer<Assignment> assignmentUpdatedCallback,
+                                          java.util.function.Consumer<Map<String, Assignment>> manageAssignmentsCallback) {
+
+    return new Coordinator(groupMemberId,
+            zkUrl,
+            subscriberId,
+            channels,
+            leaderSelectedCallback,
+            leaderRemovedCallback,
+            assignmentUpdatedCallback,
+            manageAssignmentsCallback);
   }
 
   public void close() {
