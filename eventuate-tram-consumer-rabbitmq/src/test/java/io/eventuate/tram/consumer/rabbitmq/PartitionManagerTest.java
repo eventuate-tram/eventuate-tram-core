@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PartitionManagerTest {
 
@@ -15,22 +18,12 @@ public class PartitionManagerTest {
   public void checkInitialBalancing() {
     for (int subscriberCount = 1; subscriberCount <= 10; subscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
-
-        System.out.println("subscriber count: " + subscriberCount);
-        System.out.println("partition count: " + partitionCount);
-        System.out.println("---");
-
-        Map<String, Assignment> assignments = new HashMap<>();
-        for (int i = 0; i < subscriberCount; i++) {
-          assignments.put(String.valueOf(i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-        }
-
         PartitionManager partitionManager = new PartitionManager(partitionCount);
+        Map<String, Assignment> assignments = createEmptyAssignments(subscriberCount);
+        partitionManager.initialize(assignments);
 
-        partitionManager.rebalance(assignments);
-
-        checkPartitionCountAndUniqueness(assignments, "channel", partitionCount);
-        checkMinMaxPartitions(assignments, "channel", partitionCount);
+        assertThatEachPartitionEncounteredOnceAndPartitionCountIsCorrect(partitionManager.getCurrentAssignments(), "channel", partitionCount);
+        assertThatEachAssignmentHasCorrectPartitionCount(partitionManager.getCurrentAssignments(), "channel", partitionCount);
       }
     }
   }
@@ -40,29 +33,14 @@ public class PartitionManagerTest {
     for (int initialSubscriberCount = 1; initialSubscriberCount <= 10; initialSubscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int additionalSubscriberCount = 1; additionalSubscriberCount <= 10; additionalSubscriberCount++) {
-
-          System.out.println("subscriber count: " + initialSubscriberCount);
-          System.out.println("partition count: " + partitionCount);
-          System.out.println("additional subscriber count: " + initialSubscriberCount);
-          System.out.println("---");
-
-          Map<String, Assignment> assignments = new HashMap<>();
-          for (int i = 0; i < initialSubscriberCount; i++) {
-            assignments.put(String.valueOf(i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-          }
-
           PartitionManager partitionManager = new PartitionManager(partitionCount);
 
-          partitionManager.rebalance(assignments);
+          Map<String, Assignment> assignments = createEmptyAssignments(initialSubscriberCount);
+          partitionManager.initialize(assignments);
+          partitionManager.rebalance(createNewGroupMembersWithChannels(additionalSubscriberCount), ImmutableSet.of());
 
-          for (int i = 0; i < additionalSubscriberCount; i++) {
-            assignments.put(String.valueOf(initialSubscriberCount + i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-          }
-
-          partitionManager.rebalance(assignments);
-
-          checkPartitionCountAndUniqueness(assignments, "channel", partitionCount);
-          checkMinMaxPartitions(assignments, "channel", partitionCount);
+          assertThatEachPartitionEncounteredOnceAndPartitionCountIsCorrect(partitionManager.getCurrentAssignments(), "channel", partitionCount);
+          assertThatEachAssignmentHasCorrectPartitionCount(partitionManager.getCurrentAssignments(), "channel", partitionCount);
         }
       }
     }
@@ -73,29 +51,14 @@ public class PartitionManagerTest {
     for (int initialSubscriberCount = 2; initialSubscriberCount <= 10; initialSubscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int subscribersToRemove = 1; subscribersToRemove < initialSubscriberCount; subscribersToRemove++) {
-
-          System.out.println("subscriber count: " + initialSubscriberCount);
-          System.out.println("partition count: " + partitionCount);
-          System.out.println("subscribers to remove: " + initialSubscriberCount);
-          System.out.println("---");
-
-          Map<String, Assignment> assignments = new HashMap<>();
-          for (int i = 0; i < initialSubscriberCount; i++) {
-            assignments.put(String.valueOf(i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-          }
-
           PartitionManager partitionManager = new PartitionManager(partitionCount);
 
-          partitionManager.rebalance(assignments);
+          Map<String, Assignment> assignments = createEmptyAssignments(initialSubscriberCount);
+          partitionManager.initialize(assignments);
+          partitionManager.rebalance(ImmutableMap.of(), findRemovedGroupMembers(subscribersToRemove, assignments));
 
-          for (int i = 0; i < subscribersToRemove; i++) {
-            assignments.remove(assignments.keySet().stream().findAny().get());
-          }
-
-          partitionManager.rebalance(assignments);
-
-          checkPartitionCountAndUniqueness(assignments, "channel", partitionCount);
-          checkMinMaxPartitions(assignments, "channel", partitionCount);
+          assertThatEachPartitionEncounteredOnceAndPartitionCountIsCorrect(partitionManager.getCurrentAssignments(), "channel", partitionCount);
+          assertThatEachAssignmentHasCorrectPartitionCount(partitionManager.getCurrentAssignments(), "channel", partitionCount);
         }
       }
     }
@@ -107,42 +70,47 @@ public class PartitionManagerTest {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int additionalSubscriberCount = 1; additionalSubscriberCount <= 10; additionalSubscriberCount++) {
           for (int subscribersToRemove = 1; subscribersToRemove < initialSubscriberCount; subscribersToRemove++) {
-
-
-            System.out.println("subscriber count: " + initialSubscriberCount);
-            System.out.println("partition count: " + partitionCount);
-            System.out.println("additional subscriber count: " + initialSubscriberCount);
-            System.out.println("subscribers to remove: " + initialSubscriberCount);
-            System.out.println("---");
-
-            Map<String, Assignment> assignments = new HashMap<>();
-            for (int i = 0; i < initialSubscriberCount; i++) {
-              assignments.put(String.valueOf(i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-            }
-
             PartitionManager partitionManager = new PartitionManager(partitionCount);
 
-            partitionManager.rebalance(assignments);
+            Map<String, Assignment> assignments = createEmptyAssignments(initialSubscriberCount);
+            partitionManager.initialize(assignments);
+            partitionManager.rebalance(createNewGroupMembersWithChannels(additionalSubscriberCount), findRemovedGroupMembers(subscribersToRemove, assignments));
 
-            for (int i = 0; i < subscribersToRemove; i++) {
-              assignments.remove(assignments.keySet().stream().findAny().get());
-            }
-
-            for (int i = 0; i < additionalSubscriberCount; i++) {
-              assignments.put(String.valueOf(initialSubscriberCount + i), new Assignment(ImmutableSet.of("channel"), new HashMap<>()));
-            }
-
-            partitionManager.rebalance(assignments);
-
-            checkPartitionCountAndUniqueness(assignments, "channel", partitionCount);
-            checkMinMaxPartitions(assignments, "channel", partitionCount);
+            assertThatEachPartitionEncounteredOnceAndPartitionCountIsCorrect(partitionManager.getCurrentAssignments(), "channel", partitionCount);
+            assertThatEachAssignmentHasCorrectPartitionCount(partitionManager.getCurrentAssignments(), "channel", partitionCount);
           }
         }
       }
     }
   }
 
-  private void checkPartitionCountAndUniqueness(Map<String, Assignment> assignments, String channel, int partitionCount) {
+  private Map<String, Assignment> createEmptyAssignments(int count) {
+    return IntStream
+            .range(0, count)
+            .boxed()
+            .collect(Collectors.toMap(String::valueOf,
+                    value -> new Assignment(ImmutableSet.of("channel"), new HashMap<>())));
+  }
+
+  private Map<String, Set<String>> createNewGroupMembersWithChannels(int count) {
+    return IntStream
+            .range(0, count)
+            .boxed()
+            .collect(Collectors.toMap(String::valueOf,
+                    value -> ImmutableSet.of("channel")));
+  }
+
+  private Set<String> findRemovedGroupMembers(int count, Map<String, Assignment> assignments) {
+    return IntStream
+            .range(0, count)
+            .boxed()
+            .map(i -> assignments.keySet().stream().findAny().get())
+            .collect(Collectors.toSet());
+  }
+
+  private void assertThatEachPartitionEncounteredOnceAndPartitionCountIsCorrect(Map<String, Assignment> assignments,
+                                                                                String channel,
+                                                                                int totalPartitions) {
     Set<Integer> allPartitions = new HashSet<>();
 
     assignments.values().forEach(assignment -> {
@@ -151,23 +119,20 @@ public class PartitionManagerTest {
       allPartitions.addAll(partitionOfCurrentAssignment);
     });
 
-    Assert.assertEquals(partitionCount, allPartitions.size());
+    Assert.assertEquals(totalPartitions, allPartitions.size());
   }
 
-  private void checkMinMaxPartitions(Map<String, Assignment> assignments, String channel, int partitionCount) {
-    int minPartitions = partitionCount / assignments.size();
+  private void assertThatEachAssignmentHasCorrectPartitionCount(Map<String, Assignment> assignments,
+                                                                String channel,
+                                                                int totalPartitions) {
+    int minPartitions = totalPartitions / assignments.size();
     int maxPartitions = minPartitions + 1;
-
-    System.out.println("min partitions: " + minPartitions);
-    System.out.println("max partitions: " + maxPartitions);
-    System.out.println("~~~");
 
     assignments.values().forEach(assignment -> {
       int partitions = assignment.getPartitionAssignmentsByChannel().get(channel).size();
-      System.out.println("partitions: " + partitions);
 
-      Assert.assertTrue(partitions >= partitionCount / assignments.size());
-      Assert.assertTrue(partitions <= partitionCount / assignments.size() + 1);
+      Assert.assertTrue(partitions >= minPartitions);
+      Assert.assertTrue(partitions <= maxPartitions);
     });
   }
 }

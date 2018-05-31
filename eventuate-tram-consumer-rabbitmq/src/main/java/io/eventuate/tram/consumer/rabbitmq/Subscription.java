@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class Subscription {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -24,10 +25,10 @@ public class Subscription {
   private BiConsumer<Message, Runnable> handleMessageCallback;
 
   private Channel consumerChannel;
-  private Channel subscriberGroupChannel;
+  private Map<String, String> consumerTagByQueue = new HashMap<>();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
-
+  private Channel subscriberGroupChannel;
 
   public Subscription(Connection connection,
                       String zkUrl,
@@ -42,8 +43,6 @@ public class Subscription {
     this.partitionCount = partitionCount;
     this.handleMessageCallback = handleMessageCallback;
 
-    consumerChannel = createRabbitMQChannel();
-
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
     PartitionManager partitionManager = createPartitionManager(partitionCount);
@@ -56,6 +55,8 @@ public class Subscription {
             this::leaderRemoved,
             this::assignmentUpdated,
             partitionManager::rebalance);
+
+    consumerChannel = createRabbitMQChannel();
   }
 
   protected PartitionManager createPartitionManager(int partitionCount) {
@@ -78,7 +79,7 @@ public class Subscription {
             leaderSelectedCallback,
             leaderRemovedCallback,
             assignmentUpdatedCallback,
-            manageAssignmentsCallback);
+            partitionCount);
   }
 
   public void close() {
@@ -112,27 +113,11 @@ public class Subscription {
         }
 
         subscriberGroupChannel.exchangeDeclare(channelName, "fanout");
-        String fanoutQueueName = subscriberGroupChannel.queueDeclare().getQueue();
-        subscriberGroupChannel.queueBind(fanoutQueueName, channelName, "");
-
-        subscriberGroupChannel.basicConsume(fanoutQueueName, true, new DefaultConsumer(subscriberGroupChannel) {
-          @Override
-          public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-
-            for (int i = 0; i < partitionCount; i++) {
-              subscriberGroupChannel.queueDeclare(makeConsistentHashQueueName(channelName, subscriberId, i), true, false, false, null);
-              subscriberGroupChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, i), makeConsistentHashExchangeName(channelName, subscriberId), "10");
-            }
-
-            subscriberGroupChannel.basicPublish(makeConsistentHashExchangeName(channelName, subscriberId),
-                    properties.getHeaders().get("key").toString(),
-                    null,
-                    body);
-          }
-        });
+        subscriberGroupChannel.exchangeBind(makeConsistentHashExchangeName(channelName, subscriberId), channelName, "");
 
       } catch (IOException e) {
         logger.error(e.getMessage(), e);
+        throw new RuntimeException(e);
       }
     }
   }
@@ -148,30 +133,23 @@ public class Subscription {
   private void assignmentUpdated(Assignment assignment) {
     for (String channelName : currentPartitionsByChannel.keySet()) {
       Set<Integer> currentPartitions = currentPartitionsByChannel.get(channelName);
+
       Set<Integer> expectedPartitions = assignment.getPartitionAssignmentsByChannel().get(channelName);
-      Set<Integer> resignedPartitions = new HashSet<>();
 
-      currentPartitions.forEach(currentPartition -> {
-        if (!expectedPartitions.contains(currentPartition)) {
-          resignedPartitions.add(currentPartition);
-        }
-      });
+      Set<Integer> resignedPartitions = currentPartitions
+              .stream()
+              .filter(currentPartition -> !expectedPartitions.contains(currentPartition))
+              .collect(Collectors.toSet());
 
-      Set<Integer> assignedPartitions = new HashSet<>();
-      expectedPartitions.forEach(expectedPartition -> {
-        if (!currentPartitions.contains(expectedPartition)) {
-          assignedPartitions.add(expectedPartition);
-        }
-      });
-
-      currentPartitions.clear();
-      currentPartitions.addAll(expectedPartitions);
+      Set<Integer> assignedPartitions = expectedPartitions
+              .stream()
+              .filter(expectedPartition -> !currentPartitions.contains(expectedPartition))
+              .collect(Collectors.toSet());
 
       resignedPartitions.forEach(resignedPartition -> {
         try {
-          consumerChannel.queueUnbind(makeConsistentHashQueueName(channelName, subscriberId, resignedPartition),
-                  makeConsistentHashExchangeName(channelName, subscriberId),
-                  "10");
+          String queue = makeConsistentHashQueueName(channelName, subscriberId, resignedPartition);
+          consumerChannel.basicCancel(consumerTagByQueue.remove(queue));
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
           throw new RuntimeException(e);
@@ -180,13 +158,16 @@ public class Subscription {
 
       assignedPartitions.forEach(assignedPartition -> {
         try {
-          consumerChannel.queueBind(makeConsistentHashQueueName(channelName, subscriberId, assignedPartition),
-                  makeConsistentHashExchangeName(channelName, subscriberId),
-                  "10");
+          String queue = makeConsistentHashQueueName(channelName, subscriberId, assignedPartition);
+          String exchange = makeConsistentHashExchangeName(channelName, subscriberId);
 
-          consumerChannel.basicConsume(makeConsistentHashQueueName(channelName, subscriberId, assignedPartition),
-                  false,
-                  createConsumer(makeConsistentHashQueueName(channelName, subscriberId, assignedPartition)));
+          consumerChannel.exchangeDeclare(exchange, "x-consistent-hash");
+          consumerChannel.queueDeclare(queue, true, false, false, null);
+          consumerChannel.queueBind(queue, exchange, "10");
+
+          String tag = consumerChannel.basicConsume(queue, false, createConsumer(queue));
+
+          consumerTagByQueue.put(queue, tag);
         } catch (IOException e) {
           logger.error(e.getMessage(), e);
           throw new RuntimeException(e);
@@ -202,7 +183,6 @@ public class Subscription {
                                  Envelope envelope,
                                  AMQP.BasicProperties properties,
                                  byte[] body) throws IOException {
-
         logger.info("Got message from queue {}", queueName);
 
         String message = new String(body, "UTF-8");

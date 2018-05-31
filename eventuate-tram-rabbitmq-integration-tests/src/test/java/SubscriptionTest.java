@@ -35,8 +35,7 @@ public class SubscriptionTest {
   public static class Config {
     @Bean
     public EventuateRabbitMQProducer rabbitMQMessageProducer(@Value("${rabbitmq.url}") String rabbitMQURL) {
-      return new EventuateRabbitMQProducer(rabbitMQURL,
-              Collections.emptyMap());
+      return new EventuateRabbitMQProducer(rabbitMQURL);
     }
   }
 

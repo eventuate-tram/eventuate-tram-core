@@ -18,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Coordinator {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -29,7 +31,7 @@ public class Coordinator {
   private Runnable leaderSelectedCallback;
   private Runnable leaderRemovedCallback;
   private Consumer<Assignment> assignmentUpdatedCallback;
-  private Consumer<Map<String, Assignment>> manageAssignmentsCallback;
+  private int partitionCount;
 
   private String groupPath;
   private String leaderPath;
@@ -41,6 +43,8 @@ public class Coordinator {
   private NodeCache nodeCache;
   private LeaderSelector leaderSelector;
 
+  private Set<String> previousGroupMembers;
+
   public Coordinator(String groupMemberId,
                      String zkUrl,
                      String subscriberId,
@@ -48,7 +52,7 @@ public class Coordinator {
                      Runnable leaderSelectedCallback,
                      Runnable leaderRemovedCallback,
                      Consumer<Assignment> assignmentUpdatedCallback,
-                     Consumer<Map<String, Assignment>> manageAssignmentsCallback) {
+                     int partitionCount) {
 
     this.groupMemberId = groupMemberId;
     this.subscriberId = subscriberId;
@@ -57,7 +61,7 @@ public class Coordinator {
     this.leaderSelectedCallback = leaderSelectedCallback;
     this.leaderRemovedCallback = leaderRemovedCallback;
     this.assignmentUpdatedCallback = assignmentUpdatedCallback;
-    this.manageAssignmentsCallback = manageAssignmentsCallback;
+    this.partitionCount = partitionCount;
 
     groupPath = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s", subscriberId);
     leaderPath = String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId);
@@ -119,33 +123,47 @@ public class Coordinator {
     leaderSelector = new LeaderSelector(curatorFramework, leaderPath, new LeaderSelectorListener() {
       @Override
       public void takeLeadership(CuratorFramework client) {
-        Set<String> previousGroupMembers = new HashSet<>();
+
+        PartitionManager partitionManager = new PartitionManager(partitionCount);
+        previousGroupMembers = new HashSet<>();
         leaderSelectedCallback.run();
 
-        BlockingQueue<Set<String>> memberIdsUpdates = new LinkedBlockingQueue<>();
+        GroupManager groupManager = new GroupManager(curatorFramework, groupPath, currentGroupMembers -> {
+          if (!partitionManager.isInitialized()) {
+            Map<String, Assignment> assignments = currentGroupMembers
+                    .stream()
+                    .collect(Collectors.toMap(Function.identity(), groupMemberId -> readAssignment(groupMemberId)));
 
-        GroupManager groupManager = new GroupManager(curatorFramework, groupPath, memberIdsUpdates::add);
+            partitionManager
+                    .initialize(assignments)
+                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
+          } else {
+
+            Set<String> removedGroupMembers = previousGroupMembers
+                    .stream()
+                    .filter(groupMember -> !currentGroupMembers.contains(groupMember))
+                    .collect(Collectors.toSet());
+
+            Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = currentGroupMembers
+                    .stream()
+                    .filter(groupMember -> !previousGroupMembers.contains(groupMember))
+                    .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
+
+            partitionManager
+                    .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
+                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
+          }
+
+          previousGroupMembers = currentGroupMembers;
+        });
 
         try {
           while (running) {
-            Set<String> currentGroupMembers;
             try {
-              currentGroupMembers = memberIdsUpdates.poll(Long.MAX_VALUE, TimeUnit.DAYS);
+              Thread.sleep(Long.MAX_VALUE);
             } catch (InterruptedException e) {
               break;
             }
-
-            if (previousGroupMembers.equals(currentGroupMembers)) {
-              continue;
-            }
-
-            previousGroupMembers.clear();
-            previousGroupMembers.addAll(currentGroupMembers);
-
-            HashMap<String, Assignment> assignments = new HashMap<>();
-            currentGroupMembers.forEach(groupMemberId -> assignments.put(groupMemberId, readAssignment(groupMemberId)));
-            manageAssignmentsCallback.accept(assignments);
-            assignments.forEach((memberId, assignment) -> saveAssignment(assignment, memberId));
           }
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
@@ -170,6 +188,7 @@ public class Coordinator {
 
   private Assignment readAssignment(String groupMemberId) {
     try {
+
       String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
       byte[] binaryData = curatorFramework.getData().forPath(assignmentPath);
       return JSonMapper.fromJson(byteArrayToString(binaryData), Assignment.class);
@@ -179,7 +198,7 @@ public class Coordinator {
     }
   }
 
-  private void saveAssignment(Assignment assignment, String groupMemberId) {
+  private void saveAssignment(String groupMemberId, Assignment assignment) {
     try {
       String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
       byte[] binaryData = stringToByteArray(JSonMapper.toJson(assignment));
