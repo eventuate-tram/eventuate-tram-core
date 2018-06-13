@@ -7,7 +7,7 @@ import io.eventuate.local.db.log.common.*;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.*;
-import io.eventuate.local.polling.PollingCdcKafkaPublisher;
+import io.eventuate.local.polling.PollingCdcDataPublisher;
 import io.eventuate.local.polling.PollingCdcProcessor;
 import io.eventuate.local.polling.PollingDao;
 import io.eventuate.local.polling.PollingDataProvider;
@@ -94,7 +94,7 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                                                                         CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher,
+                                                                                                                         CdcDataPublisher<MessageWithDestination> cdcKafkaPublisher,
                                                                                                                          CdcProcessor<MessageWithDestination> cdcProcessor,
                                                                                                                          CuratorFramework curatorFramework) {
     return new EventTableChangesToAggregateTopicTranslator<>(cdcKafkaPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
@@ -108,12 +108,13 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("!EventuatePolling")
-  public CdcKafkaPublisher<MessageWithDestination> cdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+  public CdcDataPublisher<MessageWithDestination> cdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                      DatabaseOffsetKafkaStore databaseOffsetKafkaStore,
                                                                      PublishingStrategy<MessageWithDestination> publishingStrategy) {
 
-    return new DbLogBasedCdcKafkaPublisher<>(databaseOffsetKafkaStore,
-            eventuateKafkaConfigurationProperties.getBootstrapServers(),
+    return new DbLogBasedCdcDataPublisher<MessageWithDestination>(() -> new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers()),
+            databaseOffsetKafkaStore,
+            new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers()),
             publishingStrategy);
   }
 
@@ -139,10 +140,11 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public CdcKafkaPublisher<MessageWithDestination> pollingCdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+  public CdcDataPublisher<MessageWithDestination> pollingCdcKafkaPublisher(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
           PublishingStrategy<MessageWithDestination> publishingStrategy) {
 
-    return new PollingCdcKafkaPublisher<>(eventuateKafkaConfigurationProperties.getBootstrapServers(), publishingStrategy);
+    return new PollingCdcDataPublisher<>(() -> new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers()),
+            publishingStrategy);
   }
 
   @Bean
