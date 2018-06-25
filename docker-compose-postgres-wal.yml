@@ -17,7 +17,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 postgres:
-  build: ./postgres-wal
+  build: ./postgres
   ports:
     - 5432:5432
   environment:

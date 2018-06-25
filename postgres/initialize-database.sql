@@ -37,3 +37,5 @@ CREATE TABLE eventuate.saga_instance(
   saga_data_json VARCHAR(1000) NOT NULL,
   PRIMARY KEY(saga_type, saga_id)
 );
+
+SELECT * FROM pg_create_logical_replication_slot('eventuate_slot', 'wal2json');
