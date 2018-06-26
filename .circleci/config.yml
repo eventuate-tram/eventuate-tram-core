@@ -21,13 +21,16 @@ jobs:
       - run:
           name: Save test results
           command: |
-            mkdir -p ~/junit/
+            mkdir -p ~/junit ~/container-logs ~/container-logs
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+          path: ~/container-logs
       - run:
           name: Publish artifacts
           command: |
