@@ -16,4 +16,5 @@ test {
     if (System.env['SPRING_PROFILES_ACTIVE'] == 'EventuatePolling' || System.env['SPRING_PROFILES_ACTIVE'] == 'PostgresWal') {
         exclude '**/TramIntegrationCustomDBTest**'
     }
+    forkEvery 1
 }
