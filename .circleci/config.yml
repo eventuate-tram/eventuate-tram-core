@@ -30,6 +30,7 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
           path: ~/container-logs
       - run:
           name: Publish artifacts
