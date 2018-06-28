@@ -26,6 +26,10 @@ public class SwimlaneDispatcher {
     this.executor = executor;
   }
 
+  public boolean getRunning() {
+    return running.get();
+  }
+
   public void dispatch(Message message, Consumer<Message> messageConsumer) {
     synchronized (queue) {
       QueuedMessage queuedMessage = new QueuedMessage(message, messageConsumer);
@@ -61,6 +65,7 @@ public class SwimlaneDispatcher {
     else {
       logger.trace("Invoking handler for message for {} {} {}", subscriberId, swimlane, queuedMessage.message);
       queuedMessage.messageConsumer.accept(queuedMessage.message);
+      processNextQueuedMessage();
     }
   }
 
