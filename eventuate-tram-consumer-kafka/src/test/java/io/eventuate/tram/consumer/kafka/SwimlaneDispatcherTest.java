@@ -4,6 +4,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
@@ -12,38 +13,40 @@ import java.util.function.Consumer;
 
 public class SwimlaneDispatcherTest {
 
+  private SwimlaneDispatcher swimlaneDispatcher;
+  private AtomicInteger numberOfMessagesReceived;
+  private Consumer<Message> handler;
+
+  @Before
+  public void init() {
+    swimlaneDispatcher = new SwimlaneDispatcher("1", 1, Executors.newCachedThreadPool());
+    numberOfMessagesReceived = new AtomicInteger(0);
+  }
+
   @Test
   public void shouldDispatchManyMessages() {
     int numberOfMessagesToSend = 5;
 
-    SwimlaneDispatcher swimlaneDispatcher = new SwimlaneDispatcher("1", 1, Executors.newCachedThreadPool());
+    createHandler();
 
-    AtomicInteger numberOfMessagesReceived = new AtomicInteger(0);
-
-    Consumer<Message> handler = createHandler(numberOfMessagesReceived);
-
-    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
-    assertMessageReceived(numberOfMessagesReceived, numberOfMessagesToSend);
+    sendMessages(numberOfMessagesToSend);
+    assertMessageReceived(numberOfMessagesToSend);
   }
 
   @Test
   public void testShouldRestart() {
     int numberOfMessagesToSend = 5;
 
-    SwimlaneDispatcher swimlaneDispatcher = new SwimlaneDispatcher("1", 1, Executors.newCachedThreadPool());
+    createHandler();
 
-    AtomicInteger numberOfMessagesReceived = new AtomicInteger(0);
-
-    Consumer<Message> handler = createHandler(numberOfMessagesReceived);
-
-    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
-    assertDispatcherStopped(swimlaneDispatcher);
-    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
-    assertMessageReceived(numberOfMessagesReceived, numberOfMessagesToSend * 2);
+    sendMessages(numberOfMessagesToSend);
+    assertDispatcherStopped();
+    sendMessages(numberOfMessagesToSend);
+    assertMessageReceived(numberOfMessagesToSend * 2);
   }
 
-  private Consumer<Message> createHandler(AtomicInteger numberOfMessagesReceived) {
-    return msg -> {
+  private void createHandler() {
+    handler = msg -> {
       numberOfMessagesReceived.incrementAndGet();
       try {
         Thread.sleep(50);
@@ -53,7 +56,7 @@ public class SwimlaneDispatcherTest {
     };
   }
 
-  private void sendMessages(SwimlaneDispatcher swimlaneDispatcher, Consumer<Message> handler, int numberOfMessagesToSend) {
+  private void sendMessages(int numberOfMessagesToSend) {
     for (int i = 0; i < numberOfMessagesToSend; i++) {
       if (i > 0) {
         Assert.assertTrue(swimlaneDispatcher.getRunning());
@@ -62,11 +65,11 @@ public class SwimlaneDispatcherTest {
     }
   }
 
-  private void assertMessageReceived(AtomicInteger numberOfMessagesReceived, int numberOfMessagesToSend) {
-    Eventually.eventually(() -> Assert.assertEquals(numberOfMessagesReceived.get(), numberOfMessagesToSend));
+  private void assertMessageReceived(int numberOfMessagesToSend) {
+    Eventually.eventually(() -> Assert.assertEquals(numberOfMessagesToSend, numberOfMessagesReceived.get()));
   }
 
-  private void assertDispatcherStopped(SwimlaneDispatcher swimlaneDispatcher) {
+  private void assertDispatcherStopped() {
     Eventually.eventually(() -> Assert.assertFalse(swimlaneDispatcher.getRunning()));
   }
 }
