@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.kafka;
 
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,45 +13,60 @@ import java.util.function.Consumer;
 public class SwimlaneDispatcherTest {
 
   @Test
-  public void testProcessing() {
+  public void shouldDispatchManyMessages() {
+    int numberOfMessagesToSend = 5;
+
     SwimlaneDispatcher swimlaneDispatcher = new SwimlaneDispatcher("1", 1, Executors.newCachedThreadPool());
 
-    AtomicInteger counter = new AtomicInteger(0);
+    AtomicInteger numberOfMessagesReceived = new AtomicInteger(0);
 
-    Consumer<Message> handler = msg -> {
-      counter.incrementAndGet();
+    Consumer<Message> handler = createHandler(numberOfMessagesReceived);
+
+    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
+    assertMessageReceived(numberOfMessagesReceived, numberOfMessagesToSend);
+  }
+
+  @Test
+  public void testShouldRestart() {
+    int numberOfMessagesToSend = 5;
+
+    SwimlaneDispatcher swimlaneDispatcher = new SwimlaneDispatcher("1", 1, Executors.newCachedThreadPool());
+
+    AtomicInteger numberOfMessagesReceived = new AtomicInteger(0);
+
+    Consumer<Message> handler = createHandler(numberOfMessagesReceived);
+
+    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
+    assertDispatcherStopped(swimlaneDispatcher);
+    sendMessages(swimlaneDispatcher, handler, numberOfMessagesToSend);
+    assertMessageReceived(numberOfMessagesReceived, numberOfMessagesToSend * 2);
+  }
+
+  private Consumer<Message> createHandler(AtomicInteger numberOfMessagesReceived) {
+    return msg -> {
+      numberOfMessagesReceived.incrementAndGet();
       try {
         Thread.sleep(50);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     };
+  }
 
-    //test case when events supplied continuously, and processing is not stopping
-    for (int i = 0; i < 5; i++) {
+  private void sendMessages(SwimlaneDispatcher swimlaneDispatcher, Consumer<Message> handler, int numberOfMessagesToSend) {
+    for (int i = 0; i < numberOfMessagesToSend; i++) {
       if (i > 0) {
         Assert.assertTrue(swimlaneDispatcher.getRunning());
       }
-      swimlaneDispatcher.dispatch(null, handler);
+      swimlaneDispatcher.dispatch(MessageBuilder.withPayload("").build(), handler);
     }
+  }
 
-    Eventually.eventually(() -> {
-      Assert.assertEquals(5, counter.get());
-      Assert.assertFalse(swimlaneDispatcher.getRunning());
-    });
+  private void assertMessageReceived(AtomicInteger numberOfMessagesReceived, int numberOfMessagesToSend) {
+    Eventually.eventually(() -> Assert.assertEquals(numberOfMessagesReceived.get(), numberOfMessagesToSend));
+  }
 
-
-    //test event processing after stop
-    for (int i = 0; i < 5; i++) {
-      if (i > 0) {
-        Assert.assertTrue(swimlaneDispatcher.getRunning());
-      }
-      swimlaneDispatcher.dispatch(null, handler);
-    }
-
-    Eventually.eventually(() -> {
-      Assert.assertEquals(10, counter.get());
-      Assert.assertFalse(swimlaneDispatcher.getRunning());
-    });
+  private void assertDispatcherStopped(SwimlaneDispatcher swimlaneDispatcher) {
+    Eventually.eventually(() -> Assert.assertFalse(swimlaneDispatcher.getRunning()));
   }
 }

@@ -59,13 +59,15 @@ public class SwimlaneDispatcher {
 
 
   public void processQueuedMessage() {
-    QueuedMessage queuedMessage = getNextMessage();
-    if (queuedMessage == null)
-      logger.trace("No queued message for {} {}", subscriberId, swimlane);
-    else {
-      logger.trace("Invoking handler for message for {} {} {}", subscriberId, swimlane, queuedMessage.message);
-      queuedMessage.messageConsumer.accept(queuedMessage.message);
-      processNextQueuedMessage();
+    while (true) {
+      QueuedMessage queuedMessage = getNextMessage();
+      if (queuedMessage == null) {
+        logger.trace("No queued message for {} {}", subscriberId, swimlane);
+        return;
+      } else {
+        logger.trace("Invoking handler for message for {} {} {}", subscriberId, swimlane, queuedMessage.message);
+        queuedMessage.messageConsumer.accept(queuedMessage.message);
+      }
     }
   }
 
