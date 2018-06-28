@@ -14,6 +14,7 @@ dependencies {
     compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 
 
