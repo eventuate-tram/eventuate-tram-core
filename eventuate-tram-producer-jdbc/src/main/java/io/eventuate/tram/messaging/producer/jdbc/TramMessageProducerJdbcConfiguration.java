@@ -3,15 +3,12 @@ package io.eventuate.tram.messaging.producer.jdbc;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
 import io.eventuate.javaclient.spring.jdbc.IdGeneratorImpl;
-import io.eventuate.local.java.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(EventuateKafkaProducerConfigurationProperties.class)
 public class TramMessageProducerJdbcConfiguration {
 
   @Bean
