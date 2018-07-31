@@ -36,9 +36,7 @@ import java.util.Optional;
         ActiveMQMessageTableChangesToDestinationsConfiguration.class,
         RabbitMQMessageTableChangesToDestinationsConfiguration.class,
         EventuateDriverConfiguration.class})
-@EnableConfigurationProperties({EventuateTramChannelProperties.class,
-        EventuateKafkaProducerConfigurationProperties.class,
-        EventuateKafkaConsumerConfigurationProperties.class})
+@EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean

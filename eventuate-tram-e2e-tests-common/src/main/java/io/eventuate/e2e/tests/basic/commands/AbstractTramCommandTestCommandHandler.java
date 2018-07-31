@@ -13,7 +13,6 @@ public class AbstractTramCommandTestCommandHandler {
    this.commandChannel = commandChannel;
   }
 
-  @CommandHandlerMethod(path="/customers/{customerId}", replyChannel = "'CustomerAggregate'", partitionId="path['customerId']")
   public Message doSomething(CommandMessage<DoSomethingCommand> cm, PathVariables pvs) {
     System.out.println("customerId=" + pvs.getString("customerId"));
     System.out.println("cm=" + cm);
