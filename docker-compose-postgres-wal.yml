@@ -1,12 +1,12 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.18.0.RELEASE
+  image: eventuateio/eventuateio-local-zookeeper:0.20.1.RELEASE
   ports:
     - 2181:2181
     - 2888:2888
     - 3888:3888
 
 kafka:
-  image: eventuateio/eventuateio-local-kafka:0.18.0.RELEASE
+  image: eventuateio/eventuateio-local-kafka:0.20.1.RELEASE
   ports:
     - 9092:9092
   links:

@@ -11,7 +11,9 @@ import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.db.log.common.PublishingFilter;
 import io.eventuate.local.java.common.broker.DataProducerFactory;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
+import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.local.java.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
@@ -34,23 +36,31 @@ import java.util.Optional;
         ActiveMQMessageTableChangesToDestinationsConfiguration.class,
         RabbitMQMessageTableChangesToDestinationsConfiguration.class,
         EventuateDriverConfiguration.class})
-@EnableConfigurationProperties(EventuateTramChannelProperties.class)
+@EnableConfigurationProperties({EventuateTramChannelProperties.class,
+        EventuateKafkaProducerConfigurationProperties.class,
+        EventuateKafkaConsumerConfigurationProperties.class})
 public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Conditional(MysqlBinlogKafkaCondition.class)
   public DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                       EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
+                                                                       EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                                       EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(), eventuateKafkaConfigurationProperties);
+    return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(),
+            eventuateKafkaConfigurationProperties,
+            eventuateKafkaConsumerConfigurationProperties);
   }
 
   @Bean
   @Conditional(MysqlBinlogActiveMQOrRabbitMQCondition.class)
   public DebeziumBinlogOffsetKafkaStore emptyDebeziumBinlogOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                            EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties) {
+                                                                            EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                                            EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(), eventuateKafkaConfigurationProperties) {
+    return new DebeziumBinlogOffsetKafkaStore(eventuateConfigurationProperties.getOldDbHistoryTopicName(),
+            eventuateKafkaConfigurationProperties,
+            eventuateKafkaConsumerConfigurationProperties) {
       @Override
       public Optional<BinlogFileOffset> getLastBinlogFileOffset() {
         return Optional.empty();
@@ -76,12 +86,14 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Primary
   public OffsetStore databaseOffsetKafkaStore(EventuateConfigurationProperties eventuateConfigurationProperties,
                                                            EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                           EventuateKafkaProducer eventuateKafkaProducer) {
+                                                           EventuateKafkaProducer eventuateKafkaProducer,
+                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
     return new DatabaseOffsetKafkaStore(eventuateConfigurationProperties.getDbHistoryTopicName(),
             eventuateConfigurationProperties.getMySqlBinLogClientName(),
             eventuateKafkaProducer,
-            eventuateKafkaConfigurationProperties);
+            eventuateKafkaConfigurationProperties,
+            eventuateKafkaConsumerConfigurationProperties);
   }
 
   @Bean
