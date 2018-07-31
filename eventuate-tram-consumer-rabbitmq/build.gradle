@@ -1,0 +1,14 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-consumer-common")
+    compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.2.0'
+
+    compile('org.apache.curator:curator-framework:2.11.0')
+    compile('org.apache.curator:curator-recipes:2.11.0')
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+}
+
+

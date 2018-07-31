@@ -3,6 +3,7 @@ package io.eventuate.tram.consumer.kafka;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumer;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;

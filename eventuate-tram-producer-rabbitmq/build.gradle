@@ -1,0 +1,9 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile "io.eventuate.local.java:eventuate-local-java-common-broker:$eventuateLocalVersion"
+    compile project(":eventuate-tram-messaging")
+
+    compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.2.0'
+}
+

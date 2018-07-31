@@ -38,4 +38,9 @@ CREATE TABLE eventuate.saga_instance(
   PRIMARY KEY(saga_type, saga_id)
 );
 
+CREATE TABLE eventuate.offset_store(
+  client_name VARCHAR(255) NOT NULL PRIMARY KEY,
+  serialized_offset VARCHAR(255)
+);
+
 SELECT * FROM pg_create_logical_replication_slot('eventuate_slot', 'wal2json');
