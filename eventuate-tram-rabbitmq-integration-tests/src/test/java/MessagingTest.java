@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class MessagingTest {
 
+  public static final int SLEEP_DURATION_MILLIS = 20 * 1000;
+
   @Configuration
   @EnableAutoConfiguration
   public static class Config {
@@ -68,7 +70,7 @@ public class MessagingTest {
     createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue.add(Integer.parseInt(message.getPayload())));
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -95,7 +97,7 @@ public class MessagingTest {
     createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -122,7 +124,7 @@ public class MessagingTest {
     createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue1.add(Integer.parseInt(message.getPayload())));
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -139,7 +141,7 @@ public class MessagingTest {
     createConsumer(2).subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -172,7 +174,7 @@ public class MessagingTest {
     consumer2.subscribe(subscriberId, ImmutableSet.of(destination), message ->
             concurrentLinkedQueue2.add(Integer.parseInt(message.getPayload())));
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -192,7 +194,7 @@ public class MessagingTest {
 
     consumer2.close();
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -230,7 +232,7 @@ public class MessagingTest {
     }
 
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
@@ -264,7 +266,7 @@ public class MessagingTest {
       consumers.add(consumer);
     }
 
-    Thread.sleep(3000);
+    Thread.sleep(SLEEP_DURATION_MILLIS);
 
     for (int i = 0; i < messages; i++) {
       eventuateRabbitMQProducer.send(destination,
