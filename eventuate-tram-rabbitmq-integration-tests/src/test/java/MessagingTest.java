@@ -77,7 +77,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue.size()));
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue.size()));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -131,7 +131,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue1.size()));
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> Assert.assertEquals(messages, concurrentLinkedQueue1.size()));
     concurrentLinkedQueue1.clear();
 
     ConcurrentLinkedQueue<Integer> concurrentLinkedQueue2 = new ConcurrentLinkedQueue<>();
@@ -148,7 +148,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -181,7 +181,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertFalse(concurrentLinkedQueue1.isEmpty());
       Assert.assertFalse(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size() + concurrentLinkedQueue2.size());
@@ -201,7 +201,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertTrue(concurrentLinkedQueue2.isEmpty());
       Assert.assertEquals(messages, concurrentLinkedQueue1.size());
     });
@@ -239,7 +239,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertTrue(queues.stream().noneMatch(ConcurrentLinkedQueue::isEmpty));
       Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
     });
@@ -273,7 +273,7 @@ public class MessagingTest {
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
 
-    Eventually.eventually(30, 1, TimeUnit.SECONDS, () -> {
+    Eventually.eventually(100, 1, TimeUnit.SECONDS, () -> {
       Assert.assertTrue(queues.stream().noneMatch(ConcurrentLinkedQueue::isEmpty));
       Assert.assertEquals(messages, (int)queues.stream().map(ConcurrentLinkedQueue::size).reduce(0, (a, b) -> a + b));
     });
