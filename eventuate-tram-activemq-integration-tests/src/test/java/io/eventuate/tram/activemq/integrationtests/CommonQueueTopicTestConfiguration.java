@@ -1,3 +1,5 @@
+package io.eventuate.tram.activemq.integrationtests;
+
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;

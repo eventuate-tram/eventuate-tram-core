@@ -1,6 +1,7 @@
+package io.eventuate.tram.cdc.mysql.connector;
+
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

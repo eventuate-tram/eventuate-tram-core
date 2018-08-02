@@ -1,3 +1,5 @@
+package io.eventuate.tram.rabbitmq.integrationtests;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.rabbitmq.client.Connection;

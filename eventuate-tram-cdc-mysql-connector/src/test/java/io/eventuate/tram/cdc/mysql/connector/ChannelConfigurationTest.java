@@ -1,4 +1,5 @@
-import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
+package io.eventuate.tram.cdc.mysql.connector;
+
 import io.eventuate.tram.messaging.common.ChannelType;
 import org.junit.Assert;
 import org.junit.Test;
