@@ -101,9 +101,9 @@ public class MessagingTest {
   @Autowired
   private ApplicationContext applicationContext;
 
-  private static final int MESSAGE_COUNT = 1000;
+  private static final int MESSAGE_COUNT = 100;
   private static final int REBALANCE_TIMEOUT_IN_MILLIS = 10000;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(60, 1, TimeUnit.SECONDS);
+  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
 
 
   private String destination;
