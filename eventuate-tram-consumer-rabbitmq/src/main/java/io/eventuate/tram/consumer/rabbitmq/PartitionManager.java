@@ -1,11 +1,16 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PartitionManager {
+  private Logger logger = LoggerFactory.getLogger(getClass());
+
   private int partitionCount;
   private boolean initialized;
   private Map<String, Assignment> currentAssignments;
@@ -18,7 +23,12 @@ public class PartitionManager {
     initialized = true;
     currentAssignments = rebalance(assignments);
 
-    return filterUnchangedAssignments(assignments, currentAssignments);
+    Map<String, Assignment> reassignments =  filterUnchangedAssignments(assignments, currentAssignments);
+
+    logger.info("Initializing rebalancer: assignments = {}, currentAssignments = {}, reassignments = {}",
+            assignments, currentAssignments, reassignments);
+
+    return reassignments;
   }
 
   public boolean isInitialized() {
@@ -51,6 +61,9 @@ public class PartitionManager {
     Map<String, Assignment> reassignments = rebalance(assignmentsToRebalance);
     Map<String, Assignment> changedAssignments = filterUnchangedAssignments(currentAssignments, reassignments);
     currentAssignments = reassignments;
+
+    logger.info("Rebalansing: addedGroupMembersWithTheirSubscribedChannels = {}, removedGroupMembers = {}, currentAssignments = {}, reassignments = {}",
+            addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers, currentAssignments, reassignments);
 
     return changedAssignments;
   }

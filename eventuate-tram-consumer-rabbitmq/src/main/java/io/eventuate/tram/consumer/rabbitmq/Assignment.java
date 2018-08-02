@@ -1,5 +1,8 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import java.util.*;
 
 public class Assignment {
@@ -34,6 +37,11 @@ public class Assignment {
 
   public void setPartitionAssignmentsByChannel(Map<String, Set<Integer>> partitionAssignmentsByChannel) {
     this.partitionAssignmentsByChannel = partitionAssignmentsByChannel;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
   }
 
   @Override

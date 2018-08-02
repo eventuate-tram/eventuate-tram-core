@@ -143,7 +143,7 @@ public class SubscriptionTest {
   private CoordinationCallbacks createSubscription(Connection connection, String subscriberId, String destination, ConcurrentLinkedQueue concurrentLinkedQueue) {
     CoordinationCallbacks coordinationCallbacks = new CoordinationCallbacks();
 
-    new Subscription(connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
+    new Subscription(null, connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
       concurrentLinkedQueue.add(Integer.valueOf(message.getPayload()));
     }) {
       @Override
@@ -153,19 +153,13 @@ public class SubscriptionTest {
                                               Set<String> channels,
                                               Runnable leaderSelectedCallback,
                                               Runnable leaderRemovedCallback,
-                                              Consumer<Assignment> assignmentUpdatedCallback,
-                                              Consumer<Map<String, Assignment>> manageAssignmentsCallback) {
+                                              Consumer<Assignment> assignmentUpdatedCallback) {
 
         coordinationCallbacks.setLeaderSelectedCallback(leaderSelectedCallback);
         coordinationCallbacks.setLeaderRemovedCallback(leaderRemovedCallback);
         coordinationCallbacks.setAssignmentUpdatedCallback(assignmentUpdatedCallback);
 
         return Mockito.mock(Coordinator.class);
-      }
-
-      @Override
-      protected PartitionManager createPartitionManager(int partitionCount) {
-        return Mockito.mock(PartitionManager.class);
       }
     };
 

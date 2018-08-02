@@ -15,11 +15,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
+
+  public final String id = UUID.randomUUID().toString();
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -37,6 +40,8 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     this.partitionCount = partitionCount;
     this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
+
+    logger.info("consumer {} created and ready to subscribe", id);
   }
 
   private void prepareRabbitMQConnection(String rabbitMQUrl) {
@@ -52,7 +57,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
-    Subscription subscription = new Subscription(connection,
+    logger.info("consumer {} with subscriberId {} is subscribing to channels {}", id, subscriberId, channels);
+
+    Subscription subscription = new Subscription(id,
+            connection,
             zkUrl,
             subscriberId,
             channels,
@@ -60,23 +68,24 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
             (message, acknowledgeCallback) -> handleMessage(subscriberId, handler, message, acknowledgeCallback));
 
     subscriptions.add(subscription);
+
+    logger.info("consumer {} with subscriberId {} subscribed to channels {}", id, subscriberId, channels);
   }
 
   private void handleMessage(String subscriberId, MessageHandler handler, Message tramMessage, Runnable acknowledgeCallback) {
     transactionTemplate.execute(ts -> {
       if (duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-        logger.trace("Duplicate message {} {}", subscriberId, tramMessage.getId());
+        logger.info("consumer {} with subscriberId {} received message duplicate with id{}", id, subscriberId, tramMessage.getId());
         acknowledgeCallback.run();
         return null;
       }
 
       try {
-        logger.trace("Invoking handler {} {}", subscriberId, tramMessage.getId());
         handler.accept(tramMessage);
-        logger.trace("handled message {} {}", subscriberId, tramMessage.getId());
+        logger.info("consumer {} with subscriberId {} handled message with id {}", id, subscriberId, tramMessage.getId());
       } catch (Throwable t) {
-        logger.trace("Got exception {} {}", subscriberId, tramMessage.getId());
-        logger.trace("Got exception ", t);
+        logger.info("consumer {} with subscriberId {} got exception when tried to handle message with id {}", id, subscriberId, tramMessage.getId());
+        logger.info("Got exception ", t);
       } finally {
         acknowledgeCallback.run();
       }
@@ -86,6 +95,8 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   }
 
   public void close() {
+    logger.info("consumer {} is closing", id);
+
     subscriptions.forEach(Subscription::close);
 
     try {
@@ -93,5 +104,7 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     } catch (IOException e) {
       logger.error(e.getMessage(), e);
     }
+
+    logger.info("consumer {} is closed", id);
   }
 }

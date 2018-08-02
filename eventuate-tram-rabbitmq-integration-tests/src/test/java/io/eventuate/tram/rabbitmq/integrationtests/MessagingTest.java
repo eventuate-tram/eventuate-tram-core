@@ -12,6 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
@@ -57,6 +60,35 @@ public class MessagingTest {
     }
   }
 
+  private static class TestSubscription {
+    private MessageConsumerRabbitMQImpl consumer;
+    private ConcurrentLinkedQueue<Integer> messageQueue;
+
+    public TestSubscription(MessageConsumerRabbitMQImpl consumer, ConcurrentLinkedQueue<Integer> messageQueue) {
+      this.consumer = consumer;
+      this.messageQueue = messageQueue;
+    }
+
+    public MessageConsumerRabbitMQImpl getConsumer() {
+      return consumer;
+    }
+
+    public ConcurrentLinkedQueue<Integer> getMessageQueue() {
+      return messageQueue;
+    }
+
+    public void clearMessages() {
+      messageQueue.clear();
+    }
+
+    public void close() {
+      consumer.close();
+      messageQueue.clear();
+    }
+  }
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
+
   @Value("${rabbitmq.url}")
   private String rabbitMQURL;
 
@@ -69,9 +101,9 @@ public class MessagingTest {
   @Autowired
   private ApplicationContext applicationContext;
 
-  private static final int MESSAGE_COUNT = 100;
-  private static final int REBALANCE_TIMEOUT_IN_MILLIS = 3000;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(30, 1, TimeUnit.SECONDS);
+  private static final int MESSAGE_COUNT = 1000;
+  private static final int REBALANCE_TIMEOUT_IN_MILLIS = 10000;
+  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(60, 1, TimeUnit.SECONDS);
 
 
   private String destination;
@@ -85,119 +117,125 @@ public class MessagingTest {
 
   @Test
   public void test1Consumer2Partitions() throws Exception {
-    ConcurrentLinkedQueue<Integer> messageQueue = new ConcurrentLinkedQueue<>();
-
-    createConsumerAndSubscribe(2, messageQueue);
+    TestSubscription subscription = subscribe(2);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(messageQueue);
+    assertMessagesConsumed(subscription);
   }
 
   @Test
   public void test2Consumers2Partitions() throws Exception {
-    ConcurrentLinkedQueue<Integer> messageQueue1 = new ConcurrentLinkedQueue<>();
-    ConcurrentLinkedQueue<Integer> messageQueue2 = new ConcurrentLinkedQueue<>();
-
-    createConsumerAndSubscribe(2, messageQueue1);
-    createConsumerAndSubscribe(2, messageQueue2);
+    TestSubscription subscription1 = subscribe(2);
+    TestSubscription subscription2 = subscribe(2);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(ImmutableList.of(messageQueue1, messageQueue2));
+    assertMessagesConsumed(ImmutableList.of(subscription1, subscription2));
   }
 
   @Test
   public void test1Consumer2PartitionsThenAddedConsumer() throws Exception {
-    ConcurrentLinkedQueue<Integer> messageQueue1 = new ConcurrentLinkedQueue<>();
-
-    createConsumerAndSubscribe(2, messageQueue1);
+    TestSubscription testSubscription1 = subscribe(2);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(messageQueue1);
+    assertMessagesConsumed(testSubscription1);
 
-    messageQueue1.clear();
-    ConcurrentLinkedQueue<Integer> messageQueue2 = new ConcurrentLinkedQueue<>();
-
-    createConsumerAndSubscribe(2, messageQueue2);
+    testSubscription1.clearMessages();
+    TestSubscription testSubscription2 = subscribe(2);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(ImmutableList.of(messageQueue1, messageQueue2));
+    assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
   }
 
   @Test
   public void test2Consumers2PartitionsThenRemovedConsumer() throws Exception {
-    ConcurrentLinkedQueue<Integer> messageQueue1 = new ConcurrentLinkedQueue<>();
-    ConcurrentLinkedQueue<Integer> messageQueue2 = new ConcurrentLinkedQueue<>();
 
-    createConsumerAndSubscribe(2, messageQueue1);
-    MessageConsumerRabbitMQImpl consumer2 =  createConsumerAndSubscribe(2, messageQueue2);
+    TestSubscription testSubscription1 = subscribe(2);
+    TestSubscription testSubscription2 = subscribe(2);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(ImmutableList.of(messageQueue1, messageQueue2));
+    assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
 
-    messageQueue1.clear();
-    closeConsumer(consumer2, messageQueue2);
+    testSubscription1.clearMessages();
+    testSubscription2.close();
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(messageQueue1);
+    assertMessagesConsumed(testSubscription1);
   }
 
   @Test
   public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
-    LinkedList<ConcurrentLinkedQueue<Integer>> messageQueues = new LinkedList<>();
-    LinkedList<MessageConsumerRabbitMQImpl> consumers = new LinkedList<>();
 
-    createConsumersAndSubscribe(5, 9, consumers, messageQueues);
+    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(5, 9);
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(messageQueues);
+    assertMessagesConsumed(testSubscriptions);
 
-    closeConsumers(2, consumers, messageQueues);
-    messageQueues.forEach(AbstractQueue::clear);
-    createConsumersAndSubscribe(3, 9, consumers, messageQueues);
+    for (int i = 0; i < 2; i++) {
+      testSubscriptions.poll().close();
+    }
+
+    testSubscriptions.forEach(TestSubscription::clearMessages);
+
+    testSubscriptions.addAll(createConsumersAndSubscribe(3, 9));
 
     waitForRebalance();
 
     sendMessages();
 
-    assertMessagesConsumed(messageQueues);
+    assertMessagesConsumed(testSubscriptions);
   }
 
-  private void assertMessagesConsumed(ConcurrentLinkedQueue<Integer> messageQueue) {
+  private void assertMessagesConsumed(TestSubscription testSubscription) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
-            () -> Assert.assertEquals(MESSAGE_COUNT, messageQueue.size()));
+            () -> Assert.assertEquals(String.format("consumer %s did not receive expected messages", testSubscription.getConsumer().id),
+                    MESSAGE_COUNT,
+                    testSubscription.messageQueue.size()));
   }
 
-  private void assertMessagesConsumed(List<ConcurrentLinkedQueue<Integer>> messageQueues) {
+  private void assertMessagesConsumed(List<TestSubscription> testSubscriptions) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
             () -> {
-      Assert.assertTrue(messageQueues.stream().noneMatch(ConcurrentLinkedQueue::isEmpty));
+
+      List<TestSubscription> emptySubscriptions = testSubscriptions
+              .stream()
+              .filter(testSubscription -> testSubscription.messageQueue.isEmpty())
+              .collect(Collectors.toList());
+
+      emptySubscriptions.forEach(testSubscription -> logger.info("[{}] consumer is empty", testSubscription.getConsumer().id));
+
+      Assert.assertTrue(emptySubscriptions.isEmpty());
+
       Assert.assertEquals((long) MESSAGE_COUNT,
-              (long) messageQueues.stream().map(ConcurrentLinkedQueue::size).reduce((a, b) -> a + b).orElse(0));
+              (long) testSubscriptions
+                      .stream()
+                      .map(testSubscription -> testSubscription.getMessageQueue().size())
+                      .reduce((a, b) -> a + b)
+                      .orElse(0));
     });
   }
 
@@ -205,25 +243,26 @@ public class MessagingTest {
     Thread.sleep(REBALANCE_TIMEOUT_IN_MILLIS);
   }
 
-  private void createConsumersAndSubscribe(int consumerCount,
-                                           int partitionCount,
-                                           LinkedList<MessageConsumerRabbitMQImpl> consumers,
-                                           LinkedList<ConcurrentLinkedQueue<Integer>> messageQueues) {
+  private LinkedList<TestSubscription> createConsumersAndSubscribe(int consumerCount, int partitionCount) {
+
+    LinkedList<TestSubscription> subscriptions = new LinkedList<>();
 
     for (int i = 0; i < consumerCount; i++) {
-      ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
-      messageQueues.add(concurrentLinkedQueue);
-      consumers.add(createConsumerAndSubscribe(partitionCount, concurrentLinkedQueue));
+      subscriptions.add(subscribe(partitionCount));
     }
+
+    return subscriptions;
   }
 
-  private MessageConsumerRabbitMQImpl createConsumerAndSubscribe(int partitionCount, ConcurrentLinkedQueue<Integer> messageQueue) {
+  private TestSubscription subscribe(int partitionCount) {
+    ConcurrentLinkedQueue<Integer> messageQueue = new ConcurrentLinkedQueue<>();
+
     MessageConsumerRabbitMQImpl consumer = createConsumer(partitionCount);
 
     consumer.subscribe(subscriberId, ImmutableSet.of(destination), message ->
             messageQueue.add(Integer.parseInt(message.getPayload())));
 
-    return consumer;
+    return new TestSubscription(consumer, messageQueue);
   }
 
   private MessageConsumerRabbitMQImpl createConsumer(int partitionCount) {
@@ -239,21 +278,5 @@ public class MessagingTest {
               JSonMapper.toJson(new MessageImpl(String.valueOf(i),
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
-  }
-
-  private void closeConsumers(int count,
-                              LinkedList<MessageConsumerRabbitMQImpl> consumers,
-                              LinkedList<ConcurrentLinkedQueue<Integer>> messageQueues) {
-
-    for (int i = 0; i < count; i++) {
-      Assert.assertFalse(consumers.isEmpty());
-      Assert.assertFalse(messageQueues.isEmpty());
-      closeConsumer(consumers.poll(), messageQueues.poll());
-    }
-  }
-
-  private void closeConsumer(MessageConsumerRabbitMQImpl consumer, ConcurrentLinkedQueue<Integer> messageQueue) {
-    consumer.close();
-    messageQueue.clear();
   }
 }

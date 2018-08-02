@@ -25,7 +25,7 @@ public class Coordinator {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private final String groupMemberId;
-  private String subscriberId;
+  private final String subscriberId;
   private Set<String> channels;
 
   private Runnable leaderSelectedCallback;
