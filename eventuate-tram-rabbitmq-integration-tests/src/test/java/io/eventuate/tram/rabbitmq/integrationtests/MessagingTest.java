@@ -110,7 +110,7 @@ public class MessagingTest {
   @Autowired
   private ApplicationContext applicationContext;
 
-  private static final int MESSAGE_COUNT = 100;
+  private static final int DEFAULT_MESSAGE_COUNT = 100;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
 
 
@@ -215,36 +215,60 @@ public class MessagingTest {
   }
 
   @Test
-  public void test() throws Exception {
+  public void testReassignment() throws Exception {
+    for (int i = 0; i < 10; i++) {
+      logger.info("testReassignment iteration {}", i);
+      
+      destination = "destination1";
+      subscriberId = "subscriber1";
 
-    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(1, 9);
+      TestSubscription testSubscription1 = subscribe(2);
 
-    waitForRebalance(testSubscriptions, 9);
+      waitForRebalance(ImmutableList.of(testSubscription1), 2);
 
-    sendMessages();
+      sendMessages(2);
 
-    assertMessagesConsumed(testSubscriptions);
+      try {
+        assertMessagesConsumed(testSubscription1, 2);
+      } catch (Throwable t){
+        testSubscription1.close();
+        throw t;
+      }
 
-    testSubscriptions.forEach(TestSubscription::clearMessages);
-    testSubscriptions.addAll(createConsumersAndSubscribe(8, 9));
+      testSubscription1.clearMessages();
+      TestSubscription testSubscription2 = subscribe(2);
 
-    waitForRebalance(testSubscriptions, 9);
+      waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
 
-    sendMessages();
+      sendMessages(2);
 
-    assertMessagesConsumed(testSubscriptions);
+      try {
+        assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2), 2);
+      } finally {
+        testSubscription1.close();
+        testSubscription2.close();
+      }
+    }
   }
 
   private void assertMessagesConsumed(TestSubscription testSubscription) {
+    assertMessagesConsumed(testSubscription, DEFAULT_MESSAGE_COUNT);
+  }
+
+  private void assertMessagesConsumed(TestSubscription testSubscription, int messageCount) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
             () -> Assert.assertEquals(String.format("consumer %s did not receive expected messages", testSubscription.getConsumer().id),
-                    MESSAGE_COUNT,
+                    messageCount,
                     testSubscription.messageQueue.size()));
   }
 
   private void assertMessagesConsumed(List<TestSubscription> testSubscriptions) {
+    assertMessagesConsumed(testSubscriptions, DEFAULT_MESSAGE_COUNT);
+  }
+
+  private void assertMessagesConsumed(List<TestSubscription> testSubscriptions, int messageCount) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
@@ -259,7 +283,7 @@ public class MessagingTest {
 
       Assert.assertTrue(emptySubscriptions.isEmpty());
 
-      Assert.assertEquals((long) MESSAGE_COUNT,
+      Assert.assertEquals((long) messageCount,
               (long) testSubscriptions
                       .stream()
                       .map(testSubscription -> testSubscription.getMessageQueue().size())
@@ -269,7 +293,6 @@ public class MessagingTest {
   }
 
   private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) throws Exception {
-//    Thread.sleep(10000);
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
@@ -326,9 +349,13 @@ public class MessagingTest {
   }
 
   private void sendMessages() {
-    for (int i = 0; i < MESSAGE_COUNT; i++) {
+    sendMessages(DEFAULT_MESSAGE_COUNT);
+  }
+
+  private void sendMessages(int messageCount) {
+    for (int i = 0; i < messageCount; i++) {
       eventuateRabbitMQProducer.send(destination,
-              String.valueOf(Math.random()),
+              String.valueOf(i),
               JSonMapper.toJson(new MessageImpl(String.valueOf(i),
                       Collections.singletonMap("ID", UUID.randomUUID().toString()))));
     }
