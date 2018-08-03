@@ -51,6 +51,8 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
+    consumerChannel = createRabbitMQChannel();
+
     coordinator = createCoordinator(
             subscriptionId,
             zkUrl,
@@ -59,8 +61,6 @@ public class Subscription {
             this::leaderSelected,
             this::leaderRemoved,
             this::assignmentUpdated);
-
-    consumerChannel = createRabbitMQChannel();
 
     logger.info("Created subscription for channels {} and partition count {}. {}",
             channels, partitionCount, identificationInformation());
