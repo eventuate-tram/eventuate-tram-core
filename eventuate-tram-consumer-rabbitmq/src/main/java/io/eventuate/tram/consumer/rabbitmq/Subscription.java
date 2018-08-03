@@ -30,6 +30,7 @@ public class Subscription {
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
   private Channel subscriberGroupChannel;
+  private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
 
   public Subscription(String consumerId,
                       Connection connection,
@@ -64,6 +65,10 @@ public class Subscription {
 
     logger.info("Created subscription for channels {} and partition count {}. {}",
             channels, partitionCount, identificationInformation());
+  }
+
+  public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
+    this.subscriptionLifecycleHook = Optional.ofNullable(subscriptionLifecycleHook);
   }
 
   protected Coordinator createCoordinator(String groupMemberId,
@@ -148,7 +153,6 @@ public class Subscription {
   private void assignmentUpdated(Assignment assignment) {
     logger.info("Updating assignment {}. {} ", assignment, identificationInformation());
 
-
     for (String channelName : currentPartitionsByChannel.keySet()) {
       Set<Integer> currentPartitions = currentPartitionsByChannel.get(channelName);
 
@@ -209,8 +213,12 @@ public class Subscription {
         }
       });
 
-      logger.info("assignment {} is updated. {}", assignment, identificationInformation());
+      currentPartitionsByChannel.put(channelName, expectedPartitions);
+
+      subscriptionLifecycleHook.ifPresent(sh -> sh.partitionsUpdated(channelName, subscriptionId, expectedPartitions));
     }
+
+    logger.info("assignment {} is updated. {}", assignment, identificationInformation());
   }
 
   private Consumer createConsumer(String queueName) {

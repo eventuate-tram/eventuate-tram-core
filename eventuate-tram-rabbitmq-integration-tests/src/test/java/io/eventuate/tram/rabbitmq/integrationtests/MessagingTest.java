@@ -63,6 +63,7 @@ public class MessagingTest {
   private static class TestSubscription {
     private MessageConsumerRabbitMQImpl consumer;
     private ConcurrentLinkedQueue<Integer> messageQueue;
+    private Set<Integer> currentPartitions;
 
     public TestSubscription(MessageConsumerRabbitMQImpl consumer, ConcurrentLinkedQueue<Integer> messageQueue) {
       this.consumer = consumer;
@@ -75,6 +76,14 @@ public class MessagingTest {
 
     public ConcurrentLinkedQueue<Integer> getMessageQueue() {
       return messageQueue;
+    }
+
+    public Set<Integer> getCurrentPartitions() {
+      return currentPartitions;
+    }
+
+    public void setCurrentPartitions(Set<Integer> currentPartitions) {
+      this.currentPartitions = currentPartitions;
     }
 
     public void clearMessages() {
@@ -102,7 +111,6 @@ public class MessagingTest {
   private ApplicationContext applicationContext;
 
   private static final int MESSAGE_COUNT = 100;
-  private static final int REBALANCE_TIMEOUT_IN_MILLIS = 10000;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
 
 
@@ -119,7 +127,7 @@ public class MessagingTest {
   public void test1Consumer2Partitions() throws Exception {
     TestSubscription subscription = subscribe(2);
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(subscription), 2);
 
     sendMessages();
 
@@ -131,7 +139,7 @@ public class MessagingTest {
     TestSubscription subscription1 = subscribe(2);
     TestSubscription subscription2 = subscribe(2);
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(subscription1, subscription2), 2);
 
     sendMessages();
 
@@ -142,7 +150,7 @@ public class MessagingTest {
   public void test1Consumer2PartitionsThenAddedConsumer() throws Exception {
     TestSubscription testSubscription1 = subscribe(2);
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(testSubscription1), 2);
 
     sendMessages();
 
@@ -151,7 +159,7 @@ public class MessagingTest {
     testSubscription1.clearMessages();
     TestSubscription testSubscription2 = subscribe(2);
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
 
     sendMessages();
 
@@ -164,7 +172,7 @@ public class MessagingTest {
     TestSubscription testSubscription1 = subscribe(2);
     TestSubscription testSubscription2 = subscribe(2);
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
 
     sendMessages();
 
@@ -173,7 +181,7 @@ public class MessagingTest {
     testSubscription1.clearMessages();
     testSubscription2.close();
 
-    waitForRebalance();
+    waitForRebalance(ImmutableList.of(testSubscription1), 2);
 
     sendMessages();
 
@@ -185,7 +193,7 @@ public class MessagingTest {
 
     LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(5, 9);
 
-    waitForRebalance();
+    waitForRebalance(testSubscriptions, 9);
 
     sendMessages();
 
@@ -199,7 +207,28 @@ public class MessagingTest {
 
     testSubscriptions.addAll(createConsumersAndSubscribe(3, 9));
 
-    waitForRebalance();
+    waitForRebalance(testSubscriptions, 9);
+
+    sendMessages();
+
+    assertMessagesConsumed(testSubscriptions);
+  }
+
+  @Test
+  public void test() throws Exception {
+
+    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(1, 9);
+
+    waitForRebalance(testSubscriptions, 9);
+
+    sendMessages();
+
+    assertMessagesConsumed(testSubscriptions);
+
+    testSubscriptions.forEach(TestSubscription::clearMessages);
+    testSubscriptions.addAll(createConsumersAndSubscribe(8, 9));
+
+    waitForRebalance(testSubscriptions, 9);
 
     sendMessages();
 
@@ -239,8 +268,29 @@ public class MessagingTest {
     });
   }
 
-  private void waitForRebalance() throws Exception {
-    Thread.sleep(REBALANCE_TIMEOUT_IN_MILLIS);
+  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) throws Exception {
+//    Thread.sleep(10000);
+    Eventually.eventually(EVENTUALLY_CONFIG.iterations,
+            EVENTUALLY_CONFIG.timeout,
+            EVENTUALLY_CONFIG.timeUnit,
+            () -> {
+              Assert.assertTrue(subscriptions
+                      .stream()
+                      .noneMatch(testSubscription ->
+                              testSubscription.getCurrentPartitions() == null ||
+                                      testSubscription.getCurrentPartitions().isEmpty()));
+
+              List<Integer> allPartitions = subscriptions
+                      .stream()
+                      .map(TestSubscription::getCurrentPartitions)
+                      .flatMap(Collection::stream)
+                      .collect(Collectors.toList());
+
+              Set<Integer> uniquePartitions = new HashSet<>(allPartitions);
+
+              Assert.assertEquals(allPartitions.size(), uniquePartitions.size());
+              Assert.assertEquals(totalPartitions, uniquePartitions.size());
+            });
   }
 
   private LinkedList<TestSubscription> createConsumersAndSubscribe(int consumerCount, int partitionCount) {
@@ -262,7 +312,11 @@ public class MessagingTest {
     consumer.subscribe(subscriberId, ImmutableSet.of(destination), message ->
             messageQueue.add(Integer.parseInt(message.getPayload())));
 
-    return new TestSubscription(consumer, messageQueue);
+    TestSubscription testSubscription = new TestSubscription(consumer, messageQueue);
+
+    consumer.setSubscriptionLifecycleHook((channel, subscriptionId, currentPartitions) -> testSubscription.setCurrentPartitions(currentPartitions));
+
+    return testSubscription;
   }
 
   private MessageConsumerRabbitMQImpl createConsumer(int partitionCount) {

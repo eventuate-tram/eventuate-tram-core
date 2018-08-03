@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
@@ -42,6 +39,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     prepareRabbitMQConnection(rabbitMQUrl);
 
     logger.info("consumer {} created and ready to subscribe", id);
+  }
+
+  public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
+    subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
   }
 
   private void prepareRabbitMQConnection(String rabbitMQUrl) {
