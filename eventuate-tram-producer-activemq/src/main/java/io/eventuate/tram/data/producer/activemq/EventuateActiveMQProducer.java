@@ -64,9 +64,7 @@ public class EventuateActiveMQProducer implements DataProducer {
       }
     }
 
-    CompletableFuture<Void> result = new CompletableFuture<>();
-    result.complete(null);
-    return result;
+    return CompletableFuture.completedFuture(null);
   }
 
   @Override

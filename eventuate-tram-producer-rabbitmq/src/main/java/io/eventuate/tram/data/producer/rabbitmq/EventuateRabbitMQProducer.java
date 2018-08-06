@@ -42,9 +42,7 @@ public class EventuateRabbitMQProducer implements DataProducer {
       throw new RuntimeException(e);
     }
 
-    CompletableFuture<Void> result = new CompletableFuture<>();
-    result.complete(null);
-    return result;
+    return CompletableFuture.completedFuture(null);
   }
 
   @Override
