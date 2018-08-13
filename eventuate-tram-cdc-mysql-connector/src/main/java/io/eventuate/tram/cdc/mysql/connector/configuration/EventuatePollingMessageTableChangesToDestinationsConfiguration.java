@@ -21,38 +21,38 @@ import javax.sql.DataSource;
 
 @Configuration
 public class EventuatePollingMessageTableChangesToDestinationsConfiguration {
-  @Bean
-  @Profile("EventuatePolling")
-  public CdcDataPublisher<MessageWithDestination> pollingCdcDataPublisher(DataProducerFactory dataProducerFactory,
-                                                                          PublishingStrategy<MessageWithDestination> publishingStrategy) {
+//  @Bean
+//  @Profile("EventuatePolling")
+//  public CdcDataPublisher<MessageWithDestination> pollingCdcDataPublisher(DataProducerFactory dataProducerFactory,
+//                                                                          PublishingStrategy<MessageWithDestination> publishingStrategy) {
+//
+//    return new PollingCdcDataPublisher<>(dataProducerFactory, publishingStrategy);
+//  }
+//
+//  @Bean
+//  @Profile("EventuatePolling")
+//  public CdcProcessor<MessageWithDestination> pollingCdcProcessor(EventuateConfigurationProperties eventuateConfigurationProperties,
+//                                                                  PollingDao<PollingMessageBean, MessageWithDestination, String> pollingDao) {
+//
+//    return new PollingCdcProcessor<>(pollingDao, eventuateConfigurationProperties.getPollingIntervalInMilliseconds());
+//  }
+//
+//  @Bean
+//  @Profile("EventuatePolling")
+//  public PollingDao<PollingMessageBean, MessageWithDestination, String> pollingDao(PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider,
+//                                                                                   DataSource dataSource,
+//                                                                                   EventuateConfigurationProperties eventuateConfigurationProperties) {
+//
+//    return new PollingDao<>(pollingDataProvider,
+//            dataSource,
+//            eventuateConfigurationProperties.getMaxEventsPerPolling(),
+//            eventuateConfigurationProperties.getMaxAttemptsForPolling(),
+//            eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds());
+//  }
 
-    return new PollingCdcDataPublisher<>(dataProducerFactory, publishingStrategy);
-  }
-
-  @Bean
-  @Profile("EventuatePolling")
-  public CdcProcessor<MessageWithDestination> pollingCdcProcessor(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                  PollingDao<PollingMessageBean, MessageWithDestination, String> pollingDao) {
-
-    return new PollingCdcProcessor<>(pollingDao, eventuateConfigurationProperties.getPollingIntervalInMilliseconds());
-  }
-
-  @Bean
-  @Profile("EventuatePolling")
-  public PollingDao<PollingMessageBean, MessageWithDestination, String> pollingDao(PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider,
-                                                                                   DataSource dataSource,
-                                                                                   EventuateConfigurationProperties eventuateConfigurationProperties) {
-
-    return new PollingDao<>(pollingDataProvider,
-            dataSource,
-            eventuateConfigurationProperties.getMaxEventsPerPolling(),
-            eventuateConfigurationProperties.getMaxAttemptsForPolling(),
-            eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds());
-  }
-
-  @Bean
-  @Profile("EventuatePolling")
-  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema) {
-    return new PollingMessageDataProvider(eventuateSchema);
-  }
+//  @Bean
+//  @Profile("EventuatePolling")
+//  public PollingDataProvider<PollingMessageBean, MessageWithDestination, String> pollingDataProvider(EventuateSchema eventuateSchema) {
+//    return new PollingMessageDataProvider(eventuateSchema);
+//  }
 }

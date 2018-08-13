@@ -17,44 +17,44 @@ import javax.sql.DataSource;
 
 @Configuration
 public class MySqlBinlogMessageTableChangesToDestinationsConfiguration {
-  @Bean
-  @Conditional(MySqlBinlogCondition.class)
-  public CdcProcessor<MessageWithDestination> mysqlBinLogCdcProcessor(DbLogClient<MessageWithDestination> dbLogClient,
-                                                                      OffsetStore offsetStore,
-                                                                      DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore) {
-
-    return new MySQLCdcProcessor<>(dbLogClient, offsetStore, debeziumBinlogOffsetKafkaStore);
-  }
-
-  @Bean
-  @Conditional(MySqlBinlogCondition.class)
-  public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
-    return new SourceTableNameSupplier(eventuateConfigurationProperties.getSourceTableName(), MySQLTableConfig.EVENTS_TABLE_NAME);
-  }
-
-  @Bean
-  @Conditional(MySqlBinlogCondition.class)
-  public IWriteRowsEventDataParser eventDataParser(EventuateSchema eventuateSchema,
-                                                   DataSource dataSource) {
-    return new WriteRowsEventDataParser(dataSource, eventuateSchema);
-  }
-
-  @Bean
-  @Conditional(MySqlBinlogCondition.class)
-  public DbLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
-                                                                  EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                  SourceTableNameSupplier sourceTableNameSupplier,
-                                                                  IWriteRowsEventDataParser<MessageWithDestination> eventDataParser) {
-    JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceURL);
-    return new MySqlBinaryLogClient<>(eventDataParser,
-            eventuateConfigurationProperties.getDbUserName(),
-            eventuateConfigurationProperties.getDbPassword(),
-            jdbcUrl.getHost(),
-            jdbcUrl.getPort(),
-            eventuateConfigurationProperties.getBinlogClientId(),
-            sourceTableNameSupplier.getSourceTableName(),
-            eventuateConfigurationProperties.getMySqlBinLogClientName(),
-            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
-            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection());
-  }
+//  @Bean
+//  @Conditional(MySqlBinlogCondition.class)
+//  public CdcProcessor<MessageWithDestination> mysqlBinLogCdcProcessor(DbLogClient<MessageWithDestination> dbLogClient,
+//                                                                      OffsetStore offsetStore,
+//                                                                      DebeziumBinlogOffsetKafkaStore debeziumBinlogOffsetKafkaStore) {
+//
+//    return new MySQLCdcProcessor<>(dbLogClient, offsetStore, debeziumBinlogOffsetKafkaStore);
+//  }
+//
+//  @Bean
+//  @Conditional(MySqlBinlogCondition.class)
+//  public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
+//    return new SourceTableNameSupplier(eventuateConfigurationProperties.getSourceTableName(), MySQLTableConfig.EVENTS_TABLE_NAME);
+//  }
+//
+//  @Bean
+//  @Conditional(MySqlBinlogCondition.class)
+//  public IWriteRowsEventDataParser eventDataParser(EventuateSchema eventuateSchema,
+//                                                   DataSource dataSource) {
+//    return new WriteRowsEventDataParser(dataSource, eventuateSchema);
+//  }
+//
+//  @Bean
+//  @Conditional(MySqlBinlogCondition.class)
+//  public DbLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
+//                                                                  EventuateConfigurationProperties eventuateConfigurationProperties,
+//                                                                  SourceTableNameSupplier sourceTableNameSupplier,
+//                                                                  IWriteRowsEventDataParser<MessageWithDestination> eventDataParser) {
+//    JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceURL);
+//    return new MySqlBinaryLogClient<>(eventDataParser,
+//            eventuateConfigurationProperties.getDbUserName(),
+//            eventuateConfigurationProperties.getDbPassword(),
+//            jdbcUrl.getHost(),
+//            jdbcUrl.getPort(),
+//            eventuateConfigurationProperties.getBinlogClientId(),
+//            sourceTableNameSupplier.getSourceTableName(),
+//            eventuateConfigurationProperties.getMySqlBinLogClientName(),
+//            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
+//            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection());
+//  }
 }

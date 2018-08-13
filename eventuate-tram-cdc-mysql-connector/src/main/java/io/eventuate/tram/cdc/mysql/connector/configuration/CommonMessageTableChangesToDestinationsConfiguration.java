@@ -20,14 +20,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(EventuateKafkaProducerConfigurationProperties.class)
 public class CommonMessageTableChangesToDestinationsConfiguration {
-  @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
+//  @Bean
+//  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+//    return new EventuateSchema(eventuateDatabaseSchema);
+//  }
+
+//  @Bean
+//  public EventuateConfigurationProperties eventuateConfigurationProperties() {
+//    return new EventuateConfigurationProperties();
+//  }
 
   @Bean
   public EventuateConfigurationProperties eventuateConfigurationProperties() {
     return new EventuateConfigurationProperties();
+  }
+
+  @Bean
+  public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
+    return new EventuateKafkaConfigurationProperties();
   }
 
   @Bean
@@ -46,13 +56,13 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
     return new MessageWithDestinationPublishingStrategy();
   }
 
-  @Bean
-  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                                                                         CdcDataPublisher<MessageWithDestination> cdcDataPublisher,
-                                                                                                                         CdcProcessor<MessageWithDestination> cdcProcessor,
-                                                                                                                         CuratorFramework curatorFramework) {
-    return new EventTableChangesToAggregateTopicTranslator<>(cdcDataPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
-  }
+//  @Bean
+//  public EventTableChangesToAggregateTopicTranslator<MessageWithDestination> eventTableChangesToAggregateTopicTranslator(EventuateConfigurationProperties eventuateConfigurationProperties,
+//                                                                                                                         CdcDataPublisher<MessageWithDestination> cdcDataPublisher,
+//                                                                                                                         CdcProcessor<MessageWithDestination> cdcProcessor,
+//                                                                                                                         CuratorFramework curatorFramework) {
+//    return new EventTableChangesToAggregateTopicTranslator<>(cdcDataPublisher, cdcProcessor, curatorFramework, eventuateConfigurationProperties.getLeadershipLockPath());
+//  }
 
   @Bean(destroyMethod = "close")
   public CuratorFramework curatorFramework(EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties) {

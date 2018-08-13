@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.eventuate.tram.cdc.mysql.connector.configuration.MessageTableChangesToDestinationsConfiguration
+io.eventuate.tram.cdc.mysql.connector.configuration.pipeline.CdcTramPipelineConfiguration

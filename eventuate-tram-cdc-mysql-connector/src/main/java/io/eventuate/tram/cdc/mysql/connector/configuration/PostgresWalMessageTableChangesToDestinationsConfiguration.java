@@ -16,36 +16,36 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class PostgresWalMessageTableChangesToDestinationsConfiguration {
-  @Bean
-  @Profile("PostgresWal")
-  public DbLogClient<MessageWithDestination> postgresWalDbLogClient(@Value("${spring.datasource.url}") String dbUrl,
-                                                                    @Value("${spring.datasource.username}") String dbUserName,
-                                                                    @Value("${spring.datasource.password}") String dbPassword,
-                                                                    EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                    PostgresWalMessageParser<MessageWithDestination> postgresWalMessageParser) {
-
-    return new PostgresWalClient<>(postgresWalMessageParser,
-            dbUrl,
-            dbUserName,
-            dbPassword,
-            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
-            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection(),
-            eventuateConfigurationProperties.getPostgresWalIntervalInMilliseconds(),
-            eventuateConfigurationProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
-            eventuateConfigurationProperties.getPostgresReplicationSlotName());
-  }
-
-  @Bean
-  @Profile("PostgresWal")
-  public PostgresWalMessageParser<MessageWithDestination> postgresReplicationMessageParser() {
-    return new PostgresWalJsonMessageParser();
-  }
-
-  @Bean
-  @Profile("PostgresWal")
-  public CdcProcessor<MessageWithDestination> postgresWalCdcProcessor(DbLogClient<MessageWithDestination> dbLogClient,
-                                                                      OffsetStore offsetStore) {
-
-    return new DbLogBasedCdcProcessor<>(dbLogClient, offsetStore);
-  }
+//  @Bean
+//  @Profile("PostgresWal")
+//  public DbLogClient<MessageWithDestination> postgresWalDbLogClient(@Value("${spring.datasource.url}") String dbUrl,
+//                                                                    @Value("${spring.datasource.username}") String dbUserName,
+//                                                                    @Value("${spring.datasource.password}") String dbPassword,
+//                                                                    EventuateConfigurationProperties eventuateConfigurationProperties,
+//                                                                    PostgresWalMessageParser<MessageWithDestination> postgresWalMessageParser) {
+//
+//    return new PostgresWalClient<>(postgresWalMessageParser,
+//            dbUrl,
+//            dbUserName,
+//            dbPassword,
+//            eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
+//            eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection(),
+//            eventuateConfigurationProperties.getPostgresWalIntervalInMilliseconds(),
+//            eventuateConfigurationProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
+//            eventuateConfigurationProperties.getPostgresReplicationSlotName());
+//  }
+//
+//  @Bean
+//  @Profile("PostgresWal")
+//  public PostgresWalMessageParser<MessageWithDestination> postgresReplicationMessageParser() {
+//    return new PostgresWalJsonMessageParser();
+//  }
+//
+//  @Bean
+//  @Profile("PostgresWal")
+//  public CdcProcessor<MessageWithDestination> postgresWalCdcProcessor(DbLogClient<MessageWithDestination> dbLogClient,
+//                                                                      OffsetStore offsetStore) {
+//
+//    return new DbLogBasedCdcProcessor<>(dbLogClient, offsetStore);
+//  }
 }
