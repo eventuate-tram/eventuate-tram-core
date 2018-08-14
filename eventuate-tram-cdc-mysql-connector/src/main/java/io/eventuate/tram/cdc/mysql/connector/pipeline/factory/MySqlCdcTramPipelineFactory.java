@@ -17,6 +17,7 @@ import io.eventuate.tram.cdc.mysql.connector.MySQLTableConfig;
 import io.eventuate.tram.cdc.mysql.connector.MysqlBinLogOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.WriteRowsEventDataParser;
 import org.apache.curator.framework.CuratorFramework;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
@@ -57,7 +58,10 @@ public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineF
   }
 
   @Override
-  protected OffsetStore createOffsetStore(MySqlBinlogCdcPipelineProperties properties) {
-    return mysqlBinLogOffsetStoreFactory.create(properties);
+  protected OffsetStore createOffsetStore(MySqlBinlogCdcPipelineProperties properties,
+                                          DataSource dataSource,
+                                          EventuateSchema eventuateSchema) {
+
+    return mysqlBinLogOffsetStoreFactory.create(properties, new JdbcTemplate(dataSource), eventuateSchema);
   }
 }

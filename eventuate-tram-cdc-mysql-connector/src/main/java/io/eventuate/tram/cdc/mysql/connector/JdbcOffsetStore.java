@@ -4,26 +4,24 @@ import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogFileOffset;
 import io.eventuate.local.db.log.common.OffsetStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Optional;
 
 public class JdbcOffsetStore implements OffsetStore {
-  @Autowired
   private JdbcTemplate jdbcTemplate;
-
-  @Autowired
   private EventuateSchema eventuateSchema;
-
   private String clientName;
   private String tableName;
 
-  public JdbcOffsetStore(String clientName) {
+  public JdbcOffsetStore(String clientName, JdbcTemplate jdbcTemplate, EventuateSchema eventuateSchema) {
     this.clientName = clientName;
+    this.jdbcTemplate = jdbcTemplate;
+    this.eventuateSchema = eventuateSchema;
+
+    init();
   }
 
-  @Autowired
   private void init() {
     tableName = eventuateSchema.qualifyTable("offset_store");
 
@@ -38,7 +36,6 @@ public class JdbcOffsetStore implements OffsetStore {
       jdbcTemplate.update(insertNullOffsetForClientNameQuery, clientName);
     }
   }
-
 
   @Override
   public Optional<BinlogFileOffset> getLastBinlogFileOffset() {

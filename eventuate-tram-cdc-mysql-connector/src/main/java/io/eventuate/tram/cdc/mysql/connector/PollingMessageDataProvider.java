@@ -6,7 +6,6 @@ import io.eventuate.local.polling.PollingDataProvider;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class PollingMessageDataProvider implements PollingDataProvider<PollingMessageBean, MessageWithDestination, String> {
   private String table;

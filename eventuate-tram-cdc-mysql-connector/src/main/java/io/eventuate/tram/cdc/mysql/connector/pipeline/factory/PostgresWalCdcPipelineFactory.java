@@ -1,5 +1,6 @@
 package io.eventuate.tram.cdc.mysql.connector.pipeline.factory;
 
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.PublishingStrategy;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.db.log.common.PublishingFilter;
@@ -14,6 +15,9 @@ import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
 import io.eventuate.tram.cdc.mysql.connector.PostgresWalJsonMessageParser;
 import io.eventuate.tram.cdc.mysql.connector.PostgresWalOffsetStoreFactory;
 import org.apache.curator.framework.CuratorFramework;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 
 public class PostgresWalCdcPipelineFactory extends AbstractPostgresWalCdcPipelineFactory<MessageWithDestination> {
 
@@ -44,7 +48,11 @@ public class PostgresWalCdcPipelineFactory extends AbstractPostgresWalCdcPipelin
   }
 
   @Override
-  protected OffsetStore createOffsetStore(PostgresWalCdcPipelineProperties properties) {
-    return postgresWalOffsetStoreFactory.create(properties);
+  protected OffsetStore createOffsetStore(PostgresWalCdcPipelineProperties properties,
+                                          DataSource dataSource,
+                                          EventuateSchema eventuateSchema) {
+    return postgresWalOffsetStoreFactory.create(properties,
+            new JdbcTemplate(dataSource),
+            eventuateSchema);
   }
 }
