@@ -28,3 +28,5 @@ include 'eventuate-tram-e2e-tests-in-memory'
 include 'eventuate-tram-e2e-tests-jdbc-activemq'
 include 'eventuate-tram-e2e-tests-jdbc-rabbitmq'
 include 'eventuate-tram-e2e-tests-jdbc-kafka'
+
+include 'eventuate-tram-eventuate-local-tests'

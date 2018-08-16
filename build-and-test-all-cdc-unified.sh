@@ -34,15 +34,13 @@ echo TESTING KAFKA MYSQL BINLOG
 
 . ./set-env-mysql-binlog.sh
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
+./gradlew $GRADLE_OPTIONS :eventuate-tram-eventuate-local-tests:cleanTest :eventuate-tram-eventuate-local-tests:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
 
 echo TESTING KAFKA POSTGRES POLLING
 . ./set-env-postgres-polling.sh
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
+./gradlew $GRADLE_OPTIONS :eventuate-tram-eventuate-local-tests:cleanTest :eventuate-tram-eventuate-local-tests:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
 
 echo TESTING KAFKA POSTGRES WAL
@@ -51,8 +49,7 @@ echo TESTING KAFKA POSTGRES WAL
 
 export SPRING_DATASOURCE_URL=jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
+./gradlew $GRADLE_OPTIONS :eventuate-tram-eventuate-local-tests:cleanTest :eventuate-tram-eventuate-local-tests:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
 
 $DOCKER_COMPOSE stop cdcservice
@@ -61,9 +58,10 @@ $DOCKER_COMPOSE rm --force cdcservice
 export SPRING_PROFILES_ACTIVE=ActiveMQ
 
 $DOCKER_COMPOSE up -d cdcservice
-./wait-for-services.sh $DOCKER_HOST_IP 8099
 $DOCKER_COMPOSE unpause activemq
 $DOCKER_COMPOSE stop kafka
+./wait-for-services.sh $DOCKER_HOST_IP 8099
+sleep 15
 
 echo TESTING ACTIVEMQ MYSQL BINLOG
 
@@ -88,9 +86,10 @@ $DOCKER_COMPOSE rm --force cdcservice
 export SPRING_PROFILES_ACTIVE=RabbitMQ
 
 $DOCKER_COMPOSE up -d cdcservice
-./wait-for-services.sh $DOCKER_HOST_IP 8099
 $DOCKER_COMPOSE unpause rabbitmq
 $DOCKER_COMPOSE stop activemq
+./wait-for-services.sh $DOCKER_HOST_IP 8099
+sleep 15
 
 echo TESTING RABBITMQ MYSQL BINLOG
 

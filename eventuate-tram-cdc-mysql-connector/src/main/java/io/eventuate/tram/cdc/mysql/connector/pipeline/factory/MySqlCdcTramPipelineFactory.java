@@ -12,10 +12,7 @@ import io.eventuate.local.mysql.binlog.IWriteRowsEventDataParser;
 import io.eventuate.local.mysql.binlog.SourceTableNameSupplier;
 import io.eventuate.local.unified.cdc.factory.AbstractMySqlBinlogCdcPipelineFactory;
 import io.eventuate.local.unified.cdc.properties.MySqlBinlogCdcPipelineProperties;
-import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
-import io.eventuate.tram.cdc.mysql.connector.MySQLTableConfig;
-import io.eventuate.tram.cdc.mysql.connector.MysqlBinLogOffsetStoreFactory;
-import io.eventuate.tram.cdc.mysql.connector.WriteRowsEventDataParser;
+import io.eventuate.tram.cdc.mysql.connector.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -30,7 +27,6 @@ public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineF
                                      EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                      EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
                                      EventuateKafkaProducer eventuateKafkaProducer,
-                                     PublishingStrategy<MessageWithDestination> publishingStrategy,
                                      MysqlBinLogOffsetStoreFactory mysqlBinLogOffsetStoreFactory,
                                      PublishingFilter publishingFilter) {
     super(curatorFramework,
@@ -38,10 +34,14 @@ public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineF
             eventuateKafkaConfigurationProperties,
             eventuateKafkaConsumerConfigurationProperties,
             eventuateKafkaProducer,
-            publishingStrategy,
             publishingFilter);
 
     this.mysqlBinLogOffsetStoreFactory = mysqlBinLogOffsetStoreFactory;
+  }
+
+  @Override
+  public boolean supports(String type) {
+    return TramCdcPipelineType.MYSQL_BINLOG.stringRepresentation.equals(type);
   }
 
   @Override
@@ -63,5 +63,10 @@ public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineF
                                           EventuateSchema eventuateSchema) {
 
     return mysqlBinLogOffsetStoreFactory.create(properties, new JdbcTemplate(dataSource), eventuateSchema);
+  }
+
+  @Override
+  protected PublishingStrategy<MessageWithDestination> createPublishingStrategy() {
+    return new MessageWithDestinationPublishingStrategy();
   }
 }

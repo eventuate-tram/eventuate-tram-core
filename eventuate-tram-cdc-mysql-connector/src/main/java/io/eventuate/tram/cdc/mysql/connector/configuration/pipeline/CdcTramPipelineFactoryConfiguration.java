@@ -10,8 +10,8 @@ import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
 import io.eventuate.tram.cdc.mysql.connector.MysqlBinLogOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.PostgresWalOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.MySqlCdcTramPipelineFactory;
-import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PollingCdcPipelineFactory;
-import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PostgresWalCdcPipelineFactory;
+import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PollingCdcTramPipelineFactory;
+import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PostgresWalCdcTramPipelineFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,6 @@ public class CdcTramPipelineFactoryConfiguration {
                               EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                               EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
                               EventuateKafkaProducer eventuateKafkaProducer,
-                              PublishingStrategy<MessageWithDestination> publishingStrategy,
                               MysqlBinLogOffsetStoreFactory mysqlBinLogOffsetStoreFactory,
                               PublishingFilter publishingFilter) {
 
@@ -34,31 +33,27 @@ public class CdcTramPipelineFactoryConfiguration {
             eventuateKafkaConfigurationProperties,
             eventuateKafkaConsumerConfigurationProperties,
             eventuateKafkaProducer,
-            publishingStrategy,
             mysqlBinLogOffsetStoreFactory,
             publishingFilter);
   }
 
   @Bean
-  public PollingCdcPipelineFactory createPollingCdcPipelineFactory(CuratorFramework curatorFramework,
-                                                                   PublishingStrategy<MessageWithDestination> publishingStrategy,
-                                                                   DataProducerFactory dataProducerFactory) {
+  public PollingCdcTramPipelineFactory createPollingCdcPipelineFactory(CuratorFramework curatorFramework,
+                                                                       DataProducerFactory dataProducerFactory) {
 
-    return new PollingCdcPipelineFactory(curatorFramework, publishingStrategy, dataProducerFactory);
+    return new PollingCdcTramPipelineFactory(curatorFramework, dataProducerFactory);
   }
 
   @Bean
-  public PostgresWalCdcPipelineFactory createPostgresWalCdcPipelineFactory(CuratorFramework curatorFramework,
-                                                                           PublishingStrategy<MessageWithDestination> publishingStrategy,
-                                                                           DataProducerFactory dataProducerFactory,
-                                                                           EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
-                                                                           EventuateKafkaProducer eventuateKafkaProducer,
-                                                                           PublishingFilter publishingFilter,
-                                                                           PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory) {
+  public PostgresWalCdcTramPipelineFactory createPostgresWalCdcPipelineFactory(CuratorFramework curatorFramework,
+                                                                               DataProducerFactory dataProducerFactory,
+                                                                               EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                                                               EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
+                                                                               EventuateKafkaProducer eventuateKafkaProducer,
+                                                                               PublishingFilter publishingFilter,
+                                                                               PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory) {
 
-    return new PostgresWalCdcPipelineFactory(curatorFramework,
-            publishingStrategy,
+    return new PostgresWalCdcTramPipelineFactory(curatorFramework,
             dataProducerFactory,
             eventuateKafkaConfigurationProperties,
             eventuateKafkaConsumerConfigurationProperties,

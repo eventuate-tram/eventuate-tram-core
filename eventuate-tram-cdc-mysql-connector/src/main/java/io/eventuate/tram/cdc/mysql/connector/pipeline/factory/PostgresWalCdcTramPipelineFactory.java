@@ -11,28 +11,24 @@ import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.postgres.wal.PostgresWalMessageParser;
 import io.eventuate.local.unified.cdc.factory.AbstractPostgresWalCdcPipelineFactory;
 import io.eventuate.local.unified.cdc.properties.PostgresWalCdcPipelineProperties;
-import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
-import io.eventuate.tram.cdc.mysql.connector.PostgresWalJsonMessageParser;
-import io.eventuate.tram.cdc.mysql.connector.PostgresWalOffsetStoreFactory;
+import io.eventuate.tram.cdc.mysql.connector.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
-public class PostgresWalCdcPipelineFactory extends AbstractPostgresWalCdcPipelineFactory<MessageWithDestination> {
+public class PostgresWalCdcTramPipelineFactory extends AbstractPostgresWalCdcPipelineFactory<MessageWithDestination> {
 
   private PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory;
 
-  public PostgresWalCdcPipelineFactory(CuratorFramework curatorFramework,
-                                       PublishingStrategy<MessageWithDestination> publishingStrategy,
-                                       DataProducerFactory dataProducerFactory,
-                                       EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                       EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
-                                       EventuateKafkaProducer eventuateKafkaProducer,
-                                       PublishingFilter publishingFilter,
-                                       PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory) {
+  public PostgresWalCdcTramPipelineFactory(CuratorFramework curatorFramework,
+                                           DataProducerFactory dataProducerFactory,
+                                           EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
+                                           EventuateKafkaProducer eventuateKafkaProducer,
+                                           PublishingFilter publishingFilter,
+                                           PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory) {
     super(curatorFramework,
-            publishingStrategy,
             dataProducerFactory,
             eventuateKafkaConfigurationProperties,
             eventuateKafkaConsumerConfigurationProperties,
@@ -40,6 +36,11 @@ public class PostgresWalCdcPipelineFactory extends AbstractPostgresWalCdcPipelin
             publishingFilter);
 
     this.postgresWalOffsetStoreFactory = postgresWalOffsetStoreFactory;
+  }
+
+  @Override
+  public boolean supports(String type) {
+    return TramCdcPipelineType.POSTGRES_WAL.stringRepresentation.equals(type);
   }
 
   @Override
@@ -54,5 +55,10 @@ public class PostgresWalCdcPipelineFactory extends AbstractPostgresWalCdcPipelin
     return postgresWalOffsetStoreFactory.create(properties,
             new JdbcTemplate(dataSource),
             eventuateSchema);
+  }
+
+  @Override
+  protected PublishingStrategy<MessageWithDestination> createPublishingStrategy() {
+    return new MessageWithDestinationPublishingStrategy();
   }
 }

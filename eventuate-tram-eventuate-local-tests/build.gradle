@@ -1,0 +1,9 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile "io.eventuate.local.java:eventuate-local-java-jdbc-tests-common:$eventuateLocalVersion"
+}
+
+test {
+    forkEvery 1
+}
