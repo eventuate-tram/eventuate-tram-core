@@ -1,26 +1,33 @@
-package io.eventuate.tram.cdc.mysql.connector.configuration.pipeline;
+package io.eventuate.tram.cdc.mysql.connector.pipeline.mysqlbinlog.configuration;
 
-import io.eventuate.local.common.PublishingStrategy;
+import io.eventuate.local.common.MySqlBinlogCondition;
 import io.eventuate.local.db.log.common.PublishingFilter;
 import io.eventuate.local.java.common.broker.DataProducerFactory;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
+import io.eventuate.local.unified.cdc.pipeline.common.DefaultPipelineTypeSupplier;
 import io.eventuate.tram.cdc.mysql.connector.MysqlBinLogOffsetStoreFactory;
-import io.eventuate.tram.cdc.mysql.connector.PostgresWalOffsetStoreFactory;
-import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.MySqlCdcTramPipelineFactory;
-import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PollingCdcTramPipelineFactory;
-import io.eventuate.tram.cdc.mysql.connector.pipeline.factory.PostgresWalCdcTramPipelineFactory;
+import io.eventuate.tram.cdc.mysql.connector.pipeline.mysqlbinlog.factory.DefaultMySqlCdcTramPipelineFactory;
+import io.eventuate.tram.cdc.mysql.connector.pipeline.mysqlbinlog.factory.MySqlCdcTramPipelineFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class CdcTramPipelineFactoryConfiguration {
+public class MySqlBinlogCdcTramPipelineFactoryConfiguration {
+
+  @Conditional(MySqlBinlogCondition.class)
+  @Primary
+  @Bean
+  public DefaultPipelineTypeSupplier defaultPipelineTypeSupplier() {
+    return () -> DefaultMySqlCdcTramPipelineFactory.TYPE;
+  }
 
   @Bean
-  public MySqlCdcTramPipelineFactory createMySqlCdcTramPipelineFactory(CuratorFramework curatorFramework,
+  public MySqlCdcTramPipelineFactory mySqlCdcTramPipelineFactory(CuratorFramework curatorFramework,
                               DataProducerFactory dataProducerFactory,
                               EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                               EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
@@ -38,27 +45,20 @@ public class CdcTramPipelineFactoryConfiguration {
   }
 
   @Bean
-  public PollingCdcTramPipelineFactory createPollingCdcPipelineFactory(CuratorFramework curatorFramework,
-                                                                       DataProducerFactory dataProducerFactory) {
-
-    return new PollingCdcTramPipelineFactory(curatorFramework, dataProducerFactory);
-  }
-
-  @Bean
-  public PostgresWalCdcTramPipelineFactory createPostgresWalCdcPipelineFactory(CuratorFramework curatorFramework,
+  public DefaultMySqlCdcTramPipelineFactory defaultMySqlCdcTramPipelineFactory(CuratorFramework curatorFramework,
                                                                                DataProducerFactory dataProducerFactory,
                                                                                EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                                EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
                                                                                EventuateKafkaProducer eventuateKafkaProducer,
-                                                                               PublishingFilter publishingFilter,
-                                                                               PostgresWalOffsetStoreFactory postgresWalOffsetStoreFactory) {
+                                                                               MysqlBinLogOffsetStoreFactory mysqlBinLogOffsetStoreFactory,
+                                                                               PublishingFilter publishingFilter) {
 
-    return new PostgresWalCdcTramPipelineFactory(curatorFramework,
+    return new DefaultMySqlCdcTramPipelineFactory(curatorFramework,
             dataProducerFactory,
             eventuateKafkaConfigurationProperties,
             eventuateKafkaConsumerConfigurationProperties,
             eventuateKafkaProducer,
-            publishingFilter,
-            postgresWalOffsetStoreFactory);
+            mysqlBinLogOffsetStoreFactory,
+            publishingFilter);
   }
 }

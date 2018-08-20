@@ -6,5 +6,6 @@ dependencies {
     compile project(":eventuate-tram-producer-rabbitmq")
     compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-unified:$eventuateLocalVersion"
 
+    compile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }

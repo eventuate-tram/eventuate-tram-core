@@ -1,4 +1,4 @@
-package io.eventuate.tram.cdc.mysql.connector.pipeline.factory;
+package io.eventuate.tram.cdc.mysql.connector.pipeline.mysqlbinlog.factory;
 
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.PublishingStrategy;
@@ -10,8 +10,8 @@ import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfiguratio
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.IWriteRowsEventDataParser;
 import io.eventuate.local.mysql.binlog.SourceTableNameSupplier;
-import io.eventuate.local.unified.cdc.factory.AbstractMySqlBinlogCdcPipelineFactory;
-import io.eventuate.local.unified.cdc.properties.MySqlBinlogCdcPipelineProperties;
+import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.AbstractMySqlBinlogCdcPipelineFactory;
+import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.properties.MySqlBinlogCdcPipelineProperties;
 import io.eventuate.tram.cdc.mysql.connector.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +19,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineFactory<MessageWithDestination> {
+
+  public static final String TYPE = "eventuate-tram-mysql-binlog";
 
   private MysqlBinLogOffsetStoreFactory mysqlBinLogOffsetStoreFactory;
 
@@ -41,7 +43,7 @@ public class MySqlCdcTramPipelineFactory extends AbstractMySqlBinlogCdcPipelineF
 
   @Override
   public boolean supports(String type) {
-    return TramCdcPipelineType.MYSQL_BINLOG.stringRepresentation.equals(type);
+    return TYPE.equals(type);
   }
 
   @Override

@@ -1,14 +1,19 @@
-package io.eventuate.tram.cdc.mysql.connector.pipeline.factory;
+package io.eventuate.tram.cdc.mysql.connector.pipeline.polling.factory;
 
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.PublishingStrategy;
 import io.eventuate.local.java.common.broker.DataProducerFactory;
 import io.eventuate.local.polling.PollingDataProvider;
-import io.eventuate.local.unified.cdc.factory.AbstractPollingCdcPipelineFactory;
-import io.eventuate.tram.cdc.mysql.connector.*;
+import io.eventuate.local.unified.cdc.pipeline.polling.factory.AbstractPollingCdcPipelineFactory;
+import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
+import io.eventuate.tram.cdc.mysql.connector.MessageWithDestinationPublishingStrategy;
+import io.eventuate.tram.cdc.mysql.connector.PollingMessageBean;
+import io.eventuate.tram.cdc.mysql.connector.PollingMessageDataProvider;
 import org.apache.curator.framework.CuratorFramework;
 
 public class PollingCdcTramPipelineFactory extends AbstractPollingCdcPipelineFactory<MessageWithDestination, PollingMessageBean, String> {
+
+  public static final String TYPE = "eventuate-tram-event-polling";
 
   public PollingCdcTramPipelineFactory(CuratorFramework curatorFramework,
                                        DataProducerFactory dataProducerFactory) {
@@ -18,7 +23,7 @@ public class PollingCdcTramPipelineFactory extends AbstractPollingCdcPipelineFac
 
   @Override
   public boolean supports(String type) {
-    return TramCdcPipelineType.EVENT_POLLING.stringRepresentation.equals(type);
+    return TYPE.equals(type);
   }
 
   @Override

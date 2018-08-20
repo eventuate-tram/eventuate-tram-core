@@ -6,8 +6,10 @@ import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
-import io.eventuate.local.unified.cdc.DefaultCdcPipelineTypes;
-import io.eventuate.tram.cdc.mysql.connector.*;
+import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
+import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
+import io.eventuate.tram.cdc.mysql.connector.MysqlBinLogOffsetStoreFactory;
+import io.eventuate.tram.cdc.mysql.connector.PostgresWalOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.ActiveMQOrRabbitMQCondition;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.KafkaCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,26 +27,6 @@ import java.util.Optional;
         RabbitMQMessageTableChangesToDestinationsConfiguration.class})
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
-
-  @Bean
-  public DefaultCdcPipelineTypes defaultCdcPipelineTypes() {
-    return new DefaultCdcPipelineTypes() {
-      @Override
-      public String mySqlBinlogPipelineType() {
-        return TramCdcPipelineType.MYSQL_BINLOG.stringRepresentation;
-      }
-
-      @Override
-      public String eventPollingPipelineType() {
-        return TramCdcPipelineType.EVENT_POLLING.stringRepresentation;
-      }
-
-      @Override
-      public String postgresWalPipelineType() {
-        return TramCdcPipelineType.POSTGRES_WAL.stringRepresentation;
-      }
-    };
-  }
 
   @Bean
   @Conditional(KafkaCondition.class)
