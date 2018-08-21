@@ -63,9 +63,6 @@ public class EventuateTramRoutesConfigurer {
           String inputClientValue = it.getInput().getMessageFrom().getClientValue();
           String outputClientValue = it.getOutputMessage().getSentTo().getClientValue();
 
-          System.out.println("inputClientValue=" + inputClientValue);
-          System.out.println("outputClientValue=" + outputClientValue);
-
           messageConsumer.subscribe("Route-" + it.getLabel() + System.currentTimeMillis() + "." + idCounter++,
                   Collections.singleton(inputClientValue), (message) -> {
             if (satisfies(message, it)) {

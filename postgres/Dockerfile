@@ -4,21 +4,7 @@ ENV PLUGIN_VERSION=v0.7.0
 ENV WAL2JSON_COMMIT_ID=f68cb0096c669a2ee5a2d32b54a535513e3cb23b
 
 # Install the packages which will be required to get everything to compile
-RUN apt-get update \
-    && apt-get install -f -y --no-install-recommends \
-        software-properties-common \
-        build-essential \
-        pkg-config \ 
-        git \
-        postgresql-server-dev-9.6 \
-        libproj-dev \
-    && apt-get clean && apt-get update && apt-get install -f -y --no-install-recommends \            
-        liblwgeom-dev \              
-    && add-apt-repository "deb http://ftp.debian.org/debian testing main contrib" \ 
-    && apt-get install nano \
-    && apt-get update && apt-get install -f -y --no-install-recommends \
-        libprotobuf-c-dev=1.2.* \
-    && rm -rf /var/lib/apt/lists/*             
+RUN  apt-get update  && apt-get -y install git build-essential postgresql-server-dev-9.6
 
 RUN git clone https://github.com/eulerto/wal2json -b master --single-branch \
     && cd /wal2json \
