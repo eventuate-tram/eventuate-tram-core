@@ -1,0 +1,30 @@
+apply plugin: PublicModulePlugin
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementPluginVersion"
+        // if using Stub Runner (consumer side) only remove this dependency
+        classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:$springCloudContractDependenciesVersion"
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
+apply plugin: 'spring-cloud-contract'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:$springCloudContractDependenciesVersion"
+    }
+}
+
+dependencies {
+
+
+    compile project(":eventuate-tram-testing-support")
+
+    compile 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+    compile "org.springframework.cloud:spring-cloud-starter-contract-stub-runner"
+}
