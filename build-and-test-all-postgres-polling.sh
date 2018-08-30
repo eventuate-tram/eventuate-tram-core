@@ -4,7 +4,7 @@ set -e
 
 . ./set-env-postgres-polling.sh
 
-docker-compose -f docker-compose-postgres-polling.yml down -v
+docker-compose -f docker-compose-postgres-polling.yml down --remove-orphans -v
 
 docker-compose -f docker-compose-postgres-polling.yml up --build -d
 
@@ -12,4 +12,4 @@ docker-compose -f docker-compose-postgres-polling.yml up --build -d
 
 ./gradlew build
 
-docker-compose -f docker-compose-postgres-polling.yml down -v
+docker-compose -f docker-compose-postgres-polling.yml down --remove-orphans -v

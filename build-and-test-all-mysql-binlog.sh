@@ -4,7 +4,7 @@ set -e
 
 . ./set-env-mysql-binlog.sh
 
-docker-compose -f docker-compose-mysql-binlog.yml down -v
+docker-compose -f docker-compose-mysql-binlog.yml down --remove-orphans -v
 
 docker-compose -f docker-compose-mysql-binlog.yml up --build -d
 
@@ -12,4 +12,4 @@ docker-compose -f docker-compose-mysql-binlog.yml up --build -d
 
 ./gradlew $* build
 
-docker-compose -f docker-compose-mysql-binlog.yml down -v
+docker-compose -f docker-compose-mysql-binlog.yml down --remove-orphans -v

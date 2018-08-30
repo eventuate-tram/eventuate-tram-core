@@ -15,8 +15,7 @@ export GRADLE_OPTIONS="-P excludeCdcLibs=true"
 
 . ./set-env-postgres-polling.sh
 
-$DOCKER_COMPOSE stop
-$DOCKER_COMPOSE rm --force -v
+$DOCKER_COMPOSE down --remove-orphans -v
 
 $DOCKER_COMPOSE build
 $DOCKER_COMPOSE up -d postgres
@@ -27,8 +26,4 @@ $DOCKER_COMPOSE up -d
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-mysql-kafka-integration-test:cleanTest :eventuate-tram-mysql-kafka-integration-test:test
 
-$DOCKER_COMPOSE stop
-$DOCKER_COMPOSE rm --force -v
-
-
-
+$DOCKER_COMPOSE down --remove-orphans -v
