@@ -4,3 +4,7 @@ build/
 *.iml
 *.log
 out
+.classpath
+.project
+.settings
+bin

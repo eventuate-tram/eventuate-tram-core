@@ -21,6 +21,7 @@ include 'eventuate-tram-rabbitmq-integration-tests'
 include 'eventuate-tram-events'
 include 'eventuate-tram-commands'
 include 'eventuate-tram-commands-mysql-kafka-integration-test'
+
 include 'eventuate-tram-test-util'
 
 include 'eventuate-tram-e2e-tests-common'
@@ -30,3 +31,7 @@ include 'eventuate-tram-e2e-tests-jdbc-rabbitmq'
 include 'eventuate-tram-e2e-tests-jdbc-kafka'
 
 include 'eventuate-tram-eventuate-local-tests'
+
+include "eventuate-tram-testing-support"
+include "eventuate-tram-testing-support-spring-cloud-contract"
+include "eventuate-tram-aggregate-domain-events"

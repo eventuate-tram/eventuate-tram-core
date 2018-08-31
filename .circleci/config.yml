@@ -13,11 +13,11 @@ jobs:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "build.gradle" }}
       - run: TERM=dumb ./build-and-test-all-mysql-binlog.sh
-      - run: TERM=dumb ./build-and-test-all-cdc-mysql-binlog.sh
-      - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
-      - run: TERM=dumb ./build-and-test-all-cdc-postgres-polling.sh
-      - run: TERM=dumb ./build-and-test-all-cdc-postgres-wal.sh
       - run: TERM=dumb ./build-and-test-all-postgres-wal.sh
+      - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-mysql-binlog.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-postgres-wal.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-postgres-polling.sh
       - run: TERM=dumb ./build-and-test-all-rabbitmq.sh
       - run: TERM=dumb ./build-and-test-all-activemq.sh
       - run:
