@@ -20,6 +20,7 @@ jobs:
       - run: TERM=dumb ./build-and-test-all-cdc-postgres-polling.sh
       - run: TERM=dumb ./build-and-test-all-rabbitmq.sh
       - run: TERM=dumb ./build-and-test-all-activemq.sh
+      - run: TERM=dumb ./build-and-test-all-cdc-unified.sh
       - run:
           name: Save test results
           command: |
