@@ -62,9 +62,9 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Conditional(MySqlBinlogCondition.class)
   public DbLogClient<MessageWithDestination> mySqlBinaryLogClient(@Value("${spring.datasource.url}") String dataSourceURL,
-                                                                           EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                                           SourceTableNameSupplier sourceTableNameSupplier,
-                                                                           IWriteRowsEventDataParser<MessageWithDestination> eventDataParser) {
+                                                                  EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                                  SourceTableNameSupplier sourceTableNameSupplier,
+                                                                  IWriteRowsEventDataParser<MessageWithDestination> eventDataParser, EventuateSchema eventuateSchema) {
     JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceURL);
     return new MySqlBinaryLogClient<>(eventDataParser,
             eventuateConfigurationProperties.getDbUserName(),
@@ -72,7 +72,7 @@ public class MessageTableChangesToDestinationsConfiguration {
             jdbcUrl.getHost(),
             jdbcUrl.getPort(),
             eventuateConfigurationProperties.getBinlogClientId(),
-            sourceTableNameSupplier.getSourceTableName(),
+            ResolvedEventuateSchema.make(eventuateSchema, jdbcUrl),  sourceTableNameSupplier.getSourceTableName(),
             eventuateConfigurationProperties.getMySqlBinLogClientName(),
             eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
             eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection());

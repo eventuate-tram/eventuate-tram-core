@@ -2,6 +2,8 @@
 
 set -e
 
+./gradlew $* testClasses
+
 . ./set-env-mysql-binlog.sh
 
 docker-compose -f docker-compose-mysql-binlog.yml down -v
