@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
-import io.eventuate.local.db.log.common.PublishingFilter;
+import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.java.common.broker.DataProducerFactory;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import org.springframework.beans.factory.annotation.Value;

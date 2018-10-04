@@ -4,6 +4,8 @@ import io.eventuate.local.common.BinLogEvent;
 import io.eventuate.local.common.BinlogFileOffset;
 import io.eventuate.tram.messaging.common.MessageImpl;
 
+import java.util.Optional;
+
 public class MessageWithDestination implements BinLogEvent {
   private final String destination;
   private final MessageImpl message;
@@ -23,7 +25,7 @@ public class MessageWithDestination implements BinLogEvent {
     return message;
   }
 
-  public BinlogFileOffset getBinlogFileOffset() {
-    return binlogFileOffset;
+  public Optional<BinlogFileOffset> getBinlogFileOffset() {
+    return Optional.ofNullable(binlogFileOffset);
   }
 }

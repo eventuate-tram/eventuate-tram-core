@@ -27,6 +27,7 @@ public class EventuateActiveMQProducer implements DataProducer {
     ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
     try {
       connection = connectionFactory.createConnection();
+      connection.setExceptionListener(e -> logger.error(e.getMessage(), e));
       connection.start();
       session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
     } catch (JMSException e) {
