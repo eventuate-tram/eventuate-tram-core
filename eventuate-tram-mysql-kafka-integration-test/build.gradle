@@ -13,7 +13,11 @@ dependencies {
 }
 
 test {
-    if (System.env['SPRING_PROFILES_ACTIVE'] == 'EventuatePolling' || System.env['SPRING_PROFILES_ACTIVE'] == 'PostgresWal') {
+    if (System.env['SPRING_PROFILES_ACTIVE'] == 'EventuatePolling' ||
+            System.env['SPRING_PROFILES_ACTIVE'] == 'PostgresWal' ||
+            (project.hasProperty("excludeCdcLibs") &&
+            excludeCdcLibs.toBoolean())) {
+
         exclude '**/TramIntegrationCustomDBTest**'
     }
     forkEvery 1
