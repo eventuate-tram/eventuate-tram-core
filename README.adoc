@@ -47,6 +47,10 @@ Don't hesitate to create an issue or see
 * https://eventuate-users.slack.com[Slack]. https://eventuateusersslack.herokuapp.com/[Get invite]
 * http://eventuate.io/contact.html[Contact us].
 
+== Need support?
+
+Take a look at the http://eventuate.io/support.html[available paid support] options.
+
 == Transactional messaging
 
 Send a message using `MessageProducer`:
