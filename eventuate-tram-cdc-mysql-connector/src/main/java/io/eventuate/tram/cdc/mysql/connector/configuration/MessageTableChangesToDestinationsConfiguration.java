@@ -1,13 +1,13 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.local.common.SourceTableNameSupplier;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameResolver;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
@@ -32,8 +32,13 @@ import java.util.Optional;
 public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
-  public SourceTableNameSupplier sourceTableNameSupplier() {
-    return new SourceTableNameSupplier("message");
+  public DefaultSourceTableNameResolver defaultSourceTableNameResolver() {
+    return pipelineType -> {
+      if ("eventuate-tram".equals(pipelineType) || "default".equals(pipelineType)) return "message";
+      if ("eventuate-local".equals(pipelineType)) return "events";
+
+      throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
+    };
   }
 
   @Bean

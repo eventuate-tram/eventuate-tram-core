@@ -42,13 +42,10 @@ cdcservice:
       "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/3"}]
     EVENTUATE_CDC_PIPELINE_PROPERTIES: >
       [{"type":"eventuate-local",
-      "sourceTableName":"events",
       "reader":"reader1"},
       {"type":"eventuate-local",
-      "sourceTableName":"events",
       "reader":"reader2"},
       {"type":"eventuate-local",
-      "sourceTableName":"events",
       "reader":"reader3"},
       {"type":"eventuate-tram",
       "reader":"reader1"},
