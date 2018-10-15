@@ -1,5 +1,5 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.20.1.RELEASE
+  image: eventuateio/eventuateio-local-zookeeper:0.30.0.M5
   ports:
     - 2181:2181
     - 2888:2888
