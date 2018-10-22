@@ -17,8 +17,9 @@ public class TramMessageProducerJdbcConfiguration {
   }
 
   @Bean
-  public MessageProducer messageProducer(EventuateSchema eventuateSchema) {
-    return new MessageProducerJdbcImpl(eventuateSchema);
+  public MessageProducer messageProducer(EventuateSchema eventuateSchema,
+                                         @Value("${eventuate.current.time.in.milliseconds.sql}") String currentTimeInMillisecondsSql) {
+    return new MessageProducerJdbcImpl(eventuateSchema, currentTimeInMillisecondsSql);
   }
 
   @Bean

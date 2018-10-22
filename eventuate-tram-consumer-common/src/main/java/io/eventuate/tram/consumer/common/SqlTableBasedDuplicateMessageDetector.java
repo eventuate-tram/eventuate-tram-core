@@ -11,9 +11,11 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
   private JdbcTemplate jdbcTemplate;
 
   private EventuateSchema eventuateSchema;
+  private String currentTimeInMillisecondsSql;
 
-  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema) {
+  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql) {
     this.eventuateSchema = eventuateSchema;
+    this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;
   }
 
   @Override
@@ -22,8 +24,11 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
 
       String table = eventuateSchema.qualifyTable("received_messages");
 
-      jdbcTemplate.update(String.format("insert into %s(consumer_id, message_id) values(?, ?)", table),
+      jdbcTemplate.update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)",
+              table,
+              currentTimeInMillisecondsSql),
               consumerId, messageId);
+
       return false;
     } catch (DuplicateKeyException e) {
       return true;

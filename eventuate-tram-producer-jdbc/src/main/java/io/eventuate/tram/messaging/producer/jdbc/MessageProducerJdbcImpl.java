@@ -17,9 +17,11 @@ public class MessageProducerJdbcImpl implements MessageProducer {
   private IdGenerator idGenerator;
 
   private EventuateSchema eventuateSchema;
+  private String currentTimeInMillisecondsSql;
 
-  public MessageProducerJdbcImpl(EventuateSchema eventuateSchema) {
+  public MessageProducerJdbcImpl(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql) {
     this.eventuateSchema = eventuateSchema;
+    this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;
   }
 
   @Override
@@ -30,7 +32,9 @@ public class MessageProducerJdbcImpl implements MessageProducer {
 
     String table = eventuateSchema.qualifyTable("message");
 
-    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", table),
+    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload, creation_time) values(?, ?, ?, ?, %s)",
+            table,
+            currentTimeInMillisecondsSql),
             id,
             destination,
             JSonMapper.toJson(message.getHeaders()),

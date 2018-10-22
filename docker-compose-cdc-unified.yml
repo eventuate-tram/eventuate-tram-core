@@ -53,3 +53,4 @@ cdcservice:
       "reader":"reader2"},
       {"type":"eventuate-tram",
       "reader":"reader3"}]
+    EVENTUATE_CURRENT_TIME_IN_MILLISECONDS_SQL: ${EVENTUATE_CURRENT_TIME_IN_MILLISECONDS_SQL}

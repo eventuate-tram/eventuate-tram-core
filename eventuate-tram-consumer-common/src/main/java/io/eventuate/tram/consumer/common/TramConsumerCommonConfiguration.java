@@ -16,7 +16,8 @@ public class TramConsumerCommonConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(DuplicateMessageDetector.class)
-  public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema) {
-    return new SqlTableBasedDuplicateMessageDetector(eventuateSchema);
+  public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema,
+                                                           @Value("${eventuate.current.time.in.milliseconds.sql}") String currentTimeInMillisecondsSql) {
+    return new SqlTableBasedDuplicateMessageDetector(eventuateSchema, currentTimeInMillisecondsSql);
   }
 }

@@ -10,12 +10,14 @@ CREATE TABLE eventuate.message (
   destination VARCHAR(1000) NOT NULL,
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
-  published SMALLINT DEFAULT 0
+  published SMALLINT DEFAULT 0,
+  creation_time BIGINT
 );
 
 CREATE TABLE eventuate.received_messages (
   consumer_id VARCHAR(1000),
   message_id VARCHAR(1000),
+  creation_time BIGINT,
   PRIMARY KEY(consumer_id, message_id)
 );
 
