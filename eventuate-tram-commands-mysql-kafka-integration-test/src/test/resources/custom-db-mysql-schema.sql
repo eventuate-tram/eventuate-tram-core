@@ -13,7 +13,8 @@ CREATE TABLE message (
   destination VARCHAR(1000) NOT NULL,
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
-  published SMALLINT DEFAULT 0
+  published SMALLINT DEFAULT 0,
+  creation_time BIGINT
 );
 
 CREATE INDEX message_published_idx ON message(published, id);
@@ -21,6 +22,7 @@ CREATE INDEX message_published_idx ON message(published, id);
 CREATE TABLE received_messages (
   consumer_id VARCHAR(1000),
   message_id VARCHAR(1000),
+  creation_time BIGINT,
   PRIMARY KEY(consumer_id, message_id)
 );
 

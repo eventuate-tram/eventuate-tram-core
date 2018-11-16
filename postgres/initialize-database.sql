@@ -82,5 +82,10 @@ CREATE TABLE eventuate.snapshots (
   PRIMARY KEY(entity_type, entity_id, entity_version)
 );
 
+CREATE TABLE eventuate.cdc_monitoring (
+  reader_id BIGINT PRIMARY KEY,
+  last_time BIGINT
+);
+
 SELECT * FROM pg_create_logical_replication_slot('eventuate_slot', 'wal2json');
 SELECT * FROM pg_create_logical_replication_slot('eventuate_slot2', 'wal2json');
