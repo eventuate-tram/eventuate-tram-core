@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
 import io.eventuate.local.common.BinlogFileOffset;
+import io.eventuate.local.common.HealthCheck;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
@@ -30,6 +31,11 @@ import java.util.Optional;
         RabbitMQMessageTableChangesToDestinationsConfiguration.class})
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
+
+  @Bean
+  public HealthCheck healthCheck() {
+    return new HealthCheck();
+  }
 
   @Bean
   public DefaultSourceTableNameResolver defaultSourceTableNameResolver() {

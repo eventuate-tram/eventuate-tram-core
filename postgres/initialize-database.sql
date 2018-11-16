@@ -10,12 +10,14 @@ CREATE TABLE eventuate.message (
   destination VARCHAR(1000) NOT NULL,
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
-  published SMALLINT DEFAULT 0
+  published SMALLINT DEFAULT 0,
+  creation_time BIGINT
 );
 
 CREATE TABLE eventuate.received_messages (
   consumer_id VARCHAR(1000),
   message_id VARCHAR(1000),
+  creation_time BIGINT,
   PRIMARY KEY(consumer_id, message_id)
 );
 
@@ -78,6 +80,11 @@ CREATE TABLE eventuate.snapshots (
   snapshot_json VARCHAR(1000) NOT NULL,
   triggering_events VARCHAR(1000),
   PRIMARY KEY(entity_type, entity_id, entity_version)
+);
+
+CREATE TABLE eventuate.cdc_monitoring (
+  reader_id BIGINT PRIMARY KEY,
+  last_time BIGINT
 );
 
 SELECT * FROM pg_create_logical_replication_slot('eventuate_slot', 'wal2json');

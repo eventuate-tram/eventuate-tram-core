@@ -8,7 +8,8 @@ CREATE TABLE message (
   destination VARCHAR(1000) NOT NULL,
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
-  published SMALLINT DEFAULT 0
+  published SMALLINT DEFAULT 0,
+  creation_time BIGINT
 );
 
 CREATE INDEX message_published_idx ON message(published, id);
@@ -16,7 +17,8 @@ CREATE INDEX message_published_idx ON message(published, id);
 CREATE TABLE received_messages (
   consumer_id VARCHAR(767),
   message_id VARCHAR(767),
-  PRIMARY KEY(consumer_id, message_id)
+  PRIMARY KEY(consumer_id, message_id),
+  creation_time BIGINT
 );
 
 CREATE TABLE eventuate.offset_store(
