@@ -3,12 +3,16 @@ package io.eventuate.tram.messaging.producer.jdbc;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
 import io.eventuate.javaclient.spring.jdbc.IdGeneratorImpl;
+import io.eventuate.tram.messaging.common.sql.SqlDialectConfiguration;
+import io.eventuate.tram.messaging.common.sql.SqlDialectSelector;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(SqlDialectConfiguration.class)
 public class TramMessageProducerJdbcConfiguration {
 
   @Bean
@@ -18,8 +22,9 @@ public class TramMessageProducerJdbcConfiguration {
 
   @Bean
   public MessageProducer messageProducer(EventuateSchema eventuateSchema,
-                                         @Value("${eventuate.current.time.in.milliseconds.sql}") String currentTimeInMillisecondsSql) {
-    return new MessageProducerJdbcImpl(eventuateSchema, currentTimeInMillisecondsSql);
+                                         SqlDialectSelector sqlDialectSelector) {
+    return new MessageProducerJdbcImpl(eventuateSchema,
+            sqlDialectSelector.getDialect().getCurrentTimeInMillisecondsExpression());
   }
 
   @Bean
