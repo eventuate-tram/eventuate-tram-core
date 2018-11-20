@@ -4,6 +4,8 @@ set -e
 
 . ./set-env-${DATABASE}-${MODE}.sh
 
+./gradlew $* testClasses
+
 docker-compose -f docker-compose-${DATABASE}-${MODE}.yml down -v
 
 docker-compose -f docker-compose-${DATABASE}-${MODE}.yml up --build -d
