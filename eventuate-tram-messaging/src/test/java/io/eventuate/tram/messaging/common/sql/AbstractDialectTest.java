@@ -5,18 +5,24 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractDialectTest {
-
-  private Class<? extends EventuateSqlDialect> expectedDialectClass;
-
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
-  public AbstractDialectTest(Class<? extends EventuateSqlDialect> expectedDialectClass) {
+  private Class<? extends EventuateSqlDialect> expectedDialectClass;
+  private String expectedCurrentTimeInMillisecondsExpression;
+
+
+  public AbstractDialectTest(Class<? extends EventuateSqlDialect> expectedDialectClass,
+                             String expectedCurrentTimeInMillisecondsExpression) {
     this.expectedDialectClass = expectedDialectClass;
+    this.expectedCurrentTimeInMillisecondsExpression = expectedCurrentTimeInMillisecondsExpression;
   }
 
   @Test
   public void testDialect() {
     Assert.assertEquals(expectedDialectClass, sqlDialectSelector.getDialect().getClass());
+
+    Assert.assertEquals(expectedCurrentTimeInMillisecondsExpression,
+            sqlDialectSelector.getDialect().getCurrentTimeInMillisecondsExpression());
   }
 }
