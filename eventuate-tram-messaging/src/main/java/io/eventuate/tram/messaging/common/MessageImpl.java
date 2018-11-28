@@ -2,6 +2,7 @@ package io.eventuate.tram.messaging.common;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,11 +58,25 @@ public class MessageImpl implements Message {
   }
 
 
+  @Override
   public void setPayload(String payload) {
     this.payload = payload;
   }
 
+  @Override
   public void setHeaders(Map<String, String> headers) {
     this.headers = headers;
+  }
+
+  @Override
+  public void setHeader(String name, String value) {
+    if (headers == null)
+      headers = new HashMap<>();
+    headers.put(name, value);
+  }
+
+  @Override
+  public void removeHeader(String key) {
+    headers.remove(key);
   }
 }

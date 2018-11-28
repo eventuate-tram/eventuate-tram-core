@@ -1,0 +1,117 @@
+[
+  [
+    {
+      "traceId": "dee97d8238972979",
+      "parentId": "dee97d8238972979",
+      "id": "1078d3f1bf07dd7c",
+      "kind": "PRODUCER",
+      "name": "send",
+      "timestamp": 1543124693323683,
+      "duration": 27870,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "tags": {
+        "channel": "testChannel"
+      }
+    },
+    {
+      "traceId": "dee97d8238972979",
+      "parentId": "ed4c75490dc845a8",
+      "id": "37020204a3445bb2",
+      "kind": "CLIENT",
+      "name": "post",
+      "timestamp": 1543124693391682,
+      "duration": 48445,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "tags": {
+        "http.method": "POST",
+        "http.path": "/bar"
+      }
+    },
+    {
+      "traceId": "dee97d8238972979",
+      "parentId": "ed4c75490dc845a8",
+      "id": "37020204a3445bb2",
+      "kind": "SERVER",
+      "name": "post /bar",
+      "timestamp": 1543124693402218,
+      "duration": 40616,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "remoteEndpoint": {
+        "ipv4": "127.0.0.1",
+        "port": 56611
+      },
+      "tags": {
+        "http.method": "POST",
+        "http.path": "/bar",
+        "mvc.controller.class": "TestController",
+        "mvc.controller.method": "sendSomethingElse"
+      },
+      "shared": true
+    },
+    {
+      "traceId": "dee97d8238972979",
+      "id": "dee97d8238972979",
+      "kind": "CLIENT",
+      "name": "post",
+      "timestamp": 1543124692914780,
+      "duration": 533426,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "tags": {
+        "http.method": "POST",
+        "http.path": "/foo/1543124692734"
+      }
+    },
+    {
+      "traceId": "dee97d8238972979",
+      "parentId": "1078d3f1bf07dd7c",
+      "id": "ed4c75490dc845a8",
+      "kind": "CONSUMER",
+      "name": "receive",
+      "timestamp": 1543124693387137,
+      "duration": 63772,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "tags": {
+        "channel": "testChannel",
+        "subscriberId": "io.eventuate.tram.springcloudsleuthintegration.TestConsumer"
+      }
+    },
+    {
+      "traceId": "dee97d8238972979",
+      "id": "dee97d8238972979",
+      "kind": "SERVER",
+      "name": "post /foo/{id}",
+      "timestamp": 1543124693173795,
+      "duration": 274857,
+      "localEndpoint": {
+        "serviceName": "default",
+        "ipv4": "10.65.21.47"
+      },
+      "remoteEndpoint": {
+        "ipv4": "127.0.0.1",
+        "port": 56610
+      },
+      "tags": {
+        "http.method": "POST",
+        "http.path": "/foo/1543124692734",
+        "mvc.controller.class": "TestController",
+        "mvc.controller.method": "sendSomething"
+      },
+      "shared": true
+    }
+  ]
+]

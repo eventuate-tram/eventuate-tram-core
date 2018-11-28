@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url 'https://repo.spring.io/libs-milestone'
+        }
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementPluginVersion"
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
+apply plugin: 'docker-compose'
+
+dockerCompose {
+    useComposeFiles = ['../docker-compose-zipkin.yml']
+
+    //stopContainers = false
+}
+
+dockerCompose.isRequiredBy(test)
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth:$springCloudSleuthVersion"
+    }
+}
+
+dependencies {
+    compile project(":eventuate-tram-messaging")
+
+    compile "org.springframework.cloud:spring-cloud-starter-sleuth:2.0.1.RELEASE"
+    compile "org.springframework.cloud:spring-cloud-starter-zipkin:2.0.1.RELEASE"
+    compile "io.zipkin.brave:brave-bom:4.17.1"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+
+    testCompile project(":eventuate-tram-in-memory")
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+
+}
