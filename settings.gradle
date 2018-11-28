@@ -17,3 +17,5 @@ include "eventuate-tram-test-util"
 include "eventuate-tram-testing-support"
 include "eventuate-tram-testing-support-spring-cloud-contract"
 include "eventuate-tram-aggregate-domain-events"
+
+include "eventuate-tram-spring-cloud-sleuth-integration"

@@ -5,6 +5,7 @@ import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumer;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -39,6 +41,8 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
   @Autowired
   private EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties;
 
+  @Autowired(required = false)
+  private MessageInterceptor[] messageInterceptors = new MessageInterceptor[0];
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
@@ -55,8 +59,11 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
           }
           try {
             logger.trace("Invoking handler {} {}", subscriberId, message.getId());
+            preHandle(subscriberId, message);
             handler.accept(message);
+            postHandle(subscriberId, message, null);
           } catch (Throwable t) {
+            postHandle(subscriberId, message, t);
             logger.trace("Got exception {} {}", subscriberId, message.getId());
             logger.trace("Got exception ", t);
             callback.accept(null, t);
@@ -79,6 +86,14 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     consumers.add(kc);
 
     kc.start();
+  }
+
+  private void postHandle(String subscriberId, Message message, Throwable t) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.postHandle(subscriberId, message, t));
+  }
+
+  private void preHandle(String subscriberId, Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
   }
 
   public void close() {

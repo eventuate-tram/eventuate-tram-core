@@ -4,11 +4,13 @@ import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.common.MessageInterceptor;
+import io.eventuate.tram.messaging.producer.AbstractMessageProducer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class MessageProducerJdbcImpl implements MessageProducer {
+public class MessageProducerJdbcImpl extends AbstractMessageProducer {
 
   @Autowired
   private JdbcTemplate jdbcTemplate;
@@ -18,21 +20,24 @@ public class MessageProducerJdbcImpl implements MessageProducer {
 
   private EventuateSchema eventuateSchema;
 
-  public MessageProducerJdbcImpl(EventuateSchema eventuateSchema) {
+  public MessageProducerJdbcImpl(EventuateSchema eventuateSchema, MessageInterceptor[] messageInterceptors) {
+    super(messageInterceptors);
     this.eventuateSchema = eventuateSchema;
   }
 
   @Override
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
-    message.getHeaders().put(Message.ID, id);
-    message.getHeaders().put(Message.DESTINATION, destination);
+    sendMessage(id, destination, message);
+  }
 
+
+  @Override
+  protected void reallySendMessage(Message message) {
     String table = eventuateSchema.qualifyTable("message");
-
     jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", table),
-            id,
-            destination,
+            message.getId(),
+            message.getRequiredHeader(Message.DESTINATION),
             JSonMapper.toJson(message.getHeaders()),
             message.getPayload());
   }
