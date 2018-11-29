@@ -1,0 +1,6 @@
+zipkin:
+    image: openzipkin/zipkin:2.5.0
+    ports:
+     - "9411:9411"
+    environment:
+      JAVA_OPTS: -Xmx128m

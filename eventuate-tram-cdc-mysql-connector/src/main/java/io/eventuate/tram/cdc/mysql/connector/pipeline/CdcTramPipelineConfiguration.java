@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector.pipeline;
 
 import io.eventuate.local.unified.cdc.pipeline.CdcPipelineConfigurator;
+import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDataPublisherConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDefaultPipelinePropertiesConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcPipelineFactoryConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.configuration.MySqlBinlogCdcPipelineReaderConfiguration;
@@ -13,6 +14,8 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({MessageTableChangesToDestinationsConfiguration.class,
+
+        CdcDataPublisherConfiguration.class,
 
         CdcDefaultPipelinePropertiesConfiguration.class,
         CdcPipelineFactoryConfiguration.class,

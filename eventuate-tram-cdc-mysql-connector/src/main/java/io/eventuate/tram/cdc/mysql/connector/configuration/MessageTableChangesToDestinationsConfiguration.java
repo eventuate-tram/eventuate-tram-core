@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.local.common.HealthCheck;
+import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
@@ -9,6 +9,10 @@ import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameResolver;
+import io.eventuate.local.unified.cdc.pipeline.common.health.BinlogEntryReaderHealthCheck;
+import io.eventuate.local.unified.cdc.pipeline.common.health.CdcDataPublisherHealthCheck;
+import io.eventuate.local.unified.cdc.pipeline.common.health.KafkaHealthCheck;
+import io.eventuate.local.unified.cdc.pipeline.common.health.ZookeeperHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
@@ -32,9 +36,25 @@ import java.util.Optional;
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
+
   @Bean
-  public HealthCheck healthCheck() {
-    return new HealthCheck();
+  public BinlogEntryReaderHealthCheck binlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    return new BinlogEntryReaderHealthCheck(binlogEntryReaderProvider);
+  }
+
+  @Bean
+  public CdcDataPublisherHealthCheck cdcDataPublisherHealthCheck(CdcDataPublisher cdcDataPublisher) {
+    return new CdcDataPublisherHealthCheck(cdcDataPublisher);
+  }
+
+  @Bean
+  public ZookeeperHealthCheck zookeeperHealthCheck() {
+    return new ZookeeperHealthCheck();
+  }
+
+  @Bean
+  public KafkaHealthCheck kafkaHealthCheck() {
+    return new KafkaHealthCheck();
   }
 
   @Bean

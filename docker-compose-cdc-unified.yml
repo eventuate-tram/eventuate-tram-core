@@ -22,24 +22,26 @@ cdcservice:
       "dataSourcePassword":"mysqlpw",
       "dataSourceDriverClassName":"com.mysql.jdbc.Driver",
       "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/1",
-      "mySqlBinLogClientName":"DbLog1",
+      "binlogClientId": 1,
       "cdcDbUserName":"root",
-      "cdcDbPassword":"rootpassword"},
+      "cdcDbPassword":"rootpassword",
+      "oldDebeziumDbHistoryTopicName":"none"},
       {"type":"polling",
       "name":"reader2",
       "dataSourceUrl":"jdbc:postgresql://${DOCKER_HOST_IP}/eventuate",
       "dataSourceUserName":"eventuate",
       "dataSourcePassword":"eventuate",
       "dataSourceDriverClassName":"org.postgresql.Driver",
-      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/2"},
+      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/2",
+      "binlogClientId": 2},
       {"type":"postgres-wal",
       "name":"reader3",
       "dataSourceUrl":"jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate",
       "dataSourceUserName":"eventuate",
       "dataSourcePassword":"eventuate",
       "dataSourceDriverClassName":"org.postgresql.Driver",
-      "mySqlBinLogClientName":"DbLog2",
-      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/3"}]
+      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/3",
+      "binlogClientId": 3}]
     EVENTUATE_CDC_PIPELINE_PROPERTIES: >
       [{"type":"eventuate-local",
       "reader":"reader1"},
@@ -53,4 +55,3 @@ cdcservice:
       "reader":"reader2"},
       {"type":"eventuate-tram",
       "reader":"reader3"}]
-    EVENTUATE_CURRENT_TIME_IN_MILLISECONDS_SQL: ${EVENTUATE_CURRENT_TIME_IN_MILLISECONDS_SQL}
