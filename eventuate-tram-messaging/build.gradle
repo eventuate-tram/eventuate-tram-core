@@ -2,6 +2,4 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile "commons-lang:commons-lang:2.6"
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
 }
