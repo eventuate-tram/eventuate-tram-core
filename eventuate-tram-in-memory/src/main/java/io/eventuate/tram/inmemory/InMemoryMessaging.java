@@ -72,6 +72,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
 
   private void sendToHandlers(String destination, Message message, List<MessageHandlerWithSubscriberId> handlers) {
     logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
+    preReceive(message);
     for (MessageHandlerWithSubscriberId handler : handlers) {
       executor.execute(() -> transactionTemplate.execute(ts -> {
         try {
@@ -84,6 +85,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
         }
         return null;
       }));
+      postReceive(message);
     }
   }
 
