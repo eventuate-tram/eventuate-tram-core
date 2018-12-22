@@ -23,14 +23,6 @@ public abstract class AbstractMessageProducer implements  MessageProducer {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.postSend(message, e));
   }
 
-  protected void preReceive(Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
-  }
-
-  protected void postReceive(Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
-  }
-
   protected void sendMessage(String id, String destination, Message message) {
     message.getHeaders().put(Message.ID, id);
     message.getHeaders().put(Message.DESTINATION, destination);

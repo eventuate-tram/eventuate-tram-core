@@ -97,6 +97,14 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
     Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
   }
 
+  private void preReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preReceive(message));
+  }
+
+  private void postReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
+  }
+
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     MessageHandlerWithSubscriberId mh = new MessageHandlerWithSubscriberId(subscriberId, handler);

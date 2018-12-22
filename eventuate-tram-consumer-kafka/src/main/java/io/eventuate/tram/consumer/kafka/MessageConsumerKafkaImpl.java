@@ -93,19 +93,20 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     kc.start();
   }
 
-  protected void preReceive(Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
+  private void preReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preReceive(message));
+  }
+
+
+  private void preHandle(String subscriberId, Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
   }
 
   private void postHandle(String subscriberId, Message message, Throwable t) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.postHandle(subscriberId, message, t));
   }
 
-  private void preHandle(String subscriberId, Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
-  }
-
-  protected void postReceive(Message message) {
+  private void postReceive(Message message) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
   }
 
