@@ -28,6 +28,8 @@ function tagAndPush() {
 
 $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
+docker images
+
 tagAndPush "cdcservice" "eventuate-tram-cdc-mysql-service"
 tagAndPush "mysql" "eventuate-tram-mysql"
 tagAndPush "postgres" "eventuate-tram-postgres"
