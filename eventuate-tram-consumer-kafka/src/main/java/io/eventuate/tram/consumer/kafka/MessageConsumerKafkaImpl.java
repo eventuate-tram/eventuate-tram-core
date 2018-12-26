@@ -50,30 +50,35 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     SwimlaneBasedDispatcher swimlaneBasedDispatcher = new SwimlaneBasedDispatcher(subscriberId, Executors.newCachedThreadPool());
 
     BiConsumer<ConsumerRecord<String, String>, BiConsumer<Void, Throwable>> kcHandler = (record, callback) -> {
-      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message ->
-
-        transactionTemplate.execute(ts -> {
-          if (duplicateMessageDetector.isDuplicate(subscriberId, message.getId())) {
-            logger.trace("Duplicate message {} {}", subscriberId, message.getId());
-            callback.accept(null, null);
-            return null;
-          }
-          try {
-            logger.trace("Invoking handler {} {}", subscriberId, message.getId());
-            preHandle(subscriberId, message);
-            handler.accept(message);
-            postHandle(subscriberId, message, null);
-          } catch (Throwable t) {
-            postHandle(subscriberId, message, t);
-            logger.trace("Got exception {} {}", subscriberId, message.getId());
-            logger.trace("Got exception ", t);
-            callback.accept(null, t);
-            return null;
-          }
-          logger.trace("handled message {} {}", subscriberId, message.getId());
-          callback.accept(null, null);
-          return null;
-        })
+      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message -> {
+                preReceive(message);
+                try {
+                  transactionTemplate.execute(ts -> {
+                    if (duplicateMessageDetector.isDuplicate(subscriberId, message.getId())) {
+                      logger.trace("Duplicate message {} {}", subscriberId, message.getId());
+                      callback.accept(null, null);
+                      return null;
+                    }
+                    try {
+                      logger.trace("Invoking handler {} {}", subscriberId, message.getId());
+                      preHandle(subscriberId, message);
+                      handler.accept(message);
+                      postHandle(subscriberId, message, null);
+                    } catch (Throwable t) {
+                      postHandle(subscriberId, message, t);
+                      logger.trace("Got exception {} {}", subscriberId, message.getId());
+                      logger.trace("Got exception ", t);
+                      callback.accept(null, t);
+                      return null;
+                    }
+                    logger.trace("handled message {} {}", subscriberId, message.getId());
+                    callback.accept(null, null);
+                    return null;
+                  });
+                } finally {
+                  postReceive(message);
+                }
+              }
 
       );
     };
@@ -89,13 +94,23 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     kc.start();
   }
 
-  private void postHandle(String subscriberId, Message message, Throwable t) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postHandle(subscriberId, message, t));
+  private void preReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preReceive(message));
   }
+
 
   private void preHandle(String subscriberId, Message message) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
   }
+
+  private void postHandle(String subscriberId, Message message, Throwable t) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.postHandle(subscriberId, message, t));
+  }
+
+  private void postReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
+  }
+
 
   public void close() {
     consumers.forEach(EventuateKafkaConsumer::stop);
