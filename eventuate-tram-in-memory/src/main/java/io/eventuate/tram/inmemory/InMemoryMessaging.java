@@ -42,6 +42,8 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
 
   @Override
   public void send(String destination, Message message) {
+    String id = idGenerator.genId().asString();
+    message.getHeaders().put(Message.ID, id);
     if (TransactionSynchronizationManager.isActualTransactionActive()) {
       logger.info("Transaction active");
       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -58,8 +60,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
   }
 
   private void reallySend(String destination, Message message) {
-    String id = idGenerator.genId().asString();
-    sendMessage(id, destination, message);
+    sendMessage(null, destination, message);
   }
 
   @Override

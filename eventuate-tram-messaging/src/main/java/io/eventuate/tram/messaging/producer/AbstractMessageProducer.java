@@ -24,7 +24,13 @@ public abstract class AbstractMessageProducer implements  MessageProducer {
   }
 
   protected void sendMessage(String id, String destination, Message message) {
-    message.getHeaders().put(Message.ID, id);
+    if (id == null) {
+      if (message.getHeader(Message.ID) == null)
+        throw new IllegalArgumentException("message needs an id");
+    } else {
+      message.getHeaders().put(Message.ID, id);
+    }
+
     message.getHeaders().put(Message.DESTINATION, destination);
     preSend(message);
     try {
