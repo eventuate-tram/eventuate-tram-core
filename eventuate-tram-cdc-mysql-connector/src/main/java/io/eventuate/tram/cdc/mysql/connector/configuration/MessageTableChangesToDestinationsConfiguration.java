@@ -15,15 +15,13 @@ import io.eventuate.local.unified.cdc.pipeline.common.health.KafkaHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.common.health.ZookeeperHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
+import io.eventuate.tram.cdc.mysql.connector.CdcProcessingStatusController;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.ActiveMQOrRabbitMQCondition;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.KafkaCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Optional;
@@ -36,6 +34,10 @@ import java.util.Optional;
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
+  @Bean
+  public CdcProcessingStatusController cdcProcessingStatusController(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    return new CdcProcessingStatusController(binlogEntryReaderProvider);
+  }
 
   @Bean
   public BinlogEntryReaderHealthCheck binlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {

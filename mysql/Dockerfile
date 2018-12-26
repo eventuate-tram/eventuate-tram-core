@@ -1,2 +1,2 @@
-FROM eventuateio/eventuateio-local-mysql:0.30.0.M7
+FROM eventuateio/eventuateio-local-mysql:0.30.0.M8
 COPY schema.sql /docker-entrypoint-initdb.d
