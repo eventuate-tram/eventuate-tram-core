@@ -69,7 +69,7 @@ public class CommandMessageHandlerUnitTestSupport {
     return this;
   }
 
-  public static void assertReplyTypeEquals(Class<Success> replyType, Message reply) {
+  public static void assertReplyTypeEquals(Class<?> replyType, Message reply) {
     assertEquals(replyType.getName(), reply.getRequiredHeader(ReplyMessageHeaders.REPLY_TYPE));
   }
 
