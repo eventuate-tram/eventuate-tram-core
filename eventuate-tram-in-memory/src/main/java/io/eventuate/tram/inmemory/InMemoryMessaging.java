@@ -7,6 +7,8 @@ import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.producer.AbstractMessageProducer;
+import io.eventuate.tram.messaging.producer.MessageProducer;
+import io.eventuate.tram.messaging.producer.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ import java.util.concurrent.Executors;
 
 import static java.util.Collections.singleton;
 
-public class InMemoryMessaging extends AbstractMessageProducer implements MessageConsumer {
+public class InMemoryMessaging extends AbstractMessageProducer implements MessageProducer, MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -60,11 +62,10 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
   }
 
   private void reallySend(String destination, Message message) {
-    sendMessage(null, destination, message);
+    sendMessage(null, destination, message, this::send);
   }
 
-  @Override
-  protected void reallySendMessage(Message message) {
+  private void send(Message message) {
     String destination = message.getRequiredHeader(Message.DESTINATION);
     List<MessageHandlerWithSubscriberId> handlers = subscriptions.getOrDefault(destination, Collections.emptyList());
     sendToHandlers(destination, message, handlers);

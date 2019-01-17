@@ -7,10 +7,11 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.AbstractMessageProducer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
+import io.eventuate.tram.messaging.producer.MessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class MessageProducerJdbcImpl extends AbstractMessageProducer {
+public class MessageProducerJdbcImpl extends AbstractMessageProducer implements MessageProducer {
 
   @Autowired
   private JdbcTemplate jdbcTemplate;
@@ -28,12 +29,11 @@ public class MessageProducerJdbcImpl extends AbstractMessageProducer {
   @Override
   public void send(String destination, Message message) {
     String id = idGenerator.genId().asString();
-    sendMessage(id, destination, message);
+    sendMessage(id, destination, message, this::send);
   }
 
 
-  @Override
-  protected void reallySendMessage(Message message) {
+  private void send(Message message) {
     String table = eventuateSchema.qualifyTable("message");
     jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload) values(?, ?, ?, ?)", table),
             message.getId(),
