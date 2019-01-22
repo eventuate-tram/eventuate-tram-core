@@ -14,44 +14,52 @@ cdcservice:
     SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     ACTIVEMQ_URL: tcp://${DOCKER_HOST_IP}:61616
     RABBITMQ_URL: ${DOCKER_HOST_IP}
-    EVENTUATE_CDC_PIPELINE_READER_PROPERTIES: >
-      [{"type":"mysql-binlog",
-      "name":"reader1",
-      "dataSourceUrl":"jdbc:mysql://${DOCKER_HOST_IP}:3306/eventuate",
-      "dataSourceUserName":"mysqluser",
-      "dataSourcePassword":"mysqlpw",
-      "dataSourceDriverClassName":"com.mysql.jdbc.Driver",
-      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/1",
-      "binlogClientId": 1,
-      "cdcDbUserName":"root",
-      "cdcDbPassword":"rootpassword",
-      "oldDebeziumDbHistoryTopicName":"none"},
-      {"type":"polling",
-      "name":"reader2",
-      "dataSourceUrl":"jdbc:postgresql://${DOCKER_HOST_IP}/eventuate",
-      "dataSourceUserName":"eventuate",
-      "dataSourcePassword":"eventuate",
-      "dataSourceDriverClassName":"org.postgresql.Driver",
-      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/2",
-      "binlogClientId": 2},
-      {"type":"postgres-wal",
-      "name":"reader3",
-      "dataSourceUrl":"jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate",
-      "dataSourceUserName":"eventuate",
-      "dataSourcePassword":"eventuate",
-      "dataSourceDriverClassName":"org.postgresql.Driver",
-      "leadershipLockPath":"/eventuatelocal/cdc/leader/pipeline/3",
-      "binlogClientId": 3}]
-    EVENTUATE_CDC_PIPELINE_PROPERTIES: >
-      [{"type":"eventuate-local",
-      "reader":"reader1"},
-      {"type":"eventuate-local",
-      "reader":"reader2"},
-      {"type":"eventuate-local",
-      "reader":"reader3"},
-      {"type":"eventuate-tram",
-      "reader":"reader1"},
-      {"type":"eventuate-tram",
-      "reader":"reader2"},
-      {"type":"eventuate-tram",
-      "reader":"reader3"}]
+
+    EVENTUATE_CDC_READER_READER1_TYPE: mysql-binlog
+    EVENTUATE_CDC_READER_READER1_NAME: reader1
+    EVENTUATE_CDC_READER_READER1_DATASOURCEURL: jdbc:mysql://${DOCKER_HOST_IP}:3306/eventuate
+    EVENTUATE_CDC_READER_READER1_DATASOURCEUSERNAME: mysqluser
+    EVENTUATE_CDC_READER_READER1_DATASOURCEPASSWORD: mysqlpw
+    EVENTUATE_CDC_READER_READER1_DATASOURCEDRIVERCLASSNAME: com.mysql.jdbc.Driver
+    EVENTUATE_CDC_READER_READER1_LEADERSHIPLOCKPATH: /eventuatelocal/cdc/leader/pipeline/1
+    EVENTUATE_CDC_READER_READER1_BINLOGCLIENTID: 1
+    EVENTUATE_CDC_READER_READER1_CDCDBUSERNAME: root
+    EVENTUATE_CDC_READER_READER1_CDCDBPASSWORD: rootpassword
+    EVENTUATE_CDC_READER_READER1_OLDDEBEZIUMDBOFFSETSTORAGETOPICNAME: none
+    EVENTUATE_CDC_READER_READER1_MYSQLBINLOGCLIENTNAME: MySqlBinLog
+
+    EVENTUATE_CDC_READER_READER2_TYPE: polling
+    EVENTUATE_CDC_READER_READER2_NAME: reader2
+    EVENTUATE_CDC_READER_READER2_DATASOURCEURL: jdbc:postgresql://${DOCKER_HOST_IP}/eventuate
+    EVENTUATE_CDC_READER_READER2_DATASOURCEUSERNAME: eventuate
+    EVENTUATE_CDC_READER_READER2_DATASOURCEPASSWORD: eventuate
+    EVENTUATE_CDC_READER_READER2_DATASOURCEDRIVERCLASSNAME: org.postgresql.Driver
+    EVENTUATE_CDC_READER_READER2_LEADERSHIPLOCKPATH: /eventuatelocal/cdc/leader/pipeline/2
+    EVENTUATE_CDC_READER_READER2_BINLOGCLIENTID: 2
+
+    EVENTUATE_CDC_READER_READER3_TYPE: postgres-wal
+    EVENTUATE_CDC_READER_READER3_NAME: reader3
+    EVENTUATE_CDC_READER_READER3_DATASOURCEURL: jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate
+    EVENTUATE_CDC_READER_READER3_DATASOURCEUSERNAME: eventuate
+    EVENTUATE_CDC_READER_READER3_DATASOURCEPASSWORD: eventuate
+    EVENTUATE_CDC_READER_READER3_DATASOURCEDRIVERCLASSNAME: org.postgresql.Driver
+    EVENTUATE_CDC_READER_READER3_LEADERSHIPLOCKPATH: /eventuatelocal/cdc/leader/pipeline/3
+    EVENTUATE_CDC_READER_READER3_BINLOGCLIENTID: 3
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE: eventuate-local
+    EVENTUATE_CDC_PIPELINE_PIPELINE1_READER: reader1
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE: eventuate-local
+    EVENTUATE_CDC_PIPELINE_PIPELINE2_READER: reader2
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE3_TYPE: eventuate-local
+    EVENTUATE_CDC_PIPELINE_PIPELINE3_READER: reader3
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE4_TYPE: eventuate-tram
+    EVENTUATE_CDC_PIPELINE_PIPELINE4_READER: reader1
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE5_TYPE: eventuate-tram
+    EVENTUATE_CDC_PIPELINE_PIPELINE5_READER: reader2
+
+    EVENTUATE_CDC_PIPELINE_PIPELINE6_TYPE: eventuate-tram
+    EVENTUATE_CDC_PIPELINE_PIPELINE6_READER: reader3

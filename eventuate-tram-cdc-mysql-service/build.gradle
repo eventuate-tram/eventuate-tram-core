@@ -5,15 +5,15 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootCdcVersion")
     }
 }
 
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
-    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootCdcVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"
     compile project(":eventuate-tram-cdc-mysql-connector")
     compile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
 
@@ -25,6 +25,6 @@ dependencies {
     }
 }
 
-uploadArchives.dependsOn(bootRepackage)
-bintrayUpload.dependsOn(bootRepackage)
+uploadArchives.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
+bintrayUpload.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
 

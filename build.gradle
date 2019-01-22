@@ -40,7 +40,7 @@ subprojects {
 
     dependencies {
         testCompile "junit:junit:4.12"
-        testCompile "org.mockito:mockito-all:1.10.19"
+        testCompile "org.mockito:mockito-core:2.23.4"
     }
 
     uploadArchives {
@@ -63,7 +63,7 @@ subprojects {
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.4'
 }
 
 

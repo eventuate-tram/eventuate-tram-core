@@ -4,10 +4,8 @@ dependencies {
     compile project(":eventuate-tram-producer-rabbitmq")
     compile project(":eventuate-tram-consumer-rabbitmq")
     compile project(":eventuate-tram-cdc-mysql-connector")
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-
-    testCompile 'org.mockito:mockito-all:1.10.19'
 }
 
 test {
