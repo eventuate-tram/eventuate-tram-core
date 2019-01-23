@@ -2,6 +2,7 @@ include 'eventuate-tram-cdc-mysql-connector'
 include 'eventuate-tram-cdc-mysql-connector-autoconfigure'
 include 'eventuate-tram-cdc-mysql-service'
 
+include 'eventuate-tram-jdbc'
 include 'eventuate-tram-messaging'
 include 'eventuate-tram-producer-jdbc'
 include 'eventuate-tram-producer-activemq'

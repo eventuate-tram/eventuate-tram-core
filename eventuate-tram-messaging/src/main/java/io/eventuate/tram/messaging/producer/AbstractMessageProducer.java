@@ -18,12 +18,19 @@ public abstract class AbstractMessageProducer implements  MessageProducer {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.preSend(message));
   }
 
+
   protected void postSend(Message message, RuntimeException e) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.postSend(message, e));
   }
 
   protected void sendMessage(String id, String destination, Message message) {
-    message.getHeaders().put(Message.ID, id);
+    if (id == null) {
+      if (message.getHeader(Message.ID) == null)
+        throw new IllegalArgumentException("message needs an id");
+    } else {
+      message.getHeaders().put(Message.ID, id);
+    }
+
     message.getHeaders().put(Message.DESTINATION, destination);
     preSend(message);
     try {

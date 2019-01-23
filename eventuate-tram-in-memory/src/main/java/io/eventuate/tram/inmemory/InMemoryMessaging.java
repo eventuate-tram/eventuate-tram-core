@@ -42,6 +42,8 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
 
   @Override
   public void send(String destination, Message message) {
+    String id = idGenerator.genId().asString();
+    message.getHeaders().put(Message.ID, id);
     if (TransactionSynchronizationManager.isActualTransactionActive()) {
       logger.info("Transaction active");
       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -58,8 +60,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
   }
 
   private void reallySend(String destination, Message message) {
-    String id = idGenerator.genId().asString();
-    sendMessage(id, destination, message);
+    sendMessage(null, destination, message);
   }
 
   @Override
@@ -72,6 +73,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
 
   private void sendToHandlers(String destination, Message message, List<MessageHandlerWithSubscriberId> handlers) {
     logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
+    preReceive(message);
     for (MessageHandlerWithSubscriberId handler : handlers) {
       executor.execute(() -> transactionTemplate.execute(ts -> {
         try {
@@ -84,6 +86,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
         }
         return null;
       }));
+      postReceive(message);
     }
   }
 
@@ -93,6 +96,14 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
 
   private void preHandle(String subscriberId, Message message) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
+  }
+
+  private void preReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.preReceive(message));
+  }
+
+  private void postReceive(Message message) {
+    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
   }
 
   @Override

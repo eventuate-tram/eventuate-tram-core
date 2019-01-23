@@ -12,6 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
@@ -38,6 +41,10 @@ public class InMemoryMessagingTest {
 
   @Autowired
   private InMemoryMessaging inMemoryMessaging;
+
+  @Autowired
+  private TransactionTemplate transactionTemplate;
+
 
   class MyMessageHandler implements MessageHandler {
 
@@ -79,10 +86,21 @@ public class InMemoryMessagingTest {
 
     inMemoryMessaging.subscribe(subscriberId, Collections.singleton(destination), mh);
 
-    inMemoryMessaging.send(destination, MessageBuilder.withPayload(payload).build());
-
+    Message m = MessageBuilder.withPayload(payload).build();
+    inMemoryMessaging.send(destination, m);
+    assertNotNull(m.getId());
     mh.shouldReceiveMessage(payload);
 
+  }
+
+  @Test
+  public void shouldSetIdWithinTransaction() {
+    Message m = MessageBuilder.withPayload(payload).build();
+    transactionTemplate.execute((TransactionCallback<Void>) status -> {
+      inMemoryMessaging.send(destination, m);
+      assertNotNull(m.getId());
+      return null;
+    });
   }
 
   @Test

@@ -32,12 +32,13 @@ dependencyManagement {
 dependencies {
     compile project(":eventuate-tram-messaging")
 
-    compile "org.springframework.cloud:spring-cloud-starter-sleuth:2.0.1.RELEASE"
-    compile "org.springframework.cloud:spring-cloud-starter-zipkin:2.0.1.RELEASE"
-    compile "io.zipkin.brave:brave-bom:4.17.1"
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    compile "io.zipkin.brave:brave:5.4.3"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "org.springframework.cloud:spring-cloud-starter-sleuth"
+    testCompile "org.springframework.cloud:spring-cloud-starter-zipkin:2.0.1.RELEASE"
     testCompile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
     testCompile project(":eventuate-tram-in-memory")
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
