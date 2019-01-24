@@ -61,7 +61,6 @@ export SPRING_PROFILES_ACTIVE=ActiveMQ
 
 $DOCKER_COMPOSE up -d cdcservice
 $DOCKER_COMPOSE unpause activemq
-$DOCKER_COMPOSE stop kafka
 ./wait-for-services.sh $DOCKER_HOST_IP 8099
 sleep 15
 
