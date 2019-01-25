@@ -37,8 +37,8 @@ dependencies {
 
     testCompile "org.springframework.cloud:spring-cloud-starter-sleuth"
     testCompile "org.springframework.cloud:spring-cloud-starter-zipkin:2.0.1.RELEASE"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     testCompile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
     testCompile project(":eventuate-tram-in-memory")
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

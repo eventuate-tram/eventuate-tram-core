@@ -5,14 +5,13 @@ import io.eventuate.tram.messaging.common.MessageInterceptor;
 
 import java.util.Arrays;
 
-public abstract class AbstractMessageProducer implements  MessageProducer {
+public abstract class AbstractMessageProducer {
 
   protected MessageInterceptor[] messageInterceptors;
 
   protected AbstractMessageProducer(MessageInterceptor[] messageInterceptors) {
     this.messageInterceptors = messageInterceptors;
   }
-
 
   protected void preSend(Message message) {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.preSend(message));
@@ -23,18 +22,21 @@ public abstract class AbstractMessageProducer implements  MessageProducer {
     Arrays.stream(messageInterceptors).forEach(mi -> mi.postSend(message, e));
   }
 
-  protected void sendMessage(String id, String destination, Message message) {
+  protected void sendMessage(String id, String destination, Message message, MessageSender messageSender) {
     if (id == null) {
-      if (message.getHeader(Message.ID) == null)
+      if (!message.getHeader(Message.ID).isPresent())
         throw new IllegalArgumentException("message needs an id");
     } else {
       message.getHeaders().put(Message.ID, id);
     }
 
     message.getHeaders().put(Message.DESTINATION, destination);
+
+    message.getHeaders().put(Message.DATE, HttpDateHeaderFormatUtil.nowAsHttpDateString());
+
     preSend(message);
     try {
-      reallySendMessage(message);
+      messageSender.send(message);
       postSend(message, null);
     } catch (RuntimeException e) {
       postSend(message, e);
@@ -42,5 +44,4 @@ public abstract class AbstractMessageProducer implements  MessageProducer {
     }
   }
 
-  protected abstract void reallySendMessage(Message message);
 }

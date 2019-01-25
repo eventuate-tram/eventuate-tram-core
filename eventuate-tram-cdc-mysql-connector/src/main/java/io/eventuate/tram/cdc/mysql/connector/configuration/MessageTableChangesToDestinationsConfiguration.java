@@ -116,7 +116,7 @@ public class MessageTableChangesToDestinationsConfiguration {
                                                                           EventuateKafkaProducer eventuateKafkaProducer,
                                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return (properties, dataSource, eventuateSchema, clientName) ->  new DatabaseOffsetKafkaStore(properties.getDbHistoryTopicName(),
+    return (properties, dataSource, eventuateSchema, clientName) ->  new DatabaseOffsetKafkaStore(properties.getOffsetStorageTopicName(),
             clientName,
             eventuateKafkaProducer,
             eventuateKafkaConfigurationProperties,

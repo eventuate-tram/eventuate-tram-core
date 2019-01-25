@@ -7,7 +7,7 @@ dependencies {
 
     compile "io.eventuate.local.java:eventuate-local-java-common:$eventuateLocalVersion"
     compile "io.eventuate.local.java:eventuate-local-java-kafka:$eventuateLocalVersion"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 

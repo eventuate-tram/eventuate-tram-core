@@ -4,6 +4,7 @@ import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.EventuateLocalZookeperConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
+import io.eventuate.local.java.kafka.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
@@ -15,19 +16,16 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @EnableConfigurationProperties(EventuateKafkaProducerConfigurationProperties.class)
+@Import(EventuateKafkaPropertiesConfiguration.class)
 public class CommonMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public EventuateConfigurationProperties eventuateConfigurationProperties() {
     return new EventuateConfigurationProperties();
-  }
-
-  @Bean
-  public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
-    return new EventuateKafkaConfigurationProperties();
   }
 
   @Bean

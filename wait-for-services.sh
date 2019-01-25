@@ -8,7 +8,7 @@ ports=$*
 
 while [[ "$done" = false ]]; do
 	for port in $ports; do
-		curl --fail http://${host}:${port}/health >& /dev/null
+		curl --fail http://${host}:${port}/actuator/health >& /dev/null
 		if [[ "$?" -eq "0" ]]; then
 			done=true
 		else

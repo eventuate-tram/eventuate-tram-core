@@ -3,7 +3,7 @@ dependencies {
     testCompile project(":eventuate-tram-jdbc-activemq")
 
     testCompile project(":eventuate-tram-e2e-tests-common")
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
 test {
