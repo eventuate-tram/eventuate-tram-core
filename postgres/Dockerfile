@@ -1,4 +1,4 @@
-FROM eventuateio/eventuateio-local-postgres:0.30.0.M10
+FROM eventuateio/eventuateio-local-postgres:0.30.0.M12
 
 COPY postgresql.conf.sample /usr/share/postgresql/postgresql.conf.sample
 
