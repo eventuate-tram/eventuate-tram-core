@@ -79,9 +79,8 @@ public class MessageTableChangesToDestinationsConfiguration {
   public DebeziumOffsetStoreFactory debeziumOffsetStoreFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return (oldDbHistoryTopicName) ->
-            new DebeziumBinlogOffsetKafkaStore(oldDbHistoryTopicName,
-              eventuateKafkaConfigurationProperties,
+    return () ->
+            new DebeziumBinlogOffsetKafkaStore(eventuateKafkaConfigurationProperties,
               eventuateKafkaConsumerConfigurationProperties);
   }
 
@@ -90,9 +89,8 @@ public class MessageTableChangesToDestinationsConfiguration {
   public DebeziumOffsetStoreFactory emptyDebeziumOffsetStoreFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                        EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return (oldDbHistoryTopicName) ->
-            new DebeziumBinlogOffsetKafkaStore(oldDbHistoryTopicName,
-              eventuateKafkaConfigurationProperties,
+    return () ->
+            new DebeziumBinlogOffsetKafkaStore(eventuateKafkaConfigurationProperties,
               eventuateKafkaConsumerConfigurationProperties) {
       @Override
       public Optional<BinlogFileOffset> getLastBinlogFileOffset() {
