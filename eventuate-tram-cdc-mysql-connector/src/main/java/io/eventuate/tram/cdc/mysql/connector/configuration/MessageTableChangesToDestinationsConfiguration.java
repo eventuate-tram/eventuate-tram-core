@@ -1,9 +1,13 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.CdcDataPublisherFactory;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
+import io.eventuate.local.java.common.broker.CdcDataPublisherTransactionTemplateFactory;
+import io.eventuate.local.java.common.broker.DataProducerFactory;
+import io.eventuate.local.java.common.broker.EmptyCdcDataPublisherTransactionTemplate;
 import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
+import io.eventuate.local.java.kafka.KafkaCdcDataPublisherTransactionTemplate;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
@@ -45,8 +49,9 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public CdcDataPublisherHealthCheck cdcDataPublisherHealthCheck(CdcDataPublisher cdcDataPublisher) {
-    return new CdcDataPublisherHealthCheck(cdcDataPublisher);
+  public CdcDataPublisherHealthCheck cdcDataPublisherHealthCheck(DataProducerFactory dataProducerFactory,
+                                                                 CdcDataPublisherFactory cdcDataPublisherFactory) {
+    return new CdcDataPublisherHealthCheck(cdcDataPublisherFactory.create(dataProducerFactory.create()));
   }
 
   @Bean
@@ -103,7 +108,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Conditional(ActiveMQOrRabbitMQCondition.class)
   public OffsetStoreFactory postgresWalJdbcOffsetStoreFactory() {
 
-    return (roperties, dataSource, eventuateSchema, clientName) ->
+    return (roperties, dataSource, eventuateSchema, clientName, dataProducer) ->
             new JdbcOffsetStore(clientName, new JdbcTemplate(dataSource), eventuateSchema);
 
   }
@@ -111,13 +116,36 @@ public class MessageTableChangesToDestinationsConfiguration {
   @Bean
   @Conditional(KafkaCondition.class)
   public OffsetStoreFactory postgresWalKafkaOffsetStoreFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                                          EventuateKafkaProducer eventuateKafkaProducer,
                                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
-    return (properties, dataSource, eventuateSchema, clientName) ->  new DatabaseOffsetKafkaStore(properties.getOffsetStorageTopicName(),
-            clientName,
-            eventuateKafkaProducer,
-            eventuateKafkaConfigurationProperties,
-            eventuateKafkaConsumerConfigurationProperties);
+    return (properties, dataSource, eventuateSchema, clientName, dataProducer) ->  {
+      if (!(dataProducer instanceof EventuateKafkaProducer)) {
+        throw new IllegalArgumentException(String.format("Expected %s", EventuateKafkaProducer.class));
+      }
+
+      return new DatabaseOffsetKafkaStore(properties.getOffsetStorageTopicName(),
+              clientName,
+              (EventuateKafkaProducer) dataProducer,
+              eventuateKafkaConfigurationProperties,
+              eventuateKafkaConsumerConfigurationProperties);
+    };
+  }
+
+  @Bean
+  @Conditional(KafkaCondition.class)
+  public CdcDataPublisherTransactionTemplateFactory kafkaCdcDataPublisherTransactionTemplateFactory() {
+    return (dataProducer) -> {
+      if (!(dataProducer instanceof EventuateKafkaProducer)) {
+        throw new IllegalArgumentException(String.format("Expected %s", EventuateKafkaProducer.class));
+      }
+
+      return new KafkaCdcDataPublisherTransactionTemplate((EventuateKafkaProducer)dataProducer);
+    };
+  }
+
+  @Bean
+  @Conditional(ActiveMQOrRabbitMQCondition.class)
+  public CdcDataPublisherTransactionTemplateFactory emptyCdcDataPublisherTransactionTemplateFactory() {
+    return (dataProducer) -> new EmptyCdcDataPublisherTransactionTemplate();
   }
 }

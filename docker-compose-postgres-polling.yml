@@ -6,7 +6,7 @@ zookeeper:
     - 3888:3888
 
 kafka:
-  image: eventuateio/eventuateio-local-kafka:0.30.0.M14
+  image: test-eventuateio-local-kafka
   ports:
     - 9092:9092
   links:

@@ -3,7 +3,7 @@ package io.eventuate.tram.cdc.mysql.connector;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.local.db.log.common.OffsetStore;
+import io.eventuate.local.common.OffsetStore;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Optional;
@@ -49,9 +49,5 @@ public class JdbcOffsetStore implements OffsetStore {
   public void save(BinlogFileOffset binlogFileOffset) {
     String updateOffsetByClientNameQuery = String.format("update %s set serialized_offset = ?", tableName);
     jdbcTemplate.update(updateOffsetByClientNameQuery, JSonMapper.toJson(binlogFileOffset));
-  }
-
-  @Override
-  public void stop() {
   }
 }
