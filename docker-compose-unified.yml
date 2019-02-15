@@ -31,6 +31,11 @@ rabbitmq:
   ports:
     - 5672:5672
 
+redis:
+  image: redis
+  ports:
+    - 6379:6379
+
 mysqlbinlogpipeline:
   build: ./mysql
   ports:

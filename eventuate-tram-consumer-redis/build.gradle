@@ -1,0 +1,8 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-redis-common")
+}
+
+

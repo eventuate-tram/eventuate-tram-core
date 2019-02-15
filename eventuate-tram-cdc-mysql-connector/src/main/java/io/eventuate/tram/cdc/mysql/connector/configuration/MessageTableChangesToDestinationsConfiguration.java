@@ -30,7 +30,8 @@ import java.util.Optional;
 @Import({CommonMessageTableChangesToDestinationsConfiguration.class,
         KafkaMessageTableChangesToDestinationsConfiguration.class,
         ActiveMQMessageTableChangesToDestinationsConfiguration.class,
-        RabbitMQMessageTableChangesToDestinationsConfiguration.class})
+        RabbitMQMessageTableChangesToDestinationsConfiguration.class,
+        RedisMessageTableChangesToDestinationsConfiguration.class})
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 public class MessageTableChangesToDestinationsConfiguration {
 
