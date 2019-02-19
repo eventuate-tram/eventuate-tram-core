@@ -18,7 +18,7 @@ import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.Debeziu
 import io.eventuate.tram.cdc.mysql.connector.CdcProcessingStatusController;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.mysql.connector.JdbcOffsetStore;
-import io.eventuate.tram.cdc.mysql.connector.configuration.condition.ActiveMQOrRabbitMQCondition;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.ActiveMQOrRabbitMQOrRedisCondition;
 import io.eventuate.tram.cdc.mysql.connector.configuration.condition.KafkaCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -86,7 +86,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Conditional(ActiveMQOrRabbitMQCondition.class)
+  @Conditional(ActiveMQOrRabbitMQOrRedisCondition.class)
   public DebeziumOffsetStoreFactory emptyDebeziumOffsetStoreFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                        EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
 
@@ -101,7 +101,7 @@ public class MessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  @Conditional(ActiveMQOrRabbitMQCondition.class)
+  @Conditional(ActiveMQOrRabbitMQOrRedisCondition.class)
   public OffsetStoreFactory postgresWalJdbcOffsetStoreFactory() {
 
     return (roperties, dataSource, eventuateSchema, clientName) ->
