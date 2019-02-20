@@ -60,6 +60,17 @@ $DOCKER_COMPOSE up -d cdcservice
 
 
 
+$DOCKER_COMPOSE stop cdcservice
+$DOCKER_COMPOSE rm --force cdcservice
+
+export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
+
+$DOCKER_COMPOSE up -d cdcservice
+./wait-for-services.sh $DOCKER_HOST_IP 8099
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-redis:cleanTest :eventuate-tram-e2e-tests-jdbc-redis:test
+
+
 $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v
 

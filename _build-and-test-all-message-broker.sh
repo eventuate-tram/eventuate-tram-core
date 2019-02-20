@@ -12,6 +12,10 @@ export SPRING_PROFILES_ACTIVE=${PROFILE}
 
 ./wait-for-mysql.sh
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-${BROKER}-integration-test:cleanTest :eventuate-tram-${BROKER}-integration-test:test
+if [ -d "eventuate-tram-${BROKER}-integration-tests" ]; then
+./gradlew $GRADLE_OPTIONS :eventuate-tram-${BROKER}-integration-tests:cleanTest :eventuate-tram-${BROKER}-integration-tests:test
+fi
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-consumer-${BROKER}:cleanTest :eventuate-tram-consumer-${BROKER}:test
 
 docker-compose -f docker-compose-${BROKER}.yml down -v
