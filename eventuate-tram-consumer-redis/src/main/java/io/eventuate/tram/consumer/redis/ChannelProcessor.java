@@ -81,19 +81,19 @@ public class ChannelProcessor {
   }
 
   private boolean isKeyDoesNotExist(RedisSystemException e) {
-    String message = e.getCause().getMessage();
-
-    return e.getCause() instanceof RedisCommandExecutionException &&
-            message != null &&
-            message.contains("ERR The XGROUP subcommand requires the key to exist");
+    return checkRedisCommandExceptionContainsMessage(e, "ERR The XGROUP subcommand requires the key to exist");
   }
 
   private boolean isGroupExistsAlready(RedisSystemException e) {
+    return checkRedisCommandExceptionContainsMessage(e, "Consumer Group name already exists");
+  }
+
+  private boolean checkRedisCommandExceptionContainsMessage(RedisSystemException e, String expectedMessage) {
     String message = e.getCause().getMessage();
 
     return e.getCause() instanceof RedisCommandExecutionException &&
             message != null &&
-            message.contains("Consumer Group name already exists");
+            message.contains(expectedMessage);
   }
 
   private void processPendingRecords() {
