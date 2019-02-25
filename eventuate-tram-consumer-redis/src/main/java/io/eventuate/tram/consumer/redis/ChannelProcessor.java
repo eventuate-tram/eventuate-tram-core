@@ -30,10 +30,10 @@ public class ChannelProcessor {
   private String subscriberId;
   private String channel;
   private MessageHandler messageHandler;
-  private RedisTemplate redisTemplate;
+  private RedisTemplate<String, String> redisTemplate;
   private Boolean acknowledgeFailedMessages;
 
-  public ChannelProcessor(RedisTemplate redisTemplate,
+  public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
                           TransactionTemplate transactionTemplate,
                           DuplicateMessageDetector duplicateMessageDetector,
                           String subscriberId,

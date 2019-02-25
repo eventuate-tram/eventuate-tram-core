@@ -21,7 +21,7 @@ public class RedisMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Profile("Redis")
-  public DataProducerFactory redisDataProducerFactory(RedisTemplate redisTemplate) {
+  public DataProducerFactory redisDataProducerFactory(RedisTemplate<String, String> redisTemplate) {
     return () -> new EventuateRedisProducer(redisTemplate);
   }
 }
