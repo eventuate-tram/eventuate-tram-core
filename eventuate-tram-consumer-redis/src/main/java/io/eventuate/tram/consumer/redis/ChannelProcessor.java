@@ -128,7 +128,7 @@ public class ChannelProcessor {
 
   private void processMessage(String message, RecordId recordId) {
 
-    System.out.println("Got message: " + message);
+    logger.info("Got message: {}", message);
 
     Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
 
