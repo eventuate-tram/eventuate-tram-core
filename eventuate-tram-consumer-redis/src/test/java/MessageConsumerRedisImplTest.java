@@ -32,9 +32,9 @@ public class MessageConsumerRedisImplTest {
   public void testMessageReceived() {
     TestInfo testInfo = new TestInfo();
 
-    MessageConsumer messageConsumer = createMessageConsumer();
+    MessageConsumer messageConsumer = createMessageConsumer(true);
 
-    List<Message> messages = new ArrayList<>();
+    List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
@@ -48,12 +48,12 @@ public class MessageConsumerRedisImplTest {
     TestInfo testInfo = new TestInfo();
 
     sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
+
     redisTemplate.opsForStream().createGroup(testInfo.getChannel(), ReadOffset.from("0"), testInfo.getSubscriberId());
 
+    MessageConsumer messageConsumer = createMessageConsumer(true);
 
-    MessageConsumer messageConsumer = createMessageConsumer();
-
-    List<Message> messages = new ArrayList<>();
+    List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
@@ -64,9 +64,9 @@ public class MessageConsumerRedisImplTest {
   public void testReceivingPendingMessageAfterRestart() throws InterruptedException {
     TestInfo testInfo = new TestInfo();
 
-    MessageConsumer messageConsumer = createMessageConsumer();
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer(false);
 
-    List<Message> messages = new ArrayList<>();
+    List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), message -> {
       messages.add(message);
@@ -82,11 +82,38 @@ public class MessageConsumerRedisImplTest {
 
     messages.clear();
 
-    messageConsumer = createMessageConsumer();
+    messageConsumer.close();
+
+    messageConsumer = createMessageConsumer(false);
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
     waitForMessage(messages, testInfo.getMessage());
+  }
+
+  @Test
+  public void testMessageThatExceptionInMessageConsumerIsHandled() {
+    TestInfo testInfo = new TestInfo();
+
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer(true);
+
+    List<Message> messages = Collections.synchronizedList(new ArrayList<>());
+
+    messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), message -> {
+      if (messages.isEmpty()) {
+        messages.add(message);
+        throw new RuntimeException("Something happened!");
+      }
+      messages.add(message);
+    });
+
+    sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
+    sendMessage(testInfo.getKey(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), testInfo.getChannel());
+
+    Eventually.eventually(() -> {
+      Assert.assertEquals(2, messages.size());
+      Assert.assertEquals(testInfo.getMessage(), messages.get(0).getPayload());
+    });
   }
 
   private void waitForMessage(List<Message> messages, String message) {
@@ -97,8 +124,8 @@ public class MessageConsumerRedisImplTest {
   }
 
 
-  private MessageConsumer createMessageConsumer() {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate);
+  private MessageConsumerRedisImpl createMessageConsumer(boolean acknowledgeFailedMessages) {
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, acknowledgeFailedMessages);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {
@@ -118,7 +145,6 @@ public class MessageConsumerRedisImplTest {
                     String.format("{\"payload\": \"%s\", \"headers\" : {\"ID\" : \"%s\"}}",
                             message,
                             messageId))).withStreamKey(channel));
-
   }
 
 
@@ -169,5 +195,4 @@ public class MessageConsumerRedisImplTest {
       this.messageId = messageId;
     }
   }
-
 }

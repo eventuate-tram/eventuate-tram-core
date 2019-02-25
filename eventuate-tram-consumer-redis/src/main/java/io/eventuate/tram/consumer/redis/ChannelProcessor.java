@@ -6,6 +6,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.api.StatefulRedisConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.RedisSystemException;
@@ -26,23 +27,26 @@ public class ChannelProcessor {
 
   private TransactionTemplate transactionTemplate;
   private DuplicateMessageDetector duplicateMessageDetector;
-  private RedisTemplate<String, String> redisTemplate;
   private String subscriberId;
   private String channel;
   private MessageHandler messageHandler;
+  private RedisTemplate redisTemplate;
+  private Boolean acknowledgeFailedMessages;
 
-  public ChannelProcessor(TransactionTemplate transactionTemplate,
+  public ChannelProcessor(RedisTemplate redisTemplate,
+                          TransactionTemplate transactionTemplate,
                           DuplicateMessageDetector duplicateMessageDetector,
-                          RedisTemplate<String, String> redisTemplate,
                           String subscriberId,
                           String channel,
-                          MessageHandler messageHandler) {
+                          MessageHandler messageHandler,
+                          Boolean acknowledgeFailedMessages) {
+    this.redisTemplate = redisTemplate;
     this.transactionTemplate = transactionTemplate;
     this.duplicateMessageDetector = duplicateMessageDetector;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
-    this.redisTemplate = redisTemplate;
+    this.acknowledgeFailedMessages = acknowledgeFailedMessages;
   }
 
   public void process() {
@@ -109,14 +113,12 @@ public class ChannelProcessor {
   }
 
   private void processRegularRecords() {
-
     while (running.get()) {
       processRecords(getUnprocessedRecords());
     }
   }
 
   private void processRecords(List<MapRecord<String, Object, Object>> records) {
-
     records.forEach(entries ->
             entries
                     .getValue()
@@ -126,11 +128,22 @@ public class ChannelProcessor {
 
   private void processMessage(String message, RecordId recordId) {
 
+    System.out.println("Got message: " + message);
+
     Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
 
     transactionTemplate.execute(ts -> {
       if (!duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-        messageHandler.accept(tramMessage);
+        try {
+          messageHandler.accept(tramMessage);
+        } catch (Throwable t) {
+          logger.error(t.getMessage(), t);
+
+          if (acknowledgeFailedMessages) {
+            redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
+          }
+          return null;
+        }
       }
 
       redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
@@ -144,10 +157,11 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords() {
-    return getRecords(ReadOffset.lastConsumed());
+    return getRecords(ReadOffset.from(">"));
   }
 
   private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset) {
+
     return redisTemplate
             .opsForStream()
             .read(Consumer.from(subscriberId, subscriberId),

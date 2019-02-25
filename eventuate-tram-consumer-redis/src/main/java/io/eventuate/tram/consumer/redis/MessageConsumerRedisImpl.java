@@ -3,6 +3,7 @@ package io.eventuate.tram.consumer.redis;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.lettuce.core.api.StatefulRedisConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,15 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private ExecutorService executorService = Executors.newCachedThreadPool();
   private List<ChannelProcessor> channelProcessors = new ArrayList<>();
 
+  private Boolean acknowledgeFailedMessages;
+
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate) {
+    this(redisTemplate, true);
+  }
+
+  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, Boolean acknowledgeFailedMessages) {
     this.redisTemplate = redisTemplate;
+    this.acknowledgeFailedMessages = acknowledgeFailedMessages;
   }
 
   public TransactionTemplate getTransactionTemplate() {
@@ -62,12 +70,13 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   }
 
   private void subscribeToChannel(String channel, String subscriberId, MessageHandler messageHandler) {
-    ChannelProcessor channelProcessor = new ChannelProcessor(transactionTemplate,
+    ChannelProcessor channelProcessor = new ChannelProcessor(redisTemplate,
+            transactionTemplate,
             duplicateMessageDetector,
-            redisTemplate,
             subscriberId,
             channel,
-            messageHandler);
+            messageHandler,
+            acknowledgeFailedMessages);
 
     executorService.submit(channelProcessor::process);
 
