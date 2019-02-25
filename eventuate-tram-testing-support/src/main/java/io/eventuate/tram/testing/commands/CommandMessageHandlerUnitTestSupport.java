@@ -34,7 +34,10 @@ public class CommandMessageHandlerUnitTestSupport {
     this.dispatcher = new CommandDispatcher("mockCommandDispatcher-" + System.currentTimeMillis(),
             commandHandlers,
             DefaultChannelMapping.builder().build(),
-            (subscriberId, channels, handler) -> CommandMessageHandlerUnitTestSupport.this.handler = handler,
+            (subscriberId, channels, handler) -> {
+              CommandMessageHandlerUnitTestSupport.this.handler = handler;
+              return () -> {};
+            },
             (destination, message) -> {
                   CommandMessageHandlerUnitTestSupport.this.replyDestination = destination;
                   CommandMessageHandlerUnitTestSupport.this.replyMessage = message;

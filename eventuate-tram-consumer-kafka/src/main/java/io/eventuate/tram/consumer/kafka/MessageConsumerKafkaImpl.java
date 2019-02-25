@@ -9,6 +9,7 @@ import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -46,41 +46,11 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
   private MessageInterceptor[] messageInterceptors = new MessageInterceptor[0];
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     SwimlaneBasedDispatcher swimlaneBasedDispatcher = new SwimlaneBasedDispatcher(subscriberId, Executors.newCachedThreadPool());
-
+    TransactionalMessageHandler transactionalMessageHandler = new TransactionalMessageHandler(subscriberId, handler, messageInterceptors, duplicateMessageDetector, transactionTemplate);
     BiConsumer<ConsumerRecord<String, String>, BiConsumer<Void, Throwable>> kcHandler = (record, callback) -> {
-      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message -> {
-                preReceive(message);
-                try {
-                  transactionTemplate.execute(ts -> {
-                    if (duplicateMessageDetector.isDuplicate(subscriberId, message.getId())) {
-                      logger.trace("Duplicate message {} {}", subscriberId, message.getId());
-                      callback.accept(null, null);
-                      return null;
-                    }
-                    try {
-                      logger.trace("Invoking handler {} {}", subscriberId, message.getId());
-                      preHandle(subscriberId, message);
-                      handler.accept(message);
-                      postHandle(subscriberId, message, null);
-                    } catch (Throwable t) {
-                      postHandle(subscriberId, message, t);
-                      logger.trace("Got exception {} {}", subscriberId, message.getId());
-                      logger.trace("Got exception ", t);
-                      callback.accept(null, t);
-                      return null;
-                    }
-                    logger.trace("handled message {} {}", subscriberId, message.getId());
-                    callback.accept(null, null);
-                    return null;
-                  });
-                } finally {
-                  postReceive(message);
-                }
-              }
-
-      );
+      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message -> transactionalMessageHandler.handle(message, callback));
     };
 
     EventuateKafkaConsumer kc = new EventuateKafkaConsumer(subscriberId,
@@ -92,23 +62,12 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
     consumers.add(kc);
 
     kc.start();
-  }
 
-  private void preReceive(Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.preReceive(message));
-  }
+    return () -> {
+      kc.stop();
+      consumers.remove(kc);
+    };
 
-
-  private void preHandle(String subscriberId, Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.preHandle(subscriberId, message));
-  }
-
-  private void postHandle(String subscriberId, Message message, Throwable t) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postHandle(subscriberId, message, t));
-  }
-
-  private void postReceive(Message message) {
-    Arrays.stream(messageInterceptors).forEach(mi -> mi.postReceive(message));
   }
 
 
