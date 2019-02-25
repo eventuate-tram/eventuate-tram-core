@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.kafka;
 
+import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageHandler;

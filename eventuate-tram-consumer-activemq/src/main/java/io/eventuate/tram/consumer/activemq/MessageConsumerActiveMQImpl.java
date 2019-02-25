@@ -7,6 +7,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +60,9 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
   }
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     try {
+      List<javax.jms.MessageConsumer> subscriptionConsumers = new ArrayList<>();
       for (String channel : channels) {
         ChannelType mode = messageModes.getOrDefault(channel, ChannelType.TOPIC);
 
@@ -72,9 +74,19 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
 
         javax.jms.MessageConsumer consumer = session.createConsumer(destination);
         consumers.add(consumer);
+        subscriptionConsumers.add(consumer);
 
         processingFutures.add(CompletableFuture.supplyAsync(() -> process(subscriberId, consumer, handler)));
       }
+      return () -> {
+        subscriptionConsumers.forEach(consumer -> {
+          try {
+            consumer.close();
+          } catch (JMSException e) {
+            throw new RuntimeException(e);
+          }
+        });
+      };
     } catch (JMSException e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
