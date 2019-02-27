@@ -3,22 +3,19 @@ package io.eventuate.tram.consumer.redis;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
-import io.lettuce.core.api.StatefulRedisConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 
 public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
+
+  public final String consumerId = UUID.randomUUID().toString();
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -28,18 +25,21 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private RedisTemplate<String, String> redisTemplate;
 
-  private ExecutorService executorService = Executors.newCachedThreadPool();
-  private List<ChannelProcessor> channelProcessors = new ArrayList<>();
-
   private Boolean acknowledgeFailedMessages;
+  private int partitions;
+  private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate) {
-    this(redisTemplate, true);
+  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, int partitions) {
+    this(redisTemplate, true, partitions);
   }
 
-  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, Boolean acknowledgeFailedMessages) {
+
+  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
+                                  Boolean acknowledgeFailedMessages,
+                                  int partitions) {
     this.redisTemplate = redisTemplate;
     this.acknowledgeFailedMessages = acknowledgeFailedMessages;
+    this.partitions = partitions;
   }
 
   public TransactionTemplate getTransactionTemplate() {
@@ -60,26 +60,26 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
-    for (String channel : channels) {
-      subscribeToChannel(channel, subscriberId, handler);
-    }
-  }
 
-  public void close() {
-    channelProcessors.forEach(ChannelProcessor::stop);
-  }
-
-  private void subscribeToChannel(String channel, String subscriberId, MessageHandler messageHandler) {
-    ChannelProcessor channelProcessor = new ChannelProcessor(redisTemplate,
+    Subscription subscription = new Subscription(consumerId,
+            redisTemplate,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,
-            channel,
-            messageHandler,
-            acknowledgeFailedMessages);
+            channels,
+            handler,
+            acknowledgeFailedMessages,
+            partitions);
 
-    executorService.submit(channelProcessor::process);
+    subscriptions.add(subscription);
+  }
 
-    channelProcessors.add(channelProcessor);
+  public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
+    subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
+  }
+
+  public void close() {
+    subscriptions.forEach(Subscription::close);
+    subscriptions.clear();
   }
 }

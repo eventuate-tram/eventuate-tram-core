@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
@@ -27,6 +29,9 @@ public class MessageConsumerRedisImplTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
+
+  @Value("${redis.partitions}")
+  private int redisPartitions;
 
   @Test
   public void testMessageReceived() {
@@ -47,9 +52,10 @@ public class MessageConsumerRedisImplTest {
   public void testMessageReceivedWhenConsumerGroupExists() throws Exception {
     TestInfo testInfo = new TestInfo();
 
-    sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
-
-    redisTemplate.opsForStream().createGroup(testInfo.getChannel(), ReadOffset.from("0"), testInfo.getSubscriberId());
+    for (int i = 0; i < redisPartitions; i++) {
+      sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel(), i);
+      redisTemplate.opsForStream().createGroup(testInfo.getChannel() + "-" + i, ReadOffset.from("0"), testInfo.getSubscriberId());
+    }
 
     MessageConsumer messageConsumer = createMessageConsumer(true);
 
@@ -57,7 +63,11 @@ public class MessageConsumerRedisImplTest {
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
-    waitForMessage(messages, testInfo.getMessage());
+    Eventually.eventually(() -> {
+      Assert.assertEquals(redisPartitions, messages.size());
+      Assert.assertEquals(testInfo.getMessage(), messages.get(0).getPayload());
+      Assert.assertEquals(testInfo.getMessage(), messages.get(1).getPayload());
+    });
   }
 
   @Test
@@ -92,7 +102,7 @@ public class MessageConsumerRedisImplTest {
   }
 
   @Test
-  public void testMessageThatExceptionInMessageConsumerIsHandled() {
+  public void testThatExceptionInMessageConsumerIsHandled() {
     TestInfo testInfo = new TestInfo();
 
     MessageConsumerRedisImpl messageConsumer = createMessageConsumer(true);
@@ -108,16 +118,15 @@ public class MessageConsumerRedisImplTest {
     });
 
     sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
-    sendMessage(testInfo.getKey(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), testInfo.getChannel());
+    sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
 
     Eventually.eventually(() -> {
       Assert.assertEquals(2, messages.size());
-      Assert.assertEquals(testInfo.getMessage(), messages.get(0).getPayload());
     });
   }
 
   private void waitForMessage(List<Message> messages, String message) {
-    Eventually.eventually(() -> {
+    Eventually.eventually(60, 500, TimeUnit.MILLISECONDS,() -> {
       Assert.assertEquals(1, messages.size());
       Assert.assertEquals(message, messages.get(0).getPayload());
     });
@@ -125,7 +134,7 @@ public class MessageConsumerRedisImplTest {
 
 
   private MessageConsumerRedisImpl createMessageConsumer(boolean acknowledgeFailedMessages) {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, acknowledgeFailedMessages);
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, acknowledgeFailedMessages, redisPartitions);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {
@@ -139,12 +148,18 @@ public class MessageConsumerRedisImplTest {
   }
 
   private void sendMessage(String key, String message, String messageId, String channel) {
+    int partition = key.hashCode() % redisPartitions;
+
+    sendMessage(key, message, messageId, channel, partition);
+  }
+
+  private void sendMessage(String key, String message, String messageId, String channel, int partition) {
     redisTemplate
             .opsForStream()
             .add(StreamRecords.string(Collections.singletonMap(key,
                     String.format("{\"payload\": \"%s\", \"headers\" : {\"ID\" : \"%s\"}}",
                             message,
-                            messageId))).withStreamKey(channel));
+                            messageId))).withStreamKey(channel + "-" + partition));
   }
 
 
