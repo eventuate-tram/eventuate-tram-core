@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 public class TransactionalMessageHandler {
@@ -49,7 +50,7 @@ public class TransactionalMessageHandler {
           logger.trace("Got exception ", t);
           ts.setRollbackOnly();
           callback.accept(null, t);
-          return null;
+           throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
         logger.trace("handled message {} {}", subscriberId, message.getId());
         callback.accept(null, null);
