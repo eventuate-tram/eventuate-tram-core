@@ -1,6 +1,5 @@
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -20,7 +19,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
@@ -37,7 +35,7 @@ public class MessageConsumerRedisImplTest {
   public void testMessageReceived() {
     TestInfo testInfo = new TestInfo();
 
-    MessageConsumer messageConsumer = createMessageConsumer(true);
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -57,7 +55,7 @@ public class MessageConsumerRedisImplTest {
       redisTemplate.opsForStream().createGroup(testInfo.getChannel() + "-" + i, ReadOffset.from("0"), testInfo.getSubscriberId());
     }
 
-    MessageConsumer messageConsumer = createMessageConsumer(true);
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -74,7 +72,7 @@ public class MessageConsumerRedisImplTest {
   public void testReceivingPendingMessageAfterRestart() throws InterruptedException {
     TestInfo testInfo = new TestInfo();
 
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer(false);
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -94,7 +92,7 @@ public class MessageConsumerRedisImplTest {
 
     messageConsumer.close();
 
-    messageConsumer = createMessageConsumer(false);
+    messageConsumer = createMessageConsumer();
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
@@ -102,10 +100,10 @@ public class MessageConsumerRedisImplTest {
   }
 
   @Test
-  public void testThatExceptionInMessageConsumerIsHandled() {
+  public void testThatProcessingStoppedOnException() {
     TestInfo testInfo = new TestInfo();
 
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer(true);
+    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -118,11 +116,12 @@ public class MessageConsumerRedisImplTest {
     });
 
     sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
-    sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel());
 
     Eventually.eventually(() -> {
-      Assert.assertEquals(2, messages.size());
+      Assert.assertEquals(1, messages.size());
     });
+
+    messageConsumer.close();
   }
 
   private void waitForMessage(List<Message> messages, String message) {
@@ -133,8 +132,8 @@ public class MessageConsumerRedisImplTest {
   }
 
 
-  private MessageConsumerRedisImpl createMessageConsumer(boolean acknowledgeFailedMessages) {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, acknowledgeFailedMessages, redisPartitions);
+  private MessageConsumerRedisImpl createMessageConsumer() {
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, redisPartitions);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {
@@ -148,7 +147,7 @@ public class MessageConsumerRedisImplTest {
   }
 
   private void sendMessage(String key, String message, String messageId, String channel) {
-    int partition = key.hashCode() % redisPartitions;
+    int partition = Math.abs(key.hashCode()) % redisPartitions;
 
     sendMessage(key, message, messageId, channel, partition);
   }
@@ -164,11 +163,12 @@ public class MessageConsumerRedisImplTest {
 
 
   private static class TestInfo {
-    private String subscriberId = UUID.randomUUID().toString();
-    private String channel = UUID.randomUUID().toString();
-    private String key = UUID.randomUUID().toString();
-    private String message = UUID.randomUUID().toString();
-    private String messageId = UUID.randomUUID().toString();
+    private String subscriberId = "subscriber" + System.nanoTime();
+    private String channel = "channel" + System.nanoTime();
+
+    private String key = "key1";
+    private String message = "message1";
+    private String messageId = "msg1";
 
     public String getSubscriberId() {
       return subscriberId;

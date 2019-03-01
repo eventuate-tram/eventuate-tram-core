@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChannelProcessor {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
+  private String subscriptionIdentificationInfo;
   private CountDownLatch stopCountDownLatch = new CountDownLatch(1);
   private AtomicBoolean running = new AtomicBoolean(false);
 
@@ -30,7 +31,6 @@ public class ChannelProcessor {
   private String channel;
   private MessageHandler messageHandler;
   private RedisTemplate<String, String> redisTemplate;
-  private Boolean acknowledgeFailedMessages;
 
   public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
                           TransactionTemplate transactionTemplate,
@@ -38,22 +38,27 @@ public class ChannelProcessor {
                           String subscriberId,
                           String channel,
                           MessageHandler messageHandler,
-                          Boolean acknowledgeFailedMessages) {
+                          String subscriptionIdentificationInfo) {
+
     this.redisTemplate = redisTemplate;
     this.transactionTemplate = transactionTemplate;
     this.duplicateMessageDetector = duplicateMessageDetector;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
-    this.acknowledgeFailedMessages = acknowledgeFailedMessages;
+    this.subscriptionIdentificationInfo = subscriptionIdentificationInfo;
+
+    logger.info("channel processor is created (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   public void process() {
+    logger.info("channel processor started processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
     running.set(true);
     makeSureConsumerGroupExists();
     processPendingRecords();
     processRegularRecords();
     stopCountDownLatch.countDown();
+    logger.info("channel processor finished processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   public void stop() {
@@ -63,6 +68,8 @@ public class ChannelProcessor {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+
+    logger.info("channel processor stopped processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   private void makeSureConsumerGroupExists() {
@@ -127,7 +134,7 @@ public class ChannelProcessor {
 
   private void processMessage(String message, RecordId recordId) {
 
-    logger.info("Got message: {}", message);
+    logger.info("channel processor {} with channel {} got message: {}", subscriptionIdentificationInfo, channel, message);
 
     Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
 
@@ -138,10 +145,8 @@ public class ChannelProcessor {
         } catch (Throwable t) {
           logger.error(t.getMessage(), t);
 
-          if (acknowledgeFailedMessages) {
-            redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
-          }
-          return null;
+          stopCountDownLatch.countDown();
+          throw t;
         }
       }
 

@@ -29,6 +29,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
@@ -94,6 +96,17 @@ public class MessagingTest {
     }
   }
 
+  private AtomicInteger consumerIdCounter;
+  private AtomicInteger subscriptionIdCounter;
+  private AtomicInteger messageIdCounter;
+
+  private Supplier<String> consumerIdSupplier = () -> "consumer" + consumerIdCounter.getAndIncrement();
+  private Supplier<String> subscriptionIdSupplier = () -> "subscription" + subscriptionIdCounter.getAndIncrement();
+  private Supplier<String> messageIdSupplier = () -> "msg" + messageIdCounter.getAndIncrement();
+
+  private Supplier<String> subscriberIdSupplier = () -> "subscriber" + System.nanoTime();
+  private Supplier<String> channelIdSupplier = () -> "channel" + System.nanoTime();
+
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   @Autowired
@@ -111,8 +124,12 @@ public class MessagingTest {
 
   @Before
   public void init() {
-    destination = "destination" + UUID.randomUUID();
-    subscriberId = "subscriber" + UUID.randomUUID();
+    consumerIdCounter = new AtomicInteger(1);
+    subscriptionIdCounter = new AtomicInteger(1);
+    messageIdCounter = new AtomicInteger(1);
+
+    destination = channelIdSupplier.get();
+    subscriberId = subscriberIdSupplier.get();
   }
 
   @Test
@@ -182,7 +199,6 @@ public class MessagingTest {
 
   @Test
   public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
-
     LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(5, 9);
 
     waitForRebalance(testSubscriptions, 9);
@@ -330,7 +346,6 @@ public class MessagingTest {
     TestSubscription testSubscription = new TestSubscription(consumer, messageQueue);
 
     consumer.setSubscriptionLifecycleHook((channel, subscriptionId, currentPartitions) -> {
-      System.out.println(channel + " ---$--- " + subscriptionId + " ---$--- " + currentPartitions);
       testSubscription.setCurrentPartitions(currentPartitions);
     });
 
@@ -338,8 +353,12 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(redisTemplate, partitionCount);
+    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
+            consumerIdSupplier.get(),
+            redisTemplate, partitionCount);
+
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
+
     return messageConsumerRedis;
   }
 
@@ -354,7 +373,7 @@ public class MessagingTest {
       eventuateRedisProducer.send(destination,
               String.valueOf(i),
               JSonMapper.toJson(new MessageImpl(String.valueOf(i),
-                      Collections.singletonMap("ID", UUID.randomUUID().toString()))));
+                      Collections.singletonMap("ID", messageIdSupplier.get()))));
     }
   }
 }

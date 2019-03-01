@@ -10,12 +10,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  public final String consumerId = UUID.randomUUID().toString();
+  public final String consumerId;
+  Supplier<String> subscriptionIdSupplier;
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -25,21 +27,27 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private RedisTemplate<String, String> redisTemplate;
 
-  private Boolean acknowledgeFailedMessages;
   private int partitions;
   private List<Subscription> subscriptions = new ArrayList<>();
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, int partitions) {
-    this(redisTemplate, true, partitions);
+    this(() -> UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            redisTemplate,
+            partitions);
   }
 
-
-  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  Boolean acknowledgeFailedMessages,
+  public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
+                                  String consumerId,
+                                  RedisTemplate<String, String> redisTemplate,
                                   int partitions) {
+
+    this.subscriptionIdSupplier = subscriptionIdSupplier;
+    this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
-    this.acknowledgeFailedMessages = acknowledgeFailedMessages;
     this.partitions = partitions;
+
+    logger.info("Consumer created (consumer id = {})", consumerId);
   }
 
   public TransactionTemplate getTransactionTemplate() {
@@ -61,14 +69,16 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
 
-    Subscription subscription = new Subscription(consumerId,
+    logger.info("consumer subscribes to channels (consumer id = {}, subscriber id {}, channels = {})", consumerId, subscriberId, channels);
+
+    Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
+            consumerId,
             redisTemplate,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,
             channels,
             handler,
-            acknowledgeFailedMessages,
             partitions);
 
     subscriptions.add(subscription);

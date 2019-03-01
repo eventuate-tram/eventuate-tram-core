@@ -15,10 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ public class Coordinator {
 
   private CuratorFramework curatorFramework;
   private GroupMember groupMember;
-  private NodeCache nodeCache;
+  private List<NodeCache> nodeCaches = new ArrayList<>();
   private LeaderSelector leaderSelector;
 
   private Set<String> previousGroupMembers;
@@ -59,8 +56,8 @@ public class Coordinator {
     this.assignmentUpdatedCallback = assignmentUpdatedCallback;
     this.partitionCount = partitionCount;
 
-    groupPath = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s", subscriberId);
-    leaderPath = String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId);
+    groupPath = String.format("/eventuate-tram/redis/consumer-groups/%s", subscriberId);
+    leaderPath = String.format("/eventuate-tram/redis/consumer-leaders/%s", subscriberId);
 
     curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
             new ExponentialBackoffRetry(1000, 5));
@@ -98,7 +95,8 @@ public class Coordinator {
 
   private void createNodeCaches() {
     channels.forEach(channel -> {
-      nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupMemberId, subscriberId));
+      NodeCache nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupMemberId, subscriberId));
+      nodeCaches.add(nodeCache);
 
       try {
         nodeCache.start();
@@ -204,25 +202,23 @@ public class Coordinator {
   }
 
   private String makeAssignmentPath(String groupMemberId, String subscriberId) {
-    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", subscriberId, groupMemberId);
+    return String.format("/eventuate-tram/redis/consumer-assignments/%s/%s", subscriberId, groupMemberId);
   }
 
   public void close() {
     running = false;
     leaderSelector.close();
 
-    try {
-      nodeCache.close();
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
-    }
+    nodeCaches.forEach(nodeCache -> {
+      try {
+        nodeCache.close();
+      } catch (IOException e) {
+        logger.error(e.getMessage(), e);
+      }
+    });
+    nodeCaches.clear();
 
     groupMember.remove();
-    try {
-      nodeCache.close();
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
-    }
     curatorFramework.close();
   }
 
