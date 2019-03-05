@@ -19,6 +19,7 @@ dependencies {
     compile ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
+    compile "com.microsoft.sqlserver:mssql-jdbc:7.0.0.jre8"
 }
 
 uploadArchives.dependsOn(bootRepackage)
