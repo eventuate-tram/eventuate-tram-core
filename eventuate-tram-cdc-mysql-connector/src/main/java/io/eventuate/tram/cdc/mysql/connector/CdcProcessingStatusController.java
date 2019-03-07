@@ -16,7 +16,7 @@ public class CdcProcessingStatusController {
   }
 
   @RequestMapping(value = "/cdc-event-processing-status", method = RequestMethod.GET)
-  public CdcProcessingStatus allCdcEventsProcessed(@RequestParam("clientId") int clientId) {
-    return binlogEntryReaderProvider.getReaderById(clientId).getCdcProcessingStatusService().getCurrentStatus();
+  public CdcProcessingStatus allCdcEventsProcessed(@RequestParam("readerName") String readerName) {
+    return binlogEntryReaderProvider.getReader(readerName).getCdcProcessingStatusService().getCurrentStatus();
   }
 }
