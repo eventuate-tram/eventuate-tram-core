@@ -1,4 +1,4 @@
-FROM test-postgres-wal
+FROM eventuateio/eventuateio-local-postgres:0.30.0.RC4
 
 COPY postgresql.conf.sample /usr/share/postgresql/postgresql.conf.sample
 
