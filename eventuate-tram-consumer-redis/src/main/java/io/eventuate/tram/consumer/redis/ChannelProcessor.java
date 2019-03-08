@@ -21,36 +21,44 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChannelProcessor {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
+  private String subscriptionIdentificationInfo;
   private CountDownLatch stopCountDownLatch = new CountDownLatch(1);
   private AtomicBoolean running = new AtomicBoolean(false);
 
   private TransactionTemplate transactionTemplate;
   private DuplicateMessageDetector duplicateMessageDetector;
-  private RedisTemplate<String, String> redisTemplate;
   private String subscriberId;
   private String channel;
   private MessageHandler messageHandler;
+  private RedisTemplate<String, String> redisTemplate;
 
-  public ChannelProcessor(TransactionTemplate transactionTemplate,
+  public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
+                          TransactionTemplate transactionTemplate,
                           DuplicateMessageDetector duplicateMessageDetector,
-                          RedisTemplate<String, String> redisTemplate,
                           String subscriberId,
                           String channel,
-                          MessageHandler messageHandler) {
+                          MessageHandler messageHandler,
+                          String subscriptionIdentificationInfo) {
+
+    this.redisTemplate = redisTemplate;
     this.transactionTemplate = transactionTemplate;
     this.duplicateMessageDetector = duplicateMessageDetector;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
-    this.redisTemplate = redisTemplate;
+    this.subscriptionIdentificationInfo = subscriptionIdentificationInfo;
+
+    logger.info("channel processor is created (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   public void process() {
+    logger.info("channel processor started processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
     running.set(true);
     makeSureConsumerGroupExists();
     processPendingRecords();
     processRegularRecords();
     stopCountDownLatch.countDown();
+    logger.info("channel processor finished processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   public void stop() {
@@ -60,6 +68,8 @@ public class ChannelProcessor {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+
+    logger.info("channel processor stopped processing (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
 
   private void makeSureConsumerGroupExists() {
@@ -81,19 +91,19 @@ public class ChannelProcessor {
   }
 
   private boolean isKeyDoesNotExist(RedisSystemException e) {
-    String message = e.getCause().getMessage();
-
-    return e.getCause() instanceof RedisCommandExecutionException &&
-            message != null &&
-            message.contains("ERR The XGROUP subcommand requires the key to exist");
+    return isRedisCommandExceptionContainingMessage(e, "ERR The XGROUP subcommand requires the key to exist");
   }
 
   private boolean isGroupExistsAlready(RedisSystemException e) {
+    return isRedisCommandExceptionContainingMessage(e, "Consumer Group name already exists");
+  }
+
+  private boolean isRedisCommandExceptionContainingMessage(RedisSystemException e, String expectedMessage) {
     String message = e.getCause().getMessage();
 
     return e.getCause() instanceof RedisCommandExecutionException &&
             message != null &&
-            message.contains("Consumer Group name already exists");
+            message.contains(expectedMessage);
   }
 
   private void processPendingRecords() {
@@ -109,14 +119,12 @@ public class ChannelProcessor {
   }
 
   private void processRegularRecords() {
-
     while (running.get()) {
       processRecords(getUnprocessedRecords());
     }
   }
 
   private void processRecords(List<MapRecord<String, Object, Object>> records) {
-
     records.forEach(entries ->
             entries
                     .getValue()
@@ -126,11 +134,20 @@ public class ChannelProcessor {
 
   private void processMessage(String message, RecordId recordId) {
 
+    logger.info("channel processor {} with channel {} got message: {}", subscriptionIdentificationInfo, channel, message);
+
     Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
 
     transactionTemplate.execute(ts -> {
       if (!duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-        messageHandler.accept(tramMessage);
+        try {
+          messageHandler.accept(tramMessage);
+        } catch (Throwable t) {
+          logger.error(t.getMessage(), t);
+
+          stopCountDownLatch.countDown();
+          throw t;
+        }
       }
 
       redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
@@ -144,10 +161,11 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords() {
-    return getRecords(ReadOffset.lastConsumed());
+    return getRecords(ReadOffset.from(">"));
   }
 
   private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset) {
+
     return redisTemplate
             .opsForStream()
             .read(Consumer.from(subscriberId, subscriberId),

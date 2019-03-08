@@ -9,15 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
+
+  public final String consumerId;
+  Supplier<String> subscriptionIdSupplier;
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -27,11 +27,27 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private RedisTemplate<String, String> redisTemplate;
 
-  private ExecutorService executorService = Executors.newCachedThreadPool();
-  private List<ChannelProcessor> channelProcessors = new ArrayList<>();
+  private int partitions;
+  private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate) {
+  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, int partitions) {
+    this(() -> UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            redisTemplate,
+            partitions);
+  }
+
+  public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
+                                  String consumerId,
+                                  RedisTemplate<String, String> redisTemplate,
+                                  int partitions) {
+
+    this.subscriptionIdSupplier = subscriptionIdSupplier;
+    this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
+    this.partitions = partitions;
+
+    logger.info("Consumer created (consumer id = {})", consumerId);
   }
 
   public TransactionTemplate getTransactionTemplate() {
@@ -52,25 +68,28 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   @Override
   public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
-    for (String channel : channels) {
-      subscribeToChannel(channel, subscriberId, handler);
-    }
+
+    logger.info("consumer subscribes to channels (consumer id = {}, subscriber id {}, channels = {})", consumerId, subscriberId, channels);
+
+    Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
+            consumerId,
+            redisTemplate,
+            transactionTemplate,
+            duplicateMessageDetector,
+            subscriberId,
+            channels,
+            handler,
+            partitions);
+
+    subscriptions.add(subscription);
+  }
+
+  public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
+    subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
   }
 
   public void close() {
-    channelProcessors.forEach(ChannelProcessor::stop);
-  }
-
-  private void subscribeToChannel(String channel, String subscriberId, MessageHandler messageHandler) {
-    ChannelProcessor channelProcessor = new ChannelProcessor(transactionTemplate,
-            duplicateMessageDetector,
-            redisTemplate,
-            subscriberId,
-            channel,
-            messageHandler);
-
-    executorService.submit(channelProcessor::process);
-
-    channelProcessors.add(channelProcessor);
+    subscriptions.forEach(Subscription::close);
+    subscriptions.clear();
   }
 }
