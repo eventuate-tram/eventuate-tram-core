@@ -17,7 +17,8 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   public final String consumerId;
-  Supplier<String> subscriptionIdSupplier;
+
+  private Supplier<String> subscriptionIdSupplier;
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -25,23 +26,27 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;
 
+  private String zkUrl;
+
   private RedisTemplate<String, String> redisTemplate;
 
   private int partitions;
   private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate, int partitions) {
-    this(() -> UUID.randomUUID().toString(),
+  public MessageConsumerRedisImpl(String zkUrl, RedisTemplate<String, String> redisTemplate, int partitions) {
+    this(zkUrl, () -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
             partitions);
   }
 
-  public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
+  public MessageConsumerRedisImpl(String zkUrl,
+                                  Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
                                   int partitions) {
 
+    this.zkUrl = zkUrl;
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
@@ -71,7 +76,8 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
     logger.info("consumer subscribes to channels (consumer id = {}, subscriber id {}, channels = {})", consumerId, subscriberId, channels);
 
-    Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
+    Subscription subscription = new Subscription(zkUrl,
+            subscriptionIdSupplier.get(),
             consumerId,
             redisTemplate,
             transactionTemplate,

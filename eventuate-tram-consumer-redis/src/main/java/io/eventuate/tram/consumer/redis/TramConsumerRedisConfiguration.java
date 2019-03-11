@@ -13,7 +13,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Import({TramConsumerCommonConfiguration.class, CommonRedisConfiguration.class})
 public class TramConsumerRedisConfiguration {
   @Bean
-  public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate, @Value("${redis.partitions}") int redisPartitions) {
-    return new MessageConsumerRedisImpl(redisTemplate, redisPartitions);
+  public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
+                                         @Value("${eventuatelocal.zookeeper.connection.string}") String zkUrl,
+                                         @Value("${redis.partitions}") int redisPartitions) {
+    return new MessageConsumerRedisImpl(zkUrl, redisTemplate, redisPartitions);
   }
 }

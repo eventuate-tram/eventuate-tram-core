@@ -31,6 +31,9 @@ public class MessageConsumerRedisImplTest {
   @Value("${redis.partitions}")
   private int redisPartitions;
 
+  @Value("${eventuatelocal.zookeeper.connection.string}")
+  private String zkUrl;
+
   @Test
   public void testMessageReceived() {
     TestInfo testInfo = new TestInfo();
@@ -133,7 +136,7 @@ public class MessageConsumerRedisImplTest {
 
 
   private MessageConsumerRedisImpl createMessageConsumer() {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate, redisPartitions);
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(zkUrl, redisTemplate, redisPartitions);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {
