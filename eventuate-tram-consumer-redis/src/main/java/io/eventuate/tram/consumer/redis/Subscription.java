@@ -31,7 +31,8 @@ public class Subscription {
   private ConcurrentHashMap<ChannelPartition, ChannelProcessor> channelProcessorsByChannelAndPartition = new ConcurrentHashMap<>();
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
 
-  public Subscription(String subscribtionId,
+  public Subscription(String zkUrl,
+                      String subscribtionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
                       TransactionTemplate transactionTemplate,
@@ -52,7 +53,7 @@ public class Subscription {
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
     coordinator = new Coordinator(subscriptionId,
-            "172.17.0.1:2181",
+            zkUrl,
             subscriberId,
             channels,
             this::assignmentUpdated,

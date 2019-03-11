@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -95,6 +96,9 @@ public class MessagingTest {
       messageQueue.clear();
     }
   }
+
+  @Value("${eventuatelocal.zookeeper.connection.string}")
+  private String zkUrl;
 
   private AtomicInteger consumerIdCounter;
   private AtomicInteger subscriptionIdCounter;
@@ -353,7 +357,8 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
+    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(zkUrl,
+            subscriptionIdSupplier,
             consumerIdSupplier.get(),
             redisTemplate, partitionCount);
 
