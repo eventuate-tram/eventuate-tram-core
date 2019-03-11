@@ -2,6 +2,7 @@ package io.eventuate.tram.mysqlkafka.integrationtests;
 
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.junit.Test;
@@ -17,13 +18,13 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractTramIntegrationTest {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  protected Logger logger = LoggerFactory.getLogger(getClass());
 
   @Autowired
-  private MessageProducer messageProducer;
+  protected MessageProducer messageProducer;
 
   @Autowired
-  private MessageConsumer messageConsumer;
+  protected MessageConsumer messageConsumer;
 
   @Test
   public void shouldDoSomething() throws InterruptedException {
@@ -33,7 +34,7 @@ public abstract class AbstractTramIntegrationTest {
     CountDownLatch latch = new CountDownLatch(1);
 
     MessageHandler handler = message -> {
-      System.out.println("Got message=" + message);
+      logger.info("Got message=" + message);
       latch.countDown();
     };
 
@@ -44,4 +45,5 @@ public abstract class AbstractTramIntegrationTest {
     assertTrue(String.format("Expected message. Subscriber %s for destination %s: ", subscriberId, destination), latch.await(30, TimeUnit.SECONDS));
 
   }
+
 }

@@ -26,7 +26,10 @@ public class DomainEventHandlerUnitTestSupport {
   }
 
   public DomainEventHandlerUnitTestSupport eventHandlers(DomainEventHandlers domainEventHandlers) {
-    this.dispatcher = new DomainEventDispatcher("MockId", domainEventHandlers, (subscriberId, channels, handler) -> DomainEventHandlerUnitTestSupport.this.handler = handler);
+    this.dispatcher = new DomainEventDispatcher("MockId", domainEventHandlers, (subscriberId, channels, handler) -> {
+      DomainEventHandlerUnitTestSupport.this.handler = handler;
+      return () -> {};
+    });
     dispatcher.initialize();
     return this;
   }

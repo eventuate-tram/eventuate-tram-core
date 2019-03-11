@@ -3,6 +3,7 @@ package io.eventuate.tram.consumer.redis;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   }
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
 
     logger.info("consumer subscribes to channels (consumer id = {}, subscriber id {}, channels = {})", consumerId, subscriberId, channels);
 
@@ -88,6 +89,8 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             partitions);
 
     subscriptions.add(subscription);
+
+    return subscription::close;
   }
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {

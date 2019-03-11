@@ -6,6 +6,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import io.eventuate.tram.messaging.producer.AbstractMessageProducer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.messaging.producer.MessageSender;
@@ -108,7 +109,7 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
   }
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     MessageHandlerWithSubscriberId mh = new MessageHandlerWithSubscriberId(subscriberId, handler);
     if (singleton("*").equals(channels)) {
       logger.info("subscribing {} to wildcard channels", subscriberId);
@@ -120,5 +121,11 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
         handlers.add(mh);
       }
     }
+    return () -> {
+      wildcardSubscriptions.remove(mh);
+      for (String channel : channels) {
+        subscriptions.get(channel).remove(mh);
+      }
+    };
   }
 }
