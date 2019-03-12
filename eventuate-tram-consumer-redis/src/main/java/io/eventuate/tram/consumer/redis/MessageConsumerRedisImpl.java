@@ -32,26 +32,43 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private RedisTemplate<String, String> redisTemplate;
 
   private int partitions;
+  private long groupMemberTtlInMilliseconds;
+  private long listenerIntervalInMilliseconds;
+  private long assignmentTtlInMilliseconds;
   private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRedisImpl(String zkUrl, RedisTemplate<String, String> redisTemplate, int partitions) {
+  public MessageConsumerRedisImpl(String zkUrl,
+                                  RedisTemplate<String, String> redisTemplate,
+                                  int partitions,
+                                  long groupMemberTtlInMilliseconds,
+                                  long listenerIntervalInMilliseconds,
+                                  long assignmentTtlInMilliseconds) {
     this(zkUrl, () -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            partitions);
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds);
   }
 
   public MessageConsumerRedisImpl(String zkUrl,
                                   Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  int partitions) {
+                                  int partitions,
+                                  long groupMemberTtlInMilliseconds,
+                                  long listenerIntervalInMilliseconds,
+                                  long assignmentTtlInMilliseconds) {
 
     this.zkUrl = zkUrl;
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.partitions = partitions;
+    this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
+    this.listenerIntervalInMilliseconds = listenerIntervalInMilliseconds;
+    this.assignmentTtlInMilliseconds = assignmentTtlInMilliseconds;
 
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
@@ -86,7 +103,10 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             subscriberId,
             channels,
             handler,
-            partitions);
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds);
 
     subscriptions.add(subscription);
 

@@ -136,7 +136,12 @@ public class MessageConsumerRedisImplTest {
 
 
   private MessageConsumerRedisImpl createMessageConsumer() {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(zkUrl, redisTemplate, redisPartitions);
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(zkUrl,
+            redisTemplate,
+            redisPartitions,
+            10000,
+            50,
+            36000000);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {

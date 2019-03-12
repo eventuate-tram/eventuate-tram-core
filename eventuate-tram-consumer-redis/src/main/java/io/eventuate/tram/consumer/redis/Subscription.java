@@ -40,7 +40,10 @@ public class Subscription {
                       String subscriberId,
                       Set<String> channels,
                       MessageHandler handler,
-                      int partitions) {
+                      int partitions,
+                      long groupMemberTtlInMilliseconds,
+                      long listenerIntervalInMilliseconds,
+                      long assignmentTtlInMilliseconds) {
 
     this.subscriptionId = subscribtionId;
     this.consumerId = consumerId;
@@ -52,12 +55,16 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    coordinator = new Coordinator(subscriptionId,
+    coordinator = new Coordinator(redisTemplate,
+            subscriptionId,
             zkUrl,
             subscriberId,
             channels,
             this::assignmentUpdated,
-            partitions);
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds);
 
 
     logger.info("subscription created (channels = {}, {})", channels, identificationInformation());

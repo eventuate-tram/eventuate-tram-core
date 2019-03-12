@@ -8,6 +8,9 @@ dependencies {
     compile('org.apache.curator:curator-recipes:2.11.0')
 
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+    compile 'org.redisson:redisson:3.10.3'
+
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 

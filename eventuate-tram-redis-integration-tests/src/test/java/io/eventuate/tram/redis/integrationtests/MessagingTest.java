@@ -360,7 +360,11 @@ public class MessagingTest {
     MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(zkUrl,
             subscriptionIdSupplier,
             consumerIdSupplier.get(),
-            redisTemplate, partitionCount);
+            redisTemplate,
+            partitionCount,
+            10000,
+            50,
+            36000000);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

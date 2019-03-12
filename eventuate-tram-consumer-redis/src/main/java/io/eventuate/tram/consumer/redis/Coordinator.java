@@ -1,20 +1,16 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.leader.CancelLeadershipException;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,25 +25,37 @@ public class Coordinator {
 
   private Consumer<Assignment> assignmentUpdatedCallback;
   private int partitionCount;
+  private long groupMemberTtlInMilliseconds;
+  private long listenerInterval;
 
-  private String groupPath;
   private String leaderPath;
 
   private volatile boolean running = true;
 
   private CuratorFramework curatorFramework;
-  private GroupMember groupMember;
-  private List<NodeCache> nodeCaches = new ArrayList<>();
+  private RedisGroupMember redisGroupMember;
+  private RedisAssignmentListener redisAssignmentListener;
   private LeaderSelector leaderSelector;
 
   private Set<String> previousGroupMembers;
 
-  public Coordinator(String groupMemberId,
+  private RedisTemplate<String, String> redisTemplate;
+  private RedisAssignmentManager redisAssignmentManager;
+
+  public Coordinator(RedisTemplate<String, String> redisTemplate,
+                     String groupMemberId,
                      String zkUrl,
                      String subscriberId,
                      Set<String> channels,
                      Consumer<Assignment> assignmentUpdatedCallback,
-                     int partitionCount) {
+                     int partitionCount,
+                     long groupMemberTtlInMilliseconds,
+                     long listenerIntervalInMilliseconds,
+                     long assignmentTtlInMilliseconds) {
+
+
+    this.redisTemplate = redisTemplate;
+    redisAssignmentManager = new RedisAssignmentManager(redisTemplate, assignmentTtlInMilliseconds);
 
     this.groupMemberId = groupMemberId;
     this.subscriberId = subscriberId;
@@ -55,8 +63,9 @@ public class Coordinator {
 
     this.assignmentUpdatedCallback = assignmentUpdatedCallback;
     this.partitionCount = partitionCount;
+    this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
+    this.listenerInterval = listenerIntervalInMilliseconds;
 
-    groupPath = String.format("/eventuate-tram/redis/consumer-groups/%s", subscriberId);
     leaderPath = String.format("/eventuate-tram/redis/consumer-leaders/%s", subscriberId);
 
     curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
@@ -64,25 +73,19 @@ public class Coordinator {
 
     curatorFramework.start();
 
-    createAssignmentNodes();
+    createInitialAssignments();
     createGroupMember();
-    createNodeCaches();
+    createAssignmentListeners();
     createLeaderSelector();
   }
 
-  private void createAssignmentNodes() {
+  private void createInitialAssignments() {
     try {
       Map<String, Set<Integer>> partitionAssignmentsByChannel = new HashMap<>();
       channels.forEach(channel -> partitionAssignmentsByChannel.put(channel, new HashSet<>()));
       Assignment assignment = new Assignment(channels, partitionAssignmentsByChannel);
 
-      curatorFramework
-              .create()
-              .creatingParentsIfNeeded()
-              .withMode(CreateMode.EPHEMERAL)
-              .forPath(makeAssignmentPath(groupMemberId, subscriberId),
-                      stringToByteArray(JSonMapper.toJson(assignment)));
-
+      saveAssignment(groupMemberId, assignment);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
@@ -90,27 +93,15 @@ public class Coordinator {
   }
 
   private void createGroupMember() {
-    groupMember = new GroupMember(curatorFramework, groupPath, groupMemberId);
+    redisGroupMember = new RedisGroupMember(redisTemplate, subscriberId, groupMemberId, groupMemberTtlInMilliseconds);
   }
 
-  private void createNodeCaches() {
-    channels.forEach(channel -> {
-      NodeCache nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupMemberId, subscriberId));
-      nodeCaches.add(nodeCache);
-
-      try {
-        nodeCache.start();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-
-      nodeCache.getListenable().addListener(() -> {
-        Assignment assignment = JSonMapper.fromJson(byteArrayToString(nodeCache.getCurrentData().getData()),
-                Assignment.class);
-
-        assignmentUpdatedCallback.accept(assignment);
-      });
-    });
+  private void createAssignmentListeners() {
+    redisAssignmentListener = new RedisAssignmentListener(redisTemplate,
+            subscriberId,
+            groupMemberId,
+            listenerInterval,
+            assignmentUpdatedCallback);
   }
 
   private void createLeaderSelector() {
@@ -121,7 +112,10 @@ public class Coordinator {
         PartitionManager partitionManager = new PartitionManager(partitionCount);
         previousGroupMembers = new HashSet<>();
 
-        GroupManager groupManager = new GroupManager(curatorFramework, groupPath, currentGroupMembers -> {
+        RedisMemberGroupManager redisMemberGroupManager = new RedisMemberGroupManager(redisTemplate,
+                subscriberId,
+                listenerInterval,
+                currentGroupMembers -> {
           if (!partitionManager.isInitialized()) {
             Map<String, Assignment> assignments = currentGroupMembers
                     .stream()
@@ -161,7 +155,7 @@ public class Coordinator {
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
         } finally {
-          groupManager.stop();
+          redisMemberGroupManager.stop();
         }
       }
 
@@ -179,64 +173,18 @@ public class Coordinator {
   }
 
   private Assignment readAssignment(String groupMemberId) {
-    try {
-
-      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
-      byte[] binaryData = curatorFramework.getData().forPath(assignmentPath);
-      return JSonMapper.fromJson(byteArrayToString(binaryData), Assignment.class);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
+    return redisAssignmentManager.readAssignment(subscriberId, groupMemberId);
   }
 
   private void saveAssignment(String groupMemberId, Assignment assignment) {
-    try {
-      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
-      byte[] binaryData = stringToByteArray(JSonMapper.toJson(assignment));
-      curatorFramework.setData().forPath(assignmentPath, binaryData);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  private String makeAssignmentPath(String groupMemberId, String subscriberId) {
-    return String.format("/eventuate-tram/redis/consumer-assignments/%s/%s", subscriberId, groupMemberId);
+    redisAssignmentManager.createOrUpdateAssignment(subscriberId, groupMemberId, assignment);
   }
 
   public void close() {
     running = false;
     leaderSelector.close();
-
-    nodeCaches.forEach(nodeCache -> {
-      try {
-        nodeCache.close();
-      } catch (IOException e) {
-        logger.error(e.getMessage(), e);
-      }
-    });
-    nodeCaches.clear();
-
-    groupMember.remove();
+    redisAssignmentListener.remove();
+    redisGroupMember.remove();
     curatorFramework.close();
-  }
-
-  private String byteArrayToString(byte[] bytes) {
-    try {
-      return new String(bytes, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  private byte[] stringToByteArray(String string) {
-    try {
-      return string.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
   }
 }
