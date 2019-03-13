@@ -1,7 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -34,11 +34,11 @@ public class MessageConsumerRedisImplTest {
   @Autowired
   private RedissonClient redissonClient;
 
+  @Autowired
+  private AdditionalRedissonClients additionalRedissonClients;
+
   @Value("${redis.partitions}")
   private int redisPartitions;
-
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
 
   @Test
   public void testMessageReceived() {
@@ -144,6 +144,7 @@ public class MessageConsumerRedisImplTest {
   private MessageConsumerRedisImpl createMessageConsumer() {
     MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
             redissonClient,
+            additionalRedissonClients,
             redisPartitions,
             10000,
             50,

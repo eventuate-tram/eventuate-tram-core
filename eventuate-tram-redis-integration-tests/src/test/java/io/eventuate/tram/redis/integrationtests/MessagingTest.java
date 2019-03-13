@@ -7,6 +7,7 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -17,7 +18,6 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -98,9 +98,6 @@ public class MessagingTest {
     }
   }
 
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
-
   private AtomicInteger consumerIdCounter;
   private AtomicInteger subscriptionIdCounter;
   private AtomicInteger messageIdCounter;
@@ -122,6 +119,9 @@ public class MessagingTest {
 
   @Autowired
   private RedissonClient redissonClient;
+
+  @Autowired
+  private AdditionalRedissonClients additionalRedissonClients;
 
   private static final int DEFAULT_MESSAGE_COUNT = 100;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
@@ -365,6 +365,7 @@ public class MessagingTest {
             consumerIdSupplier.get(),
             redisTemplate,
             redissonClient,
+            additionalRedissonClients,
             partitionCount,
             10000,
             50,

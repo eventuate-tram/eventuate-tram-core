@@ -1,8 +1,5 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.consumer.redis.RedisAssignmentManager;
-import io.eventuate.tram.consumer.redis.RedisGroupMember;
-import io.eventuate.tram.consumer.redis.RedisMemberGroupManager;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;

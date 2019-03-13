@@ -36,6 +36,16 @@ redis:
   ports:
     - 6379:6379
 
+additional-redis-1:
+  image: redis:5.0.3
+  ports:
+    - 6380:6379
+
+additional-redis-2:
+  image: redis:5.0.3
+  ports:
+    - 6381:6379
+
 mysql:
   build: ./mysql
   ports:

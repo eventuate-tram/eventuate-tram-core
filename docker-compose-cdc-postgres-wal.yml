@@ -7,6 +7,8 @@ cdcservice:
     - activemq
     - rabbitmq
     - redis
+    - additional-redis-1
+    - additional-redis-2
   ports:
     - "8099:8080"
   environment:
@@ -24,5 +26,6 @@ cdcservice:
     RABBITMQ_URL: rabbitmq
     REDIS_HOST: redis
     REDIS_PORT: 6379
+    REDIS_ADDITIONAL_SERVERS: redis://additional-redis-1:6379,redis://additional-redis-2:6379
     REDIS_PARTITIONS: 2
 

@@ -19,9 +19,11 @@ public class CommonRedisConfiguration {
   @Value("${redis.port}")
   private Integer redisPort;
 
+  @Value("${redis.additional.servers:#{\"\"}}")
+  private String additionalRedisServers;
+
   @Bean
   public LettuceConnectionFactory lettuceConnectionFactory() {
-
     return new LettuceConnectionFactory(redisHost, redisPort);
   }
 
@@ -42,5 +44,10 @@ public class CommonRedisConfiguration {
     Config config = new Config();
     config.useSingleServer().setAddress(String.format("redis://%s:%s", redisHost, redisPort));
     return Redisson.create(config);
+  }
+
+  @Bean
+  public AdditionalRedissonClients additionalRedissonClients() {
+    return new AdditionalRedissonClients(additionalRedisServers);
   }
 }

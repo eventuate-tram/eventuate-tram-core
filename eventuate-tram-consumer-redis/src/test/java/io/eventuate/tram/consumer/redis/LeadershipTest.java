@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -20,6 +21,9 @@ public class LeadershipTest {
 
   @Autowired
   private RedissonClient redissonClient;
+
+  @Autowired
+  private AdditionalRedissonClients additionalRedissonClients;
 
   private String groupId;
 
@@ -108,6 +112,6 @@ public class LeadershipTest {
   }
 
   private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter) {
-    return new RedisLeaderSelector(redissonClient, groupId, 100, invocationCounter::incrementAndGet);
+    return new RedisLeaderSelector(redissonClient, additionalRedissonClients, groupId, 100, invocationCounter::incrementAndGet);
   }
 }

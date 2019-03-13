@@ -2,7 +2,6 @@ package io.eventuate.tram.consumer.redis;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.tram.consumer.redis.*;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import org.junit.Assert;
 import org.junit.Before;

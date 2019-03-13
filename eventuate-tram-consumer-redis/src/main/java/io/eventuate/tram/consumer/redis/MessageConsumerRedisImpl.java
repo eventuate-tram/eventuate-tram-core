@@ -4,6 +4,7 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private RedisTemplate<String, String> redisTemplate;
   private RedissonClient redissonClient;
+  private AdditionalRedissonClients additionalRedissonClients;
 
   private int partitions;
   private long groupMemberTtlInMilliseconds;
@@ -45,6 +47,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
                                   RedissonClient redissonClient,
+                                  AdditionalRedissonClients additionalRedissonClients,
                                   int partitions,
                                   long groupMemberTtlInMilliseconds,
                                   long listenerIntervalInMilliseconds,
@@ -54,6 +57,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             UUID.randomUUID().toString(),
             redisTemplate,
             redissonClient,
+            additionalRedissonClients,
             partitions,
             groupMemberTtlInMilliseconds,
             listenerIntervalInMilliseconds,
@@ -65,6 +69,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
                                   RedissonClient redissonClient,
+                                  AdditionalRedissonClients additionalRedissonClients,
                                   int partitions,
                                   long groupMemberTtlInMilliseconds,
                                   long listenerIntervalInMilliseconds,
@@ -75,6 +80,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.redissonClient = redissonClient;
+    this.additionalRedissonClients = additionalRedissonClients;
     this.partitions = partitions;
     this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
     this.listenerIntervalInMilliseconds = listenerIntervalInMilliseconds;
@@ -109,6 +115,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             consumerId,
             redisTemplate,
             redissonClient,
+            additionalRedissonClients,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,

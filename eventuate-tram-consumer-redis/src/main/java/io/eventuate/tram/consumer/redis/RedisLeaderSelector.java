@@ -1,22 +1,29 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class RedisLeaderSelector {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private Runnable leaderSelectedCallback;
+  private RedissonClient redissonClient;
+  private AdditionalRedissonClients additionalRedissonClients;
+  private String groupId;
   private long lockTimeInMilliseconds;
-
-  private RLock lock;
+  private Runnable leaderSelectedCallback;
+  private RedissonRedLock lock;
   private boolean locked = false;
   private Timer timer = new Timer();
   private volatile boolean stopping = false;
@@ -24,21 +31,21 @@ public class RedisLeaderSelector {
   private CountDownLatch stopCountDownLatch = new CountDownLatch(1);
 
   public RedisLeaderSelector(RedissonClient redissonClient,
+                             AdditionalRedissonClients additionalRedissonClients,
                              String groupId,
                              long lockTimeInMilliseconds,
                              Runnable leaderSelectedCallback) {
 
-    this.leaderSelectedCallback = leaderSelectedCallback;
+    this.redissonClient = redissonClient;
+    this.groupId = groupId;
+    this.additionalRedissonClients = additionalRedissonClients;
     this.lockTimeInMilliseconds = lockTimeInMilliseconds;
+    this.leaderSelectedCallback = leaderSelectedCallback;
 
-    lock = redissonClient.getLock(RedisKeyUtil.keyForLeaderLock(groupId));
-
+    createRedLock();
     scheduleLocking();
   }
 
-  void stopRefreshing() {
-    stoppingRefreshing = true;
-  }
 
   public void stop() {
     stopping = true;
@@ -48,6 +55,24 @@ public class RedisLeaderSelector {
     } catch (InterruptedException e) {
       logger.error(e.getMessage(), e);
     }
+  }
+
+  void stopRefreshing() {
+    stoppingRefreshing = true;
+  }
+
+  private void createRedLock() {
+    List<RLock> locks = new ArrayList<>();
+
+    locks.add(redissonClient.getLock(RedisKeyUtil.keyForLeaderLock(groupId)));
+
+    locks.addAll(additionalRedissonClients
+            .getRedissonClients()
+            .stream()
+            .map(rc -> rc.getLock(RedisKeyUtil.keyForLeaderLock(groupId)))
+            .collect(Collectors.toList()));
+
+    lock = new RedissonRedLock(locks.toArray(new RLock[]{}));
   }
 
   private void scheduleLocking() {

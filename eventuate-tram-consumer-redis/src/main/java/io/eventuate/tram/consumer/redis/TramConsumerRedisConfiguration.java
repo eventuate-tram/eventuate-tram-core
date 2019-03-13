@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
+import io.eventuate.tram.redis.common.AdditionalRedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ public class TramConsumerRedisConfiguration {
   @Bean
   public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
                                          RedissonClient redissonClient,
+                                         AdditionalRedissonClients additionalRedissonClients,
                                          @Value("${redis.partitions}") int redisPartitions,
                                          @Value("${redis.group.member.ttl.in.milliseconds:#{10000}}")
                                                    long redisGroupMemberTtlInMilliseconds,
@@ -28,6 +30,7 @@ public class TramConsumerRedisConfiguration {
 
     return new MessageConsumerRedisImpl(redisTemplate,
             redissonClient,
+            additionalRedissonClients,
             redisPartitions,
             redisGroupMemberTtlInMilliseconds,
             redisListenerIntervalInMilliseconds,
