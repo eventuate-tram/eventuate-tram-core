@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,6 +119,9 @@ public class MessagingTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
+
+  @Autowired
+  private RedissonClient redissonClient;
 
   private static final int DEFAULT_MESSAGE_COUNT = 100;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
@@ -357,14 +361,15 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(zkUrl,
-            subscriptionIdSupplier,
+    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
             consumerIdSupplier.get(),
             redisTemplate,
+            redissonClient,
             partitionCount,
             10000,
             50,
-            36000000);
+            36000000,
+            1000);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

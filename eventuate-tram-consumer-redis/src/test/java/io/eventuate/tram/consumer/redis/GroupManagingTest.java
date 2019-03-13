@@ -1,3 +1,5 @@
+package io.eventuate.tram.consumer.redis;
+
 import io.eventuate.tram.consumer.redis.RedisAssignmentManager;
 import io.eventuate.tram.consumer.redis.RedisGroupMember;
 import io.eventuate.tram.consumer.redis.RedisMemberGroupManager;

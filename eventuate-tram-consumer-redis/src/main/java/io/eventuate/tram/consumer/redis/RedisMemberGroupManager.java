@@ -28,7 +28,7 @@ public class RedisMemberGroupManager {
     this.refreshPeriodInMilliseconds = checkIntervalInMilliseconds;
     this.groupMembersUpdatedCallback = groupMembersUpdatedCallback;
 
-    groupKey = RedisUtil.keyForMemberGroupSet(groupId);
+    groupKey = RedisKeyUtil.keyForMemberGroupSet(groupId);
     checkedMembers = getCurrentGroupMembers();
 
     groupMembersUpdatedCallback.accept(checkedMembers);
@@ -68,7 +68,7 @@ public class RedisMemberGroupManager {
   }
 
   private boolean IsGroupMemberExpired(String memberId) {
-    return !redisTemplate.hasKey(RedisUtil.keyForGroupMember(groupId, memberId));
+    return !redisTemplate.hasKey(RedisKeyUtil.keyForGroupMember(groupId, memberId));
   }
 
   private void removeExpiredGroupMember(Set<String> currentGroupMembers, String expiredMemberId) {

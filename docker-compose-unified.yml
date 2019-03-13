@@ -32,7 +32,7 @@ rabbitmq:
     - 5672:5672
 
 redis:
-  image: redis
+  image: redis:5.0.3
   ports:
     - 6379:6379
 

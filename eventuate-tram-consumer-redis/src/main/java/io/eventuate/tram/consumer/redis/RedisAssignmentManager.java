@@ -15,12 +15,12 @@ public class RedisAssignmentManager {
   }
 
   public Assignment readAssignment(String groupId, String memberId) {
-    String assignmentKey = RedisUtil.keyForAssignment(groupId, memberId);
+    String assignmentKey = RedisKeyUtil.keyForAssignment(groupId, memberId);
     return JSonMapper.fromJson(redisTemplate.opsForValue().get(assignmentKey), Assignment.class);
   }
 
   public void createOrUpdateAssignment(String groupId, String memberId, Assignment assignment) {
-    String assignmentKey = RedisUtil.keyForAssignment(groupId, memberId);
+    String assignmentKey = RedisKeyUtil.keyForAssignment(groupId, memberId);
     redisTemplate.opsForValue().set(assignmentKey, JSonMapper.toJson(assignment), assignmentTtlInMilliseconds, TimeUnit.MILLISECONDS);
   }
 }

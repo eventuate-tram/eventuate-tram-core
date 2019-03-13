@@ -26,8 +26,8 @@ public class RedisGroupMember {
     this.memberId = memberId;
     this.ttlInMilliseconds = ttlInMilliseconds;
 
-    groupKey = RedisUtil.keyForMemberGroupSet(groupId);
-    groupMemberKey = RedisUtil.keyForGroupMember(groupId, memberId);
+    groupKey = RedisKeyUtil.keyForMemberGroupSet(groupId);
+    groupMemberKey = RedisKeyUtil.keyForGroupMember(groupId, memberId);
 
     createOrUpdateGroupMember();
     addMemberToGroup();
@@ -41,7 +41,7 @@ public class RedisGroupMember {
     redisTemplate.delete(groupMemberKey);
   }
 
-  public void stopTtlRefreshing() {
+  void stopTtlRefreshing() {
     timer.cancel();
   }
 

@@ -1,3 +1,5 @@
+package io.eventuate.tram.consumer.redis;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.tram.consumer.redis.*;

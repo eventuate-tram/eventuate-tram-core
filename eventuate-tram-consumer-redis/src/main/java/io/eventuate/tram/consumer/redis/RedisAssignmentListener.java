@@ -27,7 +27,7 @@ public class RedisAssignmentListener {
     this.assignmentListenerInterval = assignmentListenerInterval;
     this.assignmentUpdatedCallback = assignmentUpdatedCallback;
 
-    assignmentKey = RedisUtil.keyForAssignment(groupId, memberId);
+    assignmentKey = RedisKeyUtil.keyForAssignment(groupId, memberId);
 
     lastAssignment = readAssignment();
     lastAssignment.ifPresent(assignmentUpdatedCallback);

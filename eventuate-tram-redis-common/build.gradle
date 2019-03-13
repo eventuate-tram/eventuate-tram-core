@@ -1,7 +1,8 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile "org.springframework.data:spring-data-redis:2.2.0.M1"
-    compile group: 'io.lettuce', name: 'lettuce-core', version: '5.1.4.RELEASE'
+    compile 'org.springframework.data:spring-data-redis:2.2.0.M1'
+    compile 'io.lettuce:lettuce-core:5.1.4.RELEASE'
+    compile 'org.redisson:redisson:3.10.3'
     compile 'org.apache.commons:commons-pool2:2.0'
 }

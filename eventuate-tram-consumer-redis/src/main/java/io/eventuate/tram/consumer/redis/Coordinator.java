@@ -1,12 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.leader.CancelLeadershipException;
-import org.apache.curator.framework.recipes.leader.LeaderSelector;
-import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,39 +16,39 @@ public class Coordinator {
   private final String groupMemberId;
   private final String subscriberId;
   private Set<String> channels;
-
+  private RedisTemplate<String, String> redisTemplate;
+  private RedissonClient redissonClient;
   private Consumer<Assignment> assignmentUpdatedCallback;
   private int partitionCount;
   private long groupMemberTtlInMilliseconds;
   private long listenerInterval;
+  private long leadershipTtlInMilliseconds;
 
-  private String leaderPath;
-
-  private volatile boolean running = true;
-
-  private CuratorFramework curatorFramework;
   private RedisGroupMember redisGroupMember;
   private RedisAssignmentListener redisAssignmentListener;
-  private LeaderSelector leaderSelector;
+  private RedisLeaderSelector leaderSelector;
+  private RedisAssignmentManager redisAssignmentManager;
+  private Optional<RedisMemberGroupManager> redisMemberGroupManager = Optional.empty();
+  PartitionManager partitionManager;
 
   private Set<String> previousGroupMembers;
 
-  private RedisTemplate<String, String> redisTemplate;
-  private RedisAssignmentManager redisAssignmentManager;
-
   public Coordinator(RedisTemplate<String, String> redisTemplate,
+                     RedissonClient redissonClient,
                      String groupMemberId,
-                     String zkUrl,
                      String subscriberId,
                      Set<String> channels,
                      Consumer<Assignment> assignmentUpdatedCallback,
                      int partitionCount,
                      long groupMemberTtlInMilliseconds,
                      long listenerIntervalInMilliseconds,
-                     long assignmentTtlInMilliseconds) {
+                     long assignmentTtlInMilliseconds,
+                     long leadershipTtlInMilliseconds) {
 
 
     this.redisTemplate = redisTemplate;
+    this.redissonClient = redissonClient;
+
     redisAssignmentManager = new RedisAssignmentManager(redisTemplate, assignmentTtlInMilliseconds);
 
     this.groupMemberId = groupMemberId;
@@ -65,13 +59,7 @@ public class Coordinator {
     this.partitionCount = partitionCount;
     this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
     this.listenerInterval = listenerIntervalInMilliseconds;
-
-    leaderPath = String.format("/eventuate-tram/redis/consumer-leaders/%s", subscriberId);
-
-    curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
-            new ExponentialBackoffRetry(1000, 5));
-
-    curatorFramework.start();
+    this.leadershipTtlInMilliseconds = leadershipTtlInMilliseconds;
 
     createInitialAssignments();
     createGroupMember();
@@ -105,71 +93,56 @@ public class Coordinator {
   }
 
   private void createLeaderSelector() {
-    leaderSelector = new LeaderSelector(curatorFramework, leaderPath, new LeaderSelectorListener() {
-      @Override
-      public void takeLeadership(CuratorFramework client) {
+    leaderSelector = new RedisLeaderSelector(redissonClient,
+            subscriberId, leadershipTtlInMilliseconds, this::onLeaderSelected);
+  }
 
-        PartitionManager partitionManager = new PartitionManager(partitionCount);
-        previousGroupMembers = new HashSet<>();
+  private void onLeaderSelected() {
+    partitionManager = new PartitionManager(partitionCount);
+    previousGroupMembers = new HashSet<>();
 
-        RedisMemberGroupManager redisMemberGroupManager = new RedisMemberGroupManager(redisTemplate,
-                subscriberId,
-                listenerInterval,
-                currentGroupMembers -> {
-          if (!partitionManager.isInitialized()) {
-            Map<String, Assignment> assignments = currentGroupMembers
-                    .stream()
-                    .collect(Collectors.toMap(Function.identity(), groupMemberId -> readAssignment(groupMemberId)));
+    RedisMemberGroupManager redisMemberGroupManager = new RedisMemberGroupManager(redisTemplate,
+            subscriberId,
+            listenerInterval,
+            this::onGroupMembersUpdated);
 
-            partitionManager
-                    .initialize(assignments)
-                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
-          } else {
+    this.redisMemberGroupManager = Optional.of(redisMemberGroupManager);
+  }
 
-            Set<String> removedGroupMembers = previousGroupMembers
-                    .stream()
-                    .filter(groupMember -> !currentGroupMembers.contains(groupMember))
-                    .collect(Collectors.toSet());
+  private void onGroupMembersUpdated(Set<String> expectedGroupMembers) {
+    if (!partitionManager.isInitialized()) {
+      initializePartitionManager(expectedGroupMembers);
+    } else {
+      rebalance(expectedGroupMembers);
+    }
 
-            Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = currentGroupMembers
-                    .stream()
-                    .filter(groupMember -> !previousGroupMembers.contains(groupMember))
-                    .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
+    previousGroupMembers = expectedGroupMembers;
+  }
 
-            partitionManager
-                    .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
-                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
-          }
+  private void initializePartitionManager(Set<String> expectedGroupMembers) {
+    Map<String, Assignment> assignments = expectedGroupMembers
+            .stream()
+            .collect(Collectors.toMap(Function.identity(), this::readAssignment));
 
-          previousGroupMembers = currentGroupMembers;
-        });
+    partitionManager
+            .initialize(assignments)
+            .forEach(this::saveAssignment);
+  }
 
-        try {
-          while (running) {
-            try {
-              Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException e) {
-              break;
-            }
-          }
-        } catch (Exception e) {
-          logger.error(e.getMessage(), e);
-        } finally {
-          redisMemberGroupManager.stop();
-        }
-      }
+  private void rebalance(Set<String> expectedGroupMembers) {
+    Set<String> removedGroupMembers = previousGroupMembers
+            .stream()
+            .filter(groupMember -> !expectedGroupMembers.contains(groupMember))
+            .collect(Collectors.toSet());
 
-      @Override
-      public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        if (newState == ConnectionState.SUSPENDED || newState == ConnectionState.LOST) {
-          throw new CancelLeadershipException();
-        }
-      }
-    });
+    Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = expectedGroupMembers
+            .stream()
+            .filter(groupMember -> !previousGroupMembers.contains(groupMember))
+            .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
 
-    leaderSelector.autoRequeue();
-
-    leaderSelector.start();
+    partitionManager
+            .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
+            .forEach(this::saveAssignment);
   }
 
   private Assignment readAssignment(String groupMemberId) {
@@ -181,10 +154,9 @@ public class Coordinator {
   }
 
   public void close() {
-    running = false;
-    leaderSelector.close();
+    redisMemberGroupManager.ifPresent(RedisMemberGroupManager::stop);
     redisAssignmentListener.remove();
     redisGroupMember.remove();
-    curatorFramework.close();
+    leaderSelector.stop();
   }
 }

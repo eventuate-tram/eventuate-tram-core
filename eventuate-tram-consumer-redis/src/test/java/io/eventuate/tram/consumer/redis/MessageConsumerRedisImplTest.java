@@ -1,3 +1,5 @@
+package io.eventuate.tram.consumer.redis;
+
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
@@ -5,6 +7,7 @@ import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +30,9 @@ public class MessageConsumerRedisImplTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
+
+  @Autowired
+  private RedissonClient redissonClient;
 
   @Value("${redis.partitions}")
   private int redisPartitions;
@@ -136,12 +142,13 @@ public class MessageConsumerRedisImplTest {
 
 
   private MessageConsumerRedisImpl createMessageConsumer() {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(zkUrl,
-            redisTemplate,
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
+            redissonClient,
             redisPartitions,
             10000,
             50,
-            36000000);
+            36000000,
+            1000);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {
