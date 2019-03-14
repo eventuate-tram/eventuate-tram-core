@@ -2,7 +2,7 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.redisson.api.RedissonClient;
@@ -36,8 +36,7 @@ public class Subscription {
   public Subscription(String subscribtionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
-                      RedissonClient redissonClient,
-                      AdditionalRedissonClients additionalRedissonClients,
+                      RedissonClients redissonClients,
                       TransactionTemplate transactionTemplate,
                       DuplicateMessageDetector duplicateMessageDetector,
                       String subscriberId,
@@ -60,8 +59,7 @@ public class Subscription {
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
     coordinator = new Coordinator(redisTemplate,
-            redissonClient,
-            additionalRedissonClients,
+            redissonClients,
             subscriptionId,
             subscriberId,
             channels,

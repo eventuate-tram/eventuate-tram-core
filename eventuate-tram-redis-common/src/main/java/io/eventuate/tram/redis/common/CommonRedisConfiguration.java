@@ -1,30 +1,29 @@
 package io.eventuate.tram.redis.common;
 
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@Profile("Redis")
 public class CommonRedisConfiguration {
 
-  @Value("${redis.host}")
-  private String redisHost;
-
-  @Value("${redis.port}")
-  private Integer redisPort;
-
-  @Value("${redis.additional.servers:#{\"\"}}")
-  private String additionalRedisServers;
+  @Value("${redis.servers:#{\"\"}}")
+  private String redisServersProperty;
 
   @Bean
-  public LettuceConnectionFactory lettuceConnectionFactory() {
-    return new LettuceConnectionFactory(redisHost, redisPort);
+  public RedisServers redisServers() {
+    return new RedisServers(redisServersProperty);
+  }
+
+  @Bean
+  public LettuceConnectionFactory lettuceConnectionFactory(RedisServers redisServers) {
+    RedisServers.HostAndPort mainServer = redisServers.getHostsAndPorts().get(0);
+    return new LettuceConnectionFactory(mainServer.getHost(), mainServer.getPort());
   }
 
   @Bean
@@ -40,14 +39,7 @@ public class CommonRedisConfiguration {
   }
 
   @Bean
-  public RedissonClient redissonClient() {
-    Config config = new Config();
-    config.useSingleServer().setAddress(String.format("redis://%s:%s", redisHost, redisPort));
-    return Redisson.create(config);
-  }
-
-  @Bean
-  public AdditionalRedissonClients additionalRedissonClients() {
-    return new AdditionalRedissonClients(additionalRedisServers);
+  public RedissonClients redissonClients(RedisServers redisServers) {
+    return new RedissonClients(redisServers);
   }
 }

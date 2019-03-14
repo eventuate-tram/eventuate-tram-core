@@ -1,19 +1,19 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
@@ -26,16 +26,14 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
+@ActiveProfiles(profiles = "Redis")
 public class MessageConsumerRedisImplTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
 
   @Autowired
-  private RedissonClient redissonClient;
-
-  @Autowired
-  private AdditionalRedissonClients additionalRedissonClients;
+  private RedissonClients redissonClients;
 
   @Value("${redis.partitions}")
   private int redisPartitions;
@@ -143,8 +141,7 @@ public class MessageConsumerRedisImplTest {
 
   private MessageConsumerRedisImpl createMessageConsumer() {
     MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
-            redissonClient,
-            additionalRedissonClients,
+            redissonClients,
             redisPartitions,
             10000,
             50,

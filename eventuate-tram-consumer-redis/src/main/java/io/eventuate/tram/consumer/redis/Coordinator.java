@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +18,7 @@ public class Coordinator {
   private final String subscriberId;
   private Set<String> channels;
   private RedisTemplate<String, String> redisTemplate;
-  private RedissonClient redissonClient;
-  private AdditionalRedissonClients additionalRedissonClients;
+  private RedissonClients redissonClients;
   private Consumer<Assignment> assignmentUpdatedCallback;
   private int partitionCount;
   private long groupMemberTtlInMilliseconds;
@@ -36,8 +35,7 @@ public class Coordinator {
   private Set<String> previousGroupMembers;
 
   public Coordinator(RedisTemplate<String, String> redisTemplate,
-                     RedissonClient redissonClient,
-                     AdditionalRedissonClients additionalRedissonClients,
+                     RedissonClients redissonClients,
                      String groupMemberId,
                      String subscriberId,
                      Set<String> channels,
@@ -50,8 +48,7 @@ public class Coordinator {
 
 
     this.redisTemplate = redisTemplate;
-    this.redissonClient = redissonClient;
-    this.additionalRedissonClients = additionalRedissonClients;
+    this.redissonClients = redissonClients;
 
     redisAssignmentManager = new RedisAssignmentManager(redisTemplate, assignmentTtlInMilliseconds);
 
@@ -97,8 +94,8 @@ public class Coordinator {
   }
 
   private void createLeaderSelector() {
-    leaderSelector = new RedisLeaderSelector(redissonClient,
-            additionalRedissonClients, subscriberId, leadershipTtlInMilliseconds, this::onLeaderSelected);
+    leaderSelector = new RedisLeaderSelector(redissonClients,
+            subscriberId, leadershipTtlInMilliseconds, this::onLeaderSelected);
   }
 
   private void onLeaderSelected() {

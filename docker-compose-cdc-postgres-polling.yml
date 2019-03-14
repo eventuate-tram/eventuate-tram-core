@@ -4,11 +4,6 @@ cdcservice:
     - postgres
     - kafka
     - zookeeper
-    - activemq
-    - rabbitmq
-    - redis
-    - additional-redis-1
-    - additional-redis-2
   ports:
     - "8099:8080"
   environment:
@@ -26,9 +21,3 @@ cdcservice:
     EVENTUATELOCAL_CDC_POLLING_RETRY_INTERVAL_IN_MILLISECONDS: 500
     EVENTUATELOCAL_CDC_READER_NAME: ${EVENTUATELOCAL_CDC_READER_NAME}
     SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-    ACTIVEMQ_URL: tcp://activemq:61616
-    RABBITMQ_URL: rabbitmq
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
-    REDIS_ADDITIONAL_SERVERS: redis://additional-redis-1:6379,redis://additional-redis-2:6379
-    REDIS_PARTITIONS: 2

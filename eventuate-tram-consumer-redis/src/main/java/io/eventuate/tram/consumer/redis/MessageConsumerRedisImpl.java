@@ -4,7 +4,7 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,8 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;
 
-  private String zkUrl;
-
   private RedisTemplate<String, String> redisTemplate;
-  private RedissonClient redissonClient;
-  private AdditionalRedissonClients additionalRedissonClients;
+  private RedissonClients redissonClients;
 
   private int partitions;
   private long groupMemberTtlInMilliseconds;
@@ -46,8 +43,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private List<Subscription> subscriptions = new ArrayList<>();
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  RedissonClient redissonClient,
-                                  AdditionalRedissonClients additionalRedissonClients,
+                                  RedissonClients redissonClients,
                                   int partitions,
                                   long groupMemberTtlInMilliseconds,
                                   long listenerIntervalInMilliseconds,
@@ -56,8 +52,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            redissonClient,
-            additionalRedissonClients,
+            redissonClients,
             partitions,
             groupMemberTtlInMilliseconds,
             listenerIntervalInMilliseconds,
@@ -68,8 +63,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  RedissonClient redissonClient,
-                                  AdditionalRedissonClients additionalRedissonClients,
+                                  RedissonClients redissonClients,
                                   int partitions,
                                   long groupMemberTtlInMilliseconds,
                                   long listenerIntervalInMilliseconds,
@@ -79,8 +73,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
-    this.redissonClient = redissonClient;
-    this.additionalRedissonClients = additionalRedissonClients;
+    this.redissonClients = redissonClients;
     this.partitions = partitions;
     this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
     this.listenerIntervalInMilliseconds = listenerIntervalInMilliseconds;
@@ -114,8 +107,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
             consumerId,
             redisTemplate,
-            redissonClient,
-            additionalRedissonClients,
+            redissonClients,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,

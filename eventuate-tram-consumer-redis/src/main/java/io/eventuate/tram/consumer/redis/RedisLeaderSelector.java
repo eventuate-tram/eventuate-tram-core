@@ -1,13 +1,11 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,8 +16,7 @@ import java.util.stream.Collectors;
 public class RedisLeaderSelector {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private RedissonClient redissonClient;
-  private AdditionalRedissonClients additionalRedissonClients;
+  private RedissonClients redissonClients;
   private String groupId;
   private long lockTimeInMilliseconds;
   private Runnable leaderSelectedCallback;
@@ -30,15 +27,13 @@ public class RedisLeaderSelector {
   private volatile boolean stoppingRefreshing = false;
   private CountDownLatch stopCountDownLatch = new CountDownLatch(1);
 
-  public RedisLeaderSelector(RedissonClient redissonClient,
-                             AdditionalRedissonClients additionalRedissonClients,
+  public RedisLeaderSelector(RedissonClients redissonClients,
                              String groupId,
                              long lockTimeInMilliseconds,
                              Runnable leaderSelectedCallback) {
 
-    this.redissonClient = redissonClient;
     this.groupId = groupId;
-    this.additionalRedissonClients = additionalRedissonClients;
+    this.redissonClients = redissonClients;
     this.lockTimeInMilliseconds = lockTimeInMilliseconds;
     this.leaderSelectedCallback = leaderSelectedCallback;
 
@@ -62,15 +57,12 @@ public class RedisLeaderSelector {
   }
 
   private void createRedLock() {
-    List<RLock> locks = new ArrayList<>();
 
-    locks.add(redissonClient.getLock(RedisKeyUtil.keyForLeaderLock(groupId)));
-
-    locks.addAll(additionalRedissonClients
+    List<RLock> locks = redissonClients
             .getRedissonClients()
             .stream()
             .map(rc -> rc.getLock(RedisKeyUtil.keyForLeaderLock(groupId)))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
 
     lock = new RedissonRedLock(locks.toArray(new RLock[]{}));
   }

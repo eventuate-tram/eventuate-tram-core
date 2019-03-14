@@ -1,15 +1,15 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.redis.common.AdditionalRedissonClients;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.UUID;
@@ -17,13 +17,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
+@ActiveProfiles(profiles = "Redis")
 public class LeadershipTest {
 
   @Autowired
-  private RedissonClient redissonClient;
-
-  @Autowired
-  private AdditionalRedissonClients additionalRedissonClients;
+  private RedissonClients redissonClients;
 
   private String groupId;
 
@@ -112,6 +110,6 @@ public class LeadershipTest {
   }
 
   private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter) {
-    return new RedisLeaderSelector(redissonClient, additionalRedissonClients, groupId, 100, invocationCounter::incrementAndGet);
+    return new RedisLeaderSelector(redissonClients, groupId, 100, invocationCounter::incrementAndGet);
   }
 }
