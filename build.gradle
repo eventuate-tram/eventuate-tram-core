@@ -24,7 +24,7 @@ subprojects {
         key = System.getenv('BINTRAY_KEY')
         configurations = ['archives']
         pkg {
-            repo = 'eventuate-maven-release'
+            repo = "eventuate-maven-$bintrayRepoType"
             name = 'eventuate-tram'
             licenses = ['Apache-2.0']
             vcsUrl = 'https://github.com/eventuate-tram/eventuate-tram-core'
