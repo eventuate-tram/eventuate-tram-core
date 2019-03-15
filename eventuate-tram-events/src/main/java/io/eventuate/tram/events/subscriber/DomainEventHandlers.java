@@ -19,7 +19,13 @@ public class DomainEventHandlers {
     return handlers.stream().map(DomainEventHandler::getAggregateType).collect(toSet());
   }
 
+  public List<DomainEventHandler> getHandlers() {
+    return handlers;
+  }
+
   public Optional<DomainEventHandler> findTargetMethod(Message message) {
     return handlers.stream().filter(h -> h.handles(message)).findFirst();
   }
+
+
 }
