@@ -1,5 +1,5 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.30.0.M14
+  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC4
   ports:
     - 2181:2181
     - 2888:2888
@@ -7,7 +7,7 @@ zookeeper:
 
 
 kafka:
-  image: eventuateio/eventuateio-local-kafka:0.30.0.M14
+  image: eventuateio/eventuateio-local-kafka:0.30.0.RC4
   ports:
     - 9092:9092
   links:
@@ -32,7 +32,7 @@ rabbitmq:
     - 5672:5672
 
 redis:
-  image: redis
+  image: redis:5.0.3
   ports:
     - 6379:6379
 

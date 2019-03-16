@@ -6,6 +6,7 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   }
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     logger.info("consumer {} with subscriberId {} is subscribing to channels {}", id, subscriberId, channels);
 
     Subscription subscription = new Subscription(id,
@@ -71,6 +72,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     subscriptions.add(subscription);
 
     logger.info("consumer {} with subscriberId {} subscribed to channels {}", id, subscriberId, channels);
+    return () -> {
+      subscription.close();
+      subscriptions.remove(subscription);
+    };
   }
 
   private void handleMessage(String subscriberId, MessageHandler handler, Message tramMessage, Runnable acknowledgeCallback) {

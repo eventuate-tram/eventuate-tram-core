@@ -7,6 +7,7 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -16,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles(profiles = "Redis")
 public class MessagingTest {
 
   @Configuration
@@ -97,9 +99,6 @@ public class MessagingTest {
     }
   }
 
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
-
   private AtomicInteger consumerIdCounter;
   private AtomicInteger subscriptionIdCounter;
   private AtomicInteger messageIdCounter;
@@ -118,6 +117,9 @@ public class MessagingTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
+
+  @Autowired
+  private RedissonClients redissonClients;
 
   private static final int DEFAULT_MESSAGE_COUNT = 100;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
@@ -357,10 +359,15 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(zkUrl,
-            subscriptionIdSupplier,
+    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
             consumerIdSupplier.get(),
-            redisTemplate, partitionCount);
+            redisTemplate,
+            redissonClients,
+            partitionCount,
+            10000,
+            50,
+            36000000,
+            1000);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

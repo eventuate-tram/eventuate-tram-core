@@ -66,7 +66,12 @@ public class SwimlaneDispatcher {
         return;
       } else {
         logger.trace("Invoking handler for message for {} {} {}", subscriberId, swimlane, queuedMessage.message);
-        queuedMessage.messageConsumer.accept(queuedMessage.message);
+        try {
+          queuedMessage.messageConsumer.accept(queuedMessage.message);
+        } catch (RuntimeException e) {
+          logger.error("Exception handling message - terminating", e);
+          return;
+        }
       }
     }
   }

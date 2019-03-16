@@ -2,8 +2,10 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.redis.common.RedissonClients;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,16 +33,20 @@ public class Subscription {
   private ConcurrentHashMap<ChannelPartition, ChannelProcessor> channelProcessorsByChannelAndPartition = new ConcurrentHashMap<>();
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
 
-  public Subscription(String zkUrl,
-                      String subscribtionId,
+  public Subscription(String subscribtionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
+                      RedissonClients redissonClients,
                       TransactionTemplate transactionTemplate,
                       DuplicateMessageDetector duplicateMessageDetector,
                       String subscriberId,
                       Set<String> channels,
                       MessageHandler handler,
-                      int partitions) {
+                      int partitions,
+                      long groupMemberTtlInMilliseconds,
+                      long listenerIntervalInMilliseconds,
+                      long assignmentTtlInMilliseconds,
+                      long leadershipTtlInMilliseconds) {
 
     this.subscriptionId = subscribtionId;
     this.consumerId = consumerId;
@@ -52,12 +58,17 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    coordinator = new Coordinator(subscriptionId,
-            zkUrl,
+    coordinator = new Coordinator(redisTemplate,
+            redissonClients,
+            subscriptionId,
             subscriberId,
             channels,
             this::assignmentUpdated,
-            partitions);
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds,
+            leadershipTtlInMilliseconds);
 
 
     logger.info("subscription created (channels = {}, {})", channels, identificationInformation());

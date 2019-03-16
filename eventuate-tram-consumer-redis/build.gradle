@@ -4,10 +4,7 @@ dependencies {
     compile project(":eventuate-tram-consumer-common")
     compile project(":eventuate-tram-redis-common")
 
-    compile('org.apache.curator:curator-framework:2.11.0')
-    compile('org.apache.curator:curator-recipes:2.11.0')
-
-    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 

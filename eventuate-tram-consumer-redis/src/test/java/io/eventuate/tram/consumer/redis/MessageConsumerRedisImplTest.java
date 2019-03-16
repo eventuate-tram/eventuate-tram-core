@@ -1,5 +1,7 @@
-import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
+package io.eventuate.tram.consumer.redis;
+
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
@@ -23,16 +26,17 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
+@ActiveProfiles(profiles = "Redis")
 public class MessageConsumerRedisImplTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
 
+  @Autowired
+  private RedissonClients redissonClients;
+
   @Value("${redis.partitions}")
   private int redisPartitions;
-
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
 
   @Test
   public void testMessageReceived() {
@@ -136,7 +140,13 @@ public class MessageConsumerRedisImplTest {
 
 
   private MessageConsumerRedisImpl createMessageConsumer() {
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(zkUrl, redisTemplate, redisPartitions);
+    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
+            redissonClients,
+            redisPartitions,
+            10000,
+            50,
+            36000000,
+            1000);
 
     messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
     messageConsumer.setTransactionTemplate(new TransactionTemplate() {

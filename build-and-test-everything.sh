@@ -2,7 +2,17 @@
 
 set -o pipefail
 
-SCRIPTS="./build-and-test-all-mysql-binlog.sh ./build-and-test-all-cdc-mysql-binlog.sh ./build-and-test-all-cdc-postgres-polling.sh ./build-and-test-all-postgres-polling.sh ./build-and-test-all-cdc-postgres-wal.sh ./build-and-test-all-postgres-wal.sh ./build-and-test-all-activemq.sh ./build-and-test-all-rabbitmq.sh ./build-and-test-all-cdc-unified.sh"
+SCRIPTS="
+./build-and-test-all-mysql-binlog.sh
+./build-and-test-all-cdc-mysql-binlog.sh
+./build-and-test-all-cdc-postgres-polling.sh
+./build-and-test-all-postgres-polling.sh
+./build-and-test-all-cdc-postgres-wal.sh
+./build-and-test-all-postgres-wal.sh
+./build-and-test-all-activemq.sh
+./build-and-test-all-rabbitmq.sh
+./build-and-test-all-cdc-unified.sh
+"
 
 
 date > build-and-test-everything.log

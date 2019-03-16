@@ -3,13 +3,19 @@ package io.eventuate.tram.consumer.redis;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import io.eventuate.tram.redis.common.RedissonClients;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class MessageConsumerRedisImpl implements MessageConsumer {
@@ -26,31 +32,53 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;
 
-  private String zkUrl;
-
   private RedisTemplate<String, String> redisTemplate;
+  private RedissonClients redissonClients;
 
   private int partitions;
+  private long groupMemberTtlInMilliseconds;
+  private long listenerIntervalInMilliseconds;
+  private long assignmentTtlInMilliseconds;
+  private long leadershipTtlInMilliseconds;
   private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRedisImpl(String zkUrl, RedisTemplate<String, String> redisTemplate, int partitions) {
-    this(zkUrl, () -> UUID.randomUUID().toString(),
+  public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
+                                  RedissonClients redissonClients,
+                                  int partitions,
+                                  long groupMemberTtlInMilliseconds,
+                                  long listenerIntervalInMilliseconds,
+                                  long assignmentTtlInMilliseconds,
+                                  long leadershipTtlInMilliseconds) {
+    this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            partitions);
+            redissonClients,
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds,
+            leadershipTtlInMilliseconds);
   }
 
-  public MessageConsumerRedisImpl(String zkUrl,
-                                  Supplier<String> subscriptionIdSupplier,
+  public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  int partitions) {
+                                  RedissonClients redissonClients,
+                                  int partitions,
+                                  long groupMemberTtlInMilliseconds,
+                                  long listenerIntervalInMilliseconds,
+                                  long assignmentTtlInMilliseconds,
+                                  long leadershipTtlInMilliseconds) {
 
-    this.zkUrl = zkUrl;
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
+    this.redissonClients = redissonClients;
     this.partitions = partitions;
+    this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
+    this.listenerIntervalInMilliseconds = listenerIntervalInMilliseconds;
+    this.assignmentTtlInMilliseconds = assignmentTtlInMilliseconds;
+    this.leadershipTtlInMilliseconds = leadershipTtlInMilliseconds;
 
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
@@ -72,22 +100,28 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   }
 
   @Override
-  public void subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+  public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
 
     logger.info("consumer subscribes to channels (consumer id = {}, subscriber id {}, channels = {})", consumerId, subscriberId, channels);
 
-    Subscription subscription = new Subscription(zkUrl,
-            subscriptionIdSupplier.get(),
+    Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
             consumerId,
             redisTemplate,
+            redissonClients,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,
             channels,
             handler,
-            partitions);
+            partitions,
+            groupMemberTtlInMilliseconds,
+            listenerIntervalInMilliseconds,
+            assignmentTtlInMilliseconds,
+            leadershipTtlInMilliseconds);
 
     subscriptions.add(subscription);
+
+    return subscription::close;
   }
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
