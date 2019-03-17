@@ -29,7 +29,7 @@ public class PartitionManagerTest {
   }
 
   @Test
-  public void checkRebalansingByAddingNewSubscribers() {
+  public void checkRebalancingByAddingNewSubscribers() {
     for (int initialSubscriberCount = 1; initialSubscriberCount <= 10; initialSubscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int additionalSubscriberCount = 1; additionalSubscriberCount <= 10; additionalSubscriberCount++) {
@@ -47,7 +47,7 @@ public class PartitionManagerTest {
   }
 
   @Test
-  public void checkRebalansingByRemovingSubscribers() {
+  public void checkRebalancingByRemovingSubscribers() {
     for (int initialSubscriberCount = 2; initialSubscriberCount <= 10; initialSubscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int subscribersToRemove = 1; subscribersToRemove < initialSubscriberCount; subscribersToRemove++) {
@@ -65,7 +65,7 @@ public class PartitionManagerTest {
   }
 
   @Test
-  public void checkRebalansingByAddingAndRemovingSubscribers() {
+  public void checkRebalancingByAddingAndRemovingSubscribers() {
     for (int initialSubscriberCount = 1; initialSubscriberCount <= 10; initialSubscriberCount++) {
       for (int partitionCount = 1; partitionCount <= 10; partitionCount++) {
         for (int additionalSubscriberCount = 1; additionalSubscriberCount <= 10; additionalSubscriberCount++) {
