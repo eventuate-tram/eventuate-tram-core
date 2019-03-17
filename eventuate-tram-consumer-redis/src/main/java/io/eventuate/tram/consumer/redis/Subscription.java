@@ -33,7 +33,7 @@ public class Subscription {
   private ConcurrentHashMap<ChannelPartition, ChannelProcessor> channelProcessorsByChannelAndPartition = new ConcurrentHashMap<>();
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
 
-  public Subscription(String subscribtionId,
+  public Subscription(String subscriptionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
                       RedissonClients redissonClients,
@@ -48,7 +48,7 @@ public class Subscription {
                       long assignmentTtlInMilliseconds,
                       long leadershipTtlInMilliseconds) {
 
-    this.subscriptionId = subscribtionId;
+    this.subscriptionId = subscriptionId;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.transactionTemplate = transactionTemplate;
@@ -60,7 +60,7 @@ public class Subscription {
 
     coordinator = new Coordinator(redisTemplate,
             redissonClients,
-            subscriptionId,
+            this.subscriptionId,
             subscriberId,
             channels,
             this::assignmentUpdated,
