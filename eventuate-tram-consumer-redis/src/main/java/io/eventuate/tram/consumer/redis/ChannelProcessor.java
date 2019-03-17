@@ -153,14 +153,17 @@ public class ChannelProcessor {
     transactionTemplate.execute(ts -> {
       if (!duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
         try {
+          logger.trace("invoked message handler");
           messageHandler.accept(tramMessage);
+          logger.trace("message handler invoked");
         } catch (Throwable t) {
           logger.error(t.getMessage(), t);
 
           stopCountDownLatch.countDown();
           throw t;
         }
-      }
+      } else
+        logger.trace("discarded duplicate");
 
       redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
 

@@ -9,8 +9,8 @@ import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +29,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -40,8 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.mockito.Mockito.mock;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -49,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public class MessagingTest {
 
   @Configuration
-  @EnableAutoConfiguration(exclude= {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
+  @EnableAutoConfiguration
   @Import(CommonRedisConfiguration.class)
   public static class Config {
     @Bean
@@ -57,10 +52,6 @@ public class MessagingTest {
       return (consumerId, messageId) -> false;
     }
 
-    @Bean
-    public TransactionTemplate transactionTemplate() {
-      return mock(TransactionTemplate.class);
-    }
   }
 
   private static class EventuallyConfig {
@@ -318,7 +309,7 @@ public class MessagingTest {
     });
   }
 
-  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) throws Exception {
+  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
