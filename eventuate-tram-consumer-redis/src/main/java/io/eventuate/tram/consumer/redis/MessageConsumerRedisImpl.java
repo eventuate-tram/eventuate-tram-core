@@ -4,8 +4,6 @@ import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
-import io.eventuate.tram.redis.common.RedissonClients;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,52 +31,27 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private DuplicateMessageDetector duplicateMessageDetector;
 
   private RedisTemplate<String, String> redisTemplate;
-  private RedissonClients redissonClients;
 
-  private int partitions;
-  private long groupMemberTtlInMilliseconds;
-  private long listenerIntervalInMilliseconds;
-  private long assignmentTtlInMilliseconds;
-  private long leadershipTtlInMilliseconds;
   private List<Subscription> subscriptions = new ArrayList<>();
+  private final RedisCoordinatorFactory redisCoordinatorFactory;
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  RedissonClients redissonClients,
-                                  int partitions,
-                                  long groupMemberTtlInMilliseconds,
-                                  long listenerIntervalInMilliseconds,
-                                  long assignmentTtlInMilliseconds,
-                                  long leadershipTtlInMilliseconds) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory) {
     this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            redissonClients,
-            partitions,
-            groupMemberTtlInMilliseconds,
-            listenerIntervalInMilliseconds,
-            assignmentTtlInMilliseconds,
-            leadershipTtlInMilliseconds);
+            redisCoordinatorFactory);
   }
 
   public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  RedissonClients redissonClients,
-                                  int partitions,
-                                  long groupMemberTtlInMilliseconds,
-                                  long listenerIntervalInMilliseconds,
-                                  long assignmentTtlInMilliseconds,
-                                  long leadershipTtlInMilliseconds) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory) {
 
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
-    this.redissonClients = redissonClients;
-    this.partitions = partitions;
-    this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
-    this.listenerIntervalInMilliseconds = listenerIntervalInMilliseconds;
-    this.assignmentTtlInMilliseconds = assignmentTtlInMilliseconds;
-    this.leadershipTtlInMilliseconds = leadershipTtlInMilliseconds;
+    this.redisCoordinatorFactory = redisCoordinatorFactory;
 
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
@@ -107,17 +80,12 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
             consumerId,
             redisTemplate,
-            redissonClients,
             transactionTemplate,
             duplicateMessageDetector,
             subscriberId,
             channels,
             handler,
-            partitions,
-            groupMemberTtlInMilliseconds,
-            listenerIntervalInMilliseconds,
-            assignmentTtlInMilliseconds,
-            leadershipTtlInMilliseconds);
+            redisCoordinatorFactory);
 
     subscriptions.add(subscription);
 

@@ -13,25 +13,32 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 @Import({TramConsumerCommonConfiguration.class, CommonRedisConfiguration.class})
 public class TramConsumerRedisConfiguration {
-  @Bean
-  public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
-                                         RedissonClients redissonClients,
-                                         @Value("${redis.partitions}") int redisPartitions,
-                                         @Value("${redis.group.member.ttl.in.milliseconds:#{10000}}")
-                                                   long redisGroupMemberTtlInMilliseconds,
-                                         @Value("${redis.listener.interval.in.milliseconds:#{1000}}")
-                                                   long redisListenerIntervalInMilliseconds,
-                                         @Value("${redis.assignment.ttl.in.milliseconds:#{36000000}}")
-                                                   long redisAssignmentTtlInMilliseconds,
-                                         @Value("${redis.leadership.ttl.in.milliseconds:#{10000}}")
-                                                   long redisLeadershipTtlInMilliseconds) {
 
-    return new MessageConsumerRedisImpl(redisTemplate,
+  @Bean
+  public RedisCoordinatorFactory redisCoordinatorFactory(RedisTemplate<String, String> redisTemplate,
+                                                         RedissonClients redissonClients,
+                                                         @Value("${redis.partitions}") int redisPartitions,
+                                                         @Value("${redis.group.member.ttl.in.milliseconds:#{10000}}")
+                                                                       long redisGroupMemberTtlInMilliseconds,
+                                                         @Value("${redis.listener.interval.in.milliseconds:#{1000}}")
+                                                                       long redisListenerIntervalInMilliseconds,
+                                                         @Value("${redis.assignment.ttl.in.milliseconds:#{36000000}}")
+                                                                       long redisAssignmentTtlInMilliseconds,
+                                                         @Value("${redis.leadership.ttl.in.milliseconds:#{10000}}")
+                                                                       long redisLeadershipTtlInMilliseconds) {
+    return new RedisCoordinatorFactoryImpl(redisTemplate,
             redissonClients,
             redisPartitions,
             redisGroupMemberTtlInMilliseconds,
             redisListenerIntervalInMilliseconds,
             redisAssignmentTtlInMilliseconds,
             redisLeadershipTtlInMilliseconds);
+  }
+  @Bean
+  public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
+                                         RedisCoordinatorFactory redisCoordinatorFactory) {
+
+    return new MessageConsumerRedisImpl(redisTemplate,
+            redisCoordinatorFactory);
   }
 }

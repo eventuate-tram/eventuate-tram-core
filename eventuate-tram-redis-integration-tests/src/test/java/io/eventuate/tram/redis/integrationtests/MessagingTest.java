@@ -5,10 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
+import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
+import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,6 +51,7 @@ public class MessagingTest {
     public DuplicateMessageDetector duplicateMessageDetector() {
       return (consumerId, messageId) -> false;
     }
+
   }
 
   private static class EventuallyConfig {
@@ -306,7 +309,7 @@ public class MessagingTest {
     });
   }
 
-  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) throws Exception {
+  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
@@ -359,15 +362,17 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
-            consumerIdSupplier.get(),
-            redisTemplate,
+    RedisCoordinatorFactory redisCoordinatorFactory = new RedisCoordinatorFactoryImpl(redisTemplate,
             redissonClients,
             partitionCount,
             10000,
             50,
             36000000,
             1000);
+    MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
+            consumerIdSupplier.get(),
+            redisTemplate,
+            redisCoordinatorFactory);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

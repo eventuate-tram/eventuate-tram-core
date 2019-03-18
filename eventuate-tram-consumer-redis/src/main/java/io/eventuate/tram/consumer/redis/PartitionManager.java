@@ -62,7 +62,7 @@ public class PartitionManager {
     Map<String, Assignment> changedAssignments = filterUnchangedAssignments(currentAssignments, reassignments);
     currentAssignments = reassignments;
 
-    logger.info("Rebalansing: addedGroupMembersWithTheirSubscribedChannels = {}, removedGroupMembers = {}, currentAssignments = {}, reassignments = {}",
+    logger.info("Rebalancing: addedGroupMembersWithTheirSubscribedChannels = {}, removedGroupMembers = {}, currentAssignments = {}, reassignments = {}",
             addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers, currentAssignments, reassignments);
 
     return changedAssignments;

@@ -2,10 +2,8 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
-import io.eventuate.tram.redis.common.RedissonClients;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,22 +31,17 @@ public class Subscription {
   private ConcurrentHashMap<ChannelPartition, ChannelProcessor> channelProcessorsByChannelAndPartition = new ConcurrentHashMap<>();
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
 
-  public Subscription(String subscribtionId,
+  public Subscription(String subscriptionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
-                      RedissonClients redissonClients,
                       TransactionTemplate transactionTemplate,
                       DuplicateMessageDetector duplicateMessageDetector,
                       String subscriberId,
                       Set<String> channels,
                       MessageHandler handler,
-                      int partitions,
-                      long groupMemberTtlInMilliseconds,
-                      long listenerIntervalInMilliseconds,
-                      long assignmentTtlInMilliseconds,
-                      long leadershipTtlInMilliseconds) {
+                      RedisCoordinatorFactory redisCoordinatorFactory) {
 
-    this.subscriptionId = subscribtionId;
+    this.subscriptionId = subscriptionId;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.transactionTemplate = transactionTemplate;
@@ -58,18 +51,7 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    coordinator = new Coordinator(redisTemplate,
-            redissonClients,
-            subscriptionId,
-            subscriberId,
-            channels,
-            this::assignmentUpdated,
-            partitions,
-            groupMemberTtlInMilliseconds,
-            listenerIntervalInMilliseconds,
-            assignmentTtlInMilliseconds,
-            leadershipTtlInMilliseconds);
-
+    coordinator = redisCoordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, this::assignmentUpdated);
 
     logger.info("subscription created (channels = {}, {})", channels, identificationInformation());
   }
