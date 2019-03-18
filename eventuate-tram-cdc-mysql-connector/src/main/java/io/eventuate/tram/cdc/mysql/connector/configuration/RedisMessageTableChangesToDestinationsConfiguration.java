@@ -13,15 +13,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
 @Import(CommonRedisConfiguration.class)
+@Profile("Redis")
 public class RedisMessageTableChangesToDestinationsConfiguration {
   @Bean
-  @Profile("Redis")
   public PublishingFilter redisDuplicatePublishingDetector() {
     return (fileOffset, topic) -> true;
   }
 
   @Bean
-  @Profile("Redis")
   public DataProducerFactory redisDataProducerFactory(RedisTemplate<String, String> redisTemplate,
                                                       @Value("${redis.partitions}") int redisPartitions) {
     return () -> new EventuateRedisProducer(redisTemplate, redisPartitions);

@@ -4,7 +4,6 @@ import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package io.eventuate.jdbcactivemq;
+package io.eventuate.jdbcredis;
 
 import io.eventuate.tram.consumer.redis.TramConsumerRedisConfiguration;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
