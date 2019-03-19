@@ -1,7 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;

@@ -19,11 +19,11 @@ $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v
 
 $DOCKER_COMPOSE build
-$DOCKER_COMPOSE up -d ${DATABASE}
+$DOCKER_COMPOSE up -d ${DATABASE} zookeeper kafka
 
 ./wait-for-${DATABASE}.sh
 
-$DOCKER_COMPOSE up -d
+$DOCKER_COMPOSE up -d cdcservice
 ./wait-for-services.sh $DOCKER_HOST_IP 8099
 
 ./gradlew $GRADLE_OPTIONS -D:eventuate-tram-mysql-kafka-integration-test:test.single=TramIntegrationTest :eventuate-tram-mysql-kafka-integration-test:test
@@ -32,6 +32,8 @@ $DOCKER_COMPOSE up -d
 
 
 if [[ "${DATABASE}" == "mysql" ]]; then
+    $DOCKER_COMPOSE stop kafka
+    $DOCKER_COMPOSE up -d activemq
     $DOCKER_COMPOSE stop cdcservice
     $DOCKER_COMPOSE rm --force cdcservice
 
@@ -46,8 +48,8 @@ if [[ "${DATABASE}" == "mysql" ]]; then
 
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-activemq:cleanTest :eventuate-tram-e2e-tests-jdbc-activemq:test
 
-
-
+    $DOCKER_COMPOSE stop activemq
+    $DOCKER_COMPOSE up -d rabbitmq
     $DOCKER_COMPOSE stop cdcservice
     $DOCKER_COMPOSE rm --force cdcservice
 
@@ -59,7 +61,8 @@ if [[ "${DATABASE}" == "mysql" ]]; then
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-rabbitmq:cleanTest :eventuate-tram-e2e-tests-jdbc-rabbitmq:test
 
 
-
+    $DOCKER_COMPOSE stop rabbitmq
+    $DOCKER_COMPOSE up -d redis
     $DOCKER_COMPOSE stop cdcservice
     $DOCKER_COMPOSE rm --force cdcservice
 

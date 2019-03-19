@@ -1,17 +1,15 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.lettuce.core.RedisCommandExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,24 +23,18 @@ public class ChannelProcessor {
   private CountDownLatch stopCountDownLatch = new CountDownLatch(1);
   private AtomicBoolean running = new AtomicBoolean(false);
 
-  private TransactionTemplate transactionTemplate;
-  private DuplicateMessageDetector duplicateMessageDetector;
   private String subscriberId;
   private String channel;
-  private MessageHandler messageHandler;
+  private java.util.function.Consumer<SubscriberIdAndMessage> messageHandler;
   private RedisTemplate<String, String> redisTemplate;
 
   public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
-                          TransactionTemplate transactionTemplate,
-                          DuplicateMessageDetector duplicateMessageDetector,
                           String subscriberId,
                           String channel,
-                          MessageHandler messageHandler,
+                          java.util.function.Consumer<SubscriberIdAndMessage> messageHandler,
                           String subscriptionIdentificationInfo) {
 
     this.redisTemplate = redisTemplate;
-    this.transactionTemplate = transactionTemplate;
-    this.duplicateMessageDetector = duplicateMessageDetector;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
@@ -145,30 +137,21 @@ public class ChannelProcessor {
   }
 
   private void processMessage(String message, RecordId recordId) {
-
     logger.trace("channel processor {} with channel {} got message: {}", subscriptionIdentificationInfo, channel, message);
 
     Message tramMessage = JSonMapper.fromJson(message, MessageImpl.class);
 
-    transactionTemplate.execute(ts -> {
-      if (!duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-        try {
-          logger.trace("invoked message handler");
-          messageHandler.accept(tramMessage);
-          logger.trace("message handler invoked");
-        } catch (Throwable t) {
-          logger.error(t.getMessage(), t);
+    try {
+      logger.trace("invoked message handler");
+      messageHandler.accept(new SubscriberIdAndMessage(subscriberId, tramMessage));
+      logger.trace("message handler invoked");
+    } catch (Throwable t) {
+      logger.error(t.getMessage(), t);
+      stopCountDownLatch.countDown();
+      throw t;
+    }
 
-          stopCountDownLatch.countDown();
-          throw t;
-        }
-      } else
-        logger.trace("discarded duplicate");
-
-      redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
-
-      return null;
-    });
+    redisTemplate.opsForStream().acknowledge(channel, subscriberId, recordId);
   }
 
   private List<MapRecord<String, Object, Object>> getPendingRecords() {

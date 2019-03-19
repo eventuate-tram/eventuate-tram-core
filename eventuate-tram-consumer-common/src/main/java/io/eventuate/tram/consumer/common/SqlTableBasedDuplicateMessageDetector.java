@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDetector {
 
@@ -16,8 +17,11 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
 
   private EventuateSchema eventuateSchema;
   private String currentTimeInMillisecondsSql;
+  private final TransactionTemplate transactionTemplate;
 
-  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql) {
+
+  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql,  TransactionTemplate transactionTemplate) {
+    this.transactionTemplate = transactionTemplate;
     this.eventuateSchema = eventuateSchema;
     this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;
   }
@@ -37,5 +41,19 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
     } catch (DuplicateKeyException e) {
       return true;
     }
+  }
+
+  @Override
+  public void doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Runnable callback) {
+    transactionTemplate.execute(ts -> {
+      try {
+        if (!isDuplicate(subscriberIdAndMessage.getSubscriberId(), subscriberIdAndMessage.getMessage().getId()))
+          callback.run();
+        return null;
+      } catch (Throwable e) {
+        ts.setRollbackOnly();
+        throw e;
+      }
+    });
   }
 }

@@ -4,10 +4,10 @@ import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumer;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerMessageHandler;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
@@ -15,12 +15,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MessageConsumerKafkaImpl implements MessageConsumer {
 
@@ -28,30 +29,26 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
 
   private String bootstrapServers;
   private List<EventuateKafkaConsumer> consumers = new ArrayList<>();
-
   public MessageConsumerKafkaImpl(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
   }
 
   @Autowired
-  private TransactionTemplate transactionTemplate;
-
-  @Autowired
-  private DuplicateMessageDetector duplicateMessageDetector;
-
-  @Autowired
   private EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties;
 
-  @Autowired(required = false)
-  private MessageInterceptor[] messageInterceptors = new MessageInterceptor[0];
+  @Autowired
+  private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
   @Override
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+    Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
+
     SwimlaneBasedDispatcher swimlaneBasedDispatcher = new SwimlaneBasedDispatcher(subscriberId, Executors.newCachedThreadPool());
-    TransactionalMessageHandler transactionalMessageHandler = new TransactionalMessageHandler(subscriberId, handler, messageInterceptors, duplicateMessageDetector, transactionTemplate);
+
     EventuateKafkaConsumerMessageHandler kcHandler = (record, callback) -> {
-      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message -> transactionalMessageHandler.handle(message, callback));
+      swimlaneBasedDispatcher.dispatch(toMessage(record), record.partition(), message -> handle(message, callback, subscriberId, decoratedHandler));
     };
+
 
     EventuateKafkaConsumer kc = new EventuateKafkaConsumer(subscriberId,
             kcHandler,
@@ -68,6 +65,16 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
       consumers.remove(kc);
     };
 
+  }
+
+  public void handle(Message message, BiConsumer<Void, Throwable> callback, String subscriberId, Consumer<SubscriberIdAndMessage> decoratedHandler) {
+    try {
+      decoratedHandler.accept(new SubscriberIdAndMessage(subscriberId, message));
+      callback.accept(null, null);
+    } catch (Throwable e) {
+      callback.accept(null, e);
+      throw e;
+    }
   }
 
 

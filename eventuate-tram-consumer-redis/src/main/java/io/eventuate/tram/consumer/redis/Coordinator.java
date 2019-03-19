@@ -1,7 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.redis.common.RedissonClients;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;

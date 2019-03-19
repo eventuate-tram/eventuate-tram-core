@@ -1,18 +1,17 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Subscription {
@@ -21,10 +20,8 @@ public class Subscription {
   private final String subscriptionId;
   private String consumerId;
   private RedisTemplate<String, String> redisTemplate;
-  private TransactionTemplate transactionTemplate;
-  private DuplicateMessageDetector duplicateMessageDetector;
   private String subscriberId;
-  private MessageHandler handler;
+  private Consumer<SubscriberIdAndMessage> handler;
   private ExecutorService executorService = Executors.newCachedThreadPool();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
@@ -34,18 +31,14 @@ public class Subscription {
   public Subscription(String subscriptionId,
                       String consumerId,
                       RedisTemplate<String, String> redisTemplate,
-                      TransactionTemplate transactionTemplate,
-                      DuplicateMessageDetector duplicateMessageDetector,
                       String subscriberId,
                       Set<String> channels,
-                      MessageHandler handler,
+                      Consumer<SubscriberIdAndMessage> handler,
                       RedisCoordinatorFactory redisCoordinatorFactory) {
 
     this.subscriptionId = subscriptionId;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
-    this.transactionTemplate = transactionTemplate;
-    this.duplicateMessageDetector = duplicateMessageDetector;
     this.subscriberId = subscriberId;
     this.handler = handler;
 
@@ -88,8 +81,6 @@ public class Subscription {
 
       assignedPartitions.forEach(assignedPartition -> {
         ChannelProcessor channelProcessor = new ChannelProcessor(redisTemplate,
-                transactionTemplate,
-                duplicateMessageDetector,
                 subscriberId,
                 channelName + "-" + assignedPartition,
                 handler,

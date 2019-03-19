@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +24,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private Supplier<String> subscriptionIdSupplier;
 
   @Autowired
-  private TransactionTemplate transactionTemplate;
-
-  @Autowired
-  private DuplicateMessageDetector duplicateMessageDetector;
+  private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
   private RedisTemplate<String, String> redisTemplate;
 
@@ -56,22 +52,6 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
 
-  public TransactionTemplate getTransactionTemplate() {
-    return transactionTemplate;
-  }
-
-  public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
-    this.transactionTemplate = transactionTemplate;
-  }
-
-  public DuplicateMessageDetector getDuplicateMessageDetector() {
-    return duplicateMessageDetector;
-  }
-
-  public void setDuplicateMessageDetector(DuplicateMessageDetector duplicateMessageDetector) {
-    this.duplicateMessageDetector = duplicateMessageDetector;
-  }
-
   @Override
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
 
@@ -80,11 +60,9 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     Subscription subscription = new Subscription(subscriptionIdSupplier.get(),
             consumerId,
             redisTemplate,
-            transactionTemplate,
-            duplicateMessageDetector,
             subscriberId,
             channels,
-            handler,
+            decoratedMessageHandlerFactory.decorate(handler),
             redisCoordinatorFactory);
 
     subscriptions.add(subscription);

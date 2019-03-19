@@ -1,8 +1,8 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
+import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,9 +15,6 @@ import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -149,14 +146,6 @@ public class MessageConsumerRedisImplTest {
             1000);
     MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
             redisCoordinatorFactory);
-
-    messageConsumer.setDuplicateMessageDetector((consumerId, messageId) -> false);
-    messageConsumer.setTransactionTemplate(new TransactionTemplate() {
-      @Override
-      public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-        return action.doInTransaction(null);
-      }
-    });
 
     return messageConsumer;
   }
