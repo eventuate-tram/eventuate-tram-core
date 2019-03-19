@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.NoopDuplicateMessageDetector;
 import io.eventuate.tram.consumer.rabbitmq.MessageConsumerRabbitMQImpl;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
@@ -44,7 +45,7 @@ public class MessagingTest {
 
     @Bean
     public DuplicateMessageDetector duplicateMessageDetector() {
-      return (consumerId, messageId) -> false;
+      return new NoopDuplicateMessageDetector();
     }
   }
 

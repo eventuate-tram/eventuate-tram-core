@@ -3,6 +3,7 @@ package io.eventuate.tram.activemq.integrationtests;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.NoopDuplicateMessageDetector;
 import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
 import io.eventuate.tram.messaging.common.ChannelType;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +45,6 @@ public class CommonQueueTopicTestConfiguration {
 
   @Bean
   public DuplicateMessageDetector duplicateMessageDetector() {
-    return (consumerId, messageId) -> false;
+    return new NoopDuplicateMessageDetector();
   }
 }
