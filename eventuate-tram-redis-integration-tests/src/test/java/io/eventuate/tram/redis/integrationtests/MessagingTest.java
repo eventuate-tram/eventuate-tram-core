@@ -3,7 +3,6 @@ package io.eventuate.tram.redis.integrationtests;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -47,11 +45,6 @@ public class MessagingTest {
   @EnableAutoConfiguration
   @Import(CommonRedisConfiguration.class)
   public static class Config {
-    @Bean
-    public DuplicateMessageDetector duplicateMessageDetector() {
-      return (consumerId, messageId) -> false;
-    }
-
   }
 
   private static class EventuallyConfig {
