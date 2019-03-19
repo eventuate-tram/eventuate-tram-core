@@ -6,4 +6,9 @@ public class NoopDuplicateMessageDetector implements DuplicateMessageDetector {
   public boolean isDuplicate(String consumerId, String messageId) {
     return false;
   }
+
+  @Override
+  public void doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Runnable callback) {
+    callback.run();
+  }
 }
