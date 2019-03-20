@@ -2,6 +2,9 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
+    // TODO this needs to be removed
+    compile project(":eventuate-tram-consumer-jdbc")
+
     compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.2.0'
 
     compile('org.apache.curator:curator-framework:2.11.0')

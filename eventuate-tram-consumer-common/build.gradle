@@ -1,18 +1,13 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-jdbc")
+//    compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-messaging-jdbc")
 
     compile "io.eventuate.local.java:eventuate-local-java-common:$eventuateLocalVersion"
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    compile 'mysql:mysql-connector-java:5.1.36'
-    compile ('org.postgresql:postgresql:9.4-1200-jdbc41') {
-        exclude group: "org.slf4j", module: "slf4j-simple"
-    }
+
     compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
-    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
+    // compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
 }
 
 

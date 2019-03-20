@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
+import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
@@ -44,7 +45,7 @@ public class MessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({CommonRedisConfiguration.class, TramConsumerCommonConfiguration.class})
+  @Import({CommonRedisConfiguration.class, TramConsumerCommonConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
   public static class Config {
   }
 
