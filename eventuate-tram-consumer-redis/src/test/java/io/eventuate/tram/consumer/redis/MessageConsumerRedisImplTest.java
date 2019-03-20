@@ -2,7 +2,6 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
-import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
@@ -17,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.function.Consumer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
-@ActiveProfiles(profiles = "Redis")
 public class MessageConsumerRedisImplTest {
 
   @Autowired
