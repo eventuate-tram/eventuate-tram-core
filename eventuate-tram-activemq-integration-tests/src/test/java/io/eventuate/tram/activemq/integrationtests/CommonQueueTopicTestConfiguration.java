@@ -2,8 +2,7 @@ package io.eventuate.tram.activemq.integrationtests;
 
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.eventuate.tram.consumer.common.NoopDuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
 import io.eventuate.tram.messaging.common.ChannelType;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +11,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -19,6 +19,7 @@ import java.util.UUID;
 @Configuration
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 @EnableAutoConfiguration
+@Import(TramConsumerCommonConfiguration.class)
 public class CommonQueueTopicTestConfiguration {
 
   @Bean
@@ -41,10 +42,5 @@ public class CommonQueueTopicTestConfiguration {
                                                            @Qualifier("testChannelType") ChannelType channelType) {
     return new EventuateActiveMQProducer(activeMQURL,
             Collections.singletonMap("destination" + uniquePostfix, channelType));
-  }
-
-  @Bean
-  public DuplicateMessageDetector duplicateMessageDetector() {
-    return new NoopDuplicateMessageDetector();
   }
 }

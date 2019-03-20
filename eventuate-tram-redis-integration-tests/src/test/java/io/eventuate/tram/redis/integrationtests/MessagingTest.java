@@ -364,7 +364,8 @@ public class MessagingTest {
     MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
             consumerIdSupplier.get(),
             redisTemplate,
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            100);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

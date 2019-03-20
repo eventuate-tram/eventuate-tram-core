@@ -27,18 +27,21 @@ public class ChannelProcessor {
   private String channel;
   private java.util.function.Consumer<SubscriberIdAndMessage> messageHandler;
   private RedisTemplate<String, String> redisTemplate;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
 
   public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
                           String subscriberId,
                           String channel,
                           java.util.function.Consumer<SubscriberIdAndMessage> messageHandler,
-                          String subscriptionIdentificationInfo) {
+                          String subscriptionIdentificationInfo,
+                          long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
 
     this.redisTemplate = redisTemplate;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
     this.subscriptionIdentificationInfo = subscriptionIdentificationInfo;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
 
     logger.info("channel processor is created (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
@@ -80,7 +83,7 @@ public class ChannelProcessor {
       } catch (RedisSystemException e) {
         if (isKeyDoesNotExist(e)) {
           logger.trace("Stream {} does not exist!", channel);
-          sleep();
+          sleep(timeInMillisecondsToSleepWhenKeyDoesNotExist);
           continue;
         } else if (isGroupExistsAlready(e)) {
           logger.trace("Ensured consumer group exists {}", channel);
@@ -174,9 +177,9 @@ public class ChannelProcessor {
     return records;
   }
 
-  private void sleep() {
+  private void sleep(long timeoutInMilliseconds) {
     try {
-      Thread.sleep(500);
+      Thread.sleep(timeoutInMilliseconds);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);

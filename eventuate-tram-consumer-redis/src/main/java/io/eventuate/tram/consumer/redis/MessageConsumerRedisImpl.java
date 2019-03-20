@@ -30,24 +30,29 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private List<Subscription> subscriptions = new ArrayList<>();
   private final RedisCoordinatorFactory redisCoordinatorFactory;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
     this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            timeInMillisecondsToSleepWhenKeyDoesNotExist);
   }
 
   public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
 
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.redisCoordinatorFactory = redisCoordinatorFactory;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
 
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
@@ -63,7 +68,8 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             subscriberId,
             channels,
             decoratedMessageHandlerFactory.decorate(handler),
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            timeInMillisecondsToSleepWhenKeyDoesNotExist);
 
     subscriptions.add(subscription);
 

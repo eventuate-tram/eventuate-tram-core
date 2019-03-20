@@ -3,8 +3,7 @@ package io.eventuate.tram.rabbitmq.integrationtests;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.eventuate.tram.consumer.common.NoopDuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.rabbitmq.MessageConsumerRabbitMQImpl;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
@@ -22,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,15 +37,11 @@ public class MessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
+  @Import(TramConsumerCommonConfiguration.class)
   public static class Config {
     @Bean
     public EventuateRabbitMQProducer rabbitMQMessageProducer(@Value("${rabbitmq.url}") String rabbitMQURL) {
       return new EventuateRabbitMQProducer(rabbitMQURL);
-    }
-
-    @Bean
-    public DuplicateMessageDetector duplicateMessageDetector() {
-      return new NoopDuplicateMessageDetector();
     }
   }
 

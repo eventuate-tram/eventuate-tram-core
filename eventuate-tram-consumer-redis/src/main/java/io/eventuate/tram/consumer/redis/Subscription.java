@@ -22,6 +22,7 @@ public class Subscription {
   private RedisTemplate<String, String> redisTemplate;
   private String subscriberId;
   private Consumer<SubscriberIdAndMessage> handler;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
   private ExecutorService executorService = Executors.newCachedThreadPool();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
@@ -34,13 +35,15 @@ public class Subscription {
                       String subscriberId,
                       Set<String> channels,
                       Consumer<SubscriberIdAndMessage> handler,
-                      RedisCoordinatorFactory redisCoordinatorFactory) {
+                      RedisCoordinatorFactory redisCoordinatorFactory,
+                      long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
 
     this.subscriptionId = subscriptionId;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.subscriberId = subscriberId;
     this.handler = handler;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
@@ -84,7 +87,8 @@ public class Subscription {
                 subscriberId,
                 channelName + "-" + assignedPartition,
                 handler,
-                identificationInformation());
+                identificationInformation(),
+                timeInMillisecondsToSleepWhenKeyDoesNotExist);
 
         executorService.submit(channelProcessor::process);
 

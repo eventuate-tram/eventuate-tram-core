@@ -36,9 +36,12 @@ public class TramConsumerRedisConfiguration {
   }
   @Bean
   public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
-                                         RedisCoordinatorFactory redisCoordinatorFactory) {
+                                         RedisCoordinatorFactory redisCoordinatorFactory,
+                                         @Value("${redis.consumer.time.to.sleep.in.milliseconds.when.key.does.not.exist:#{500}}")
+                                                   long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
 
     return new MessageConsumerRedisImpl(redisTemplate,
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            timeInMillisecondsToSleepWhenKeyDoesNotExist);
   }
 }

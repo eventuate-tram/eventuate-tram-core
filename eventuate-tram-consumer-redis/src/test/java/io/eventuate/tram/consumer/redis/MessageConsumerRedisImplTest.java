@@ -148,7 +148,7 @@ public class MessageConsumerRedisImplTest {
             1000);
 
     MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
-            redisCoordinatorFactory);
+            redisCoordinatorFactory, 100);
 
     messageConsumer.setDecoratedMessageHandlerFactory(new DecoratedMessageHandlerFactory(Collections.emptyList()) {
       @Override
