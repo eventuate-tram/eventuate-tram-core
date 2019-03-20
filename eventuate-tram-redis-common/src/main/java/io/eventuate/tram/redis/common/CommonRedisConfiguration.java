@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@Profile("Redis")
 public class CommonRedisConfiguration {
 
   @Value("${redis.servers:#{\"\"}}")
