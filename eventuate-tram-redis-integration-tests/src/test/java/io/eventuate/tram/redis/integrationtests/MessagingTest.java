@@ -3,6 +3,7 @@ package io.eventuate.tram.redis.integrationtests;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
 import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
@@ -43,7 +44,7 @@ public class MessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import(CommonRedisConfiguration.class)
+  @Import({CommonRedisConfiguration.class, TramConsumerCommonConfiguration.class})
   public static class Config {
   }
 

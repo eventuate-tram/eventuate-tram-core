@@ -70,6 +70,14 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     return subscription::close;
   }
 
+  public DecoratedMessageHandlerFactory getDecoratedMessageHandlerFactory() {
+    return decoratedMessageHandlerFactory;
+  }
+
+  public void setDecoratedMessageHandlerFactory(DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
+    this.decoratedMessageHandlerFactory = decoratedMessageHandlerFactory;
+  }
+
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
     subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
   }

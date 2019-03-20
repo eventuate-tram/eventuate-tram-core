@@ -1,6 +1,10 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
@@ -20,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CommonRedisConfiguration.class)
@@ -144,8 +149,16 @@ public class MessageConsumerRedisImplTest {
             50,
             36000000,
             1000);
+
     MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
             redisCoordinatorFactory);
+
+    messageConsumer.setDecoratedMessageHandlerFactory(new DecoratedMessageHandlerFactory(Collections.emptyList()) {
+      @Override
+      public Consumer<SubscriberIdAndMessage> decorate(MessageHandler mh) {
+        return subscriberIdAndMessage -> mh.accept(subscriberIdAndMessage.getMessage());
+      }
+    });
 
     return messageConsumer;
   }
