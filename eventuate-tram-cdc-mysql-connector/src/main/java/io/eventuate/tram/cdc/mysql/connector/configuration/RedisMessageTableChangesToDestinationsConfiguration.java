@@ -4,7 +4,7 @@ import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.java.common.broker.DataProducerFactory;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
-import org.springframework.beans.factory.annotation.Value;
+import io.eventuate.tram.redis.common.RedisConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,7 +22,7 @@ public class RedisMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public DataProducerFactory redisDataProducerFactory(RedisTemplate<String, String> redisTemplate,
-                                                      @Value("${redis.partitions}") int redisPartitions) {
-    return () -> new EventuateRedisProducer(redisTemplate, redisPartitions);
+                                                      RedisConfigurationProperties redisConfigurationProperties) {
+    return () -> new EventuateRedisProducer(redisTemplate, redisConfigurationProperties.getPartitions());
   }
 }
