@@ -6,5 +6,5 @@ dependencies {
     compile 'org.redisson:redisson:3.10.3'
     compile 'org.apache.commons:commons-pool2:2.0'
     compile 'org.apache.commons:commons-lang3:3.8.1'
-    compile 'com.google.guava:guava:19.0'
+    testCompile 'com.google.guava:guava:19.0'
 }

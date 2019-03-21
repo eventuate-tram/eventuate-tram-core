@@ -1,17 +1,15 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.consumer.MessageHandler;
-import io.eventuate.tram.redis.common.CommonRedisConfiguration;
-import io.eventuate.tram.redis.common.RedissonClients;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import io.eventuate.tram.redis.common.RedisConfigurationProperties;
+import io.eventuate.tram.redis.common.RedisUtil;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
@@ -22,26 +20,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = CommonRedisConfiguration.class)
+@SpringBootTest(classes = {TramConsumerRedisConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
 public class MessageConsumerRedisImplTest {
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;
 
   @Autowired
-  private RedissonClients redissonClients;
+  private RedisConfigurationProperties redisConfigurationProperties;
 
-  @Value("${redis.partitions}")
-  private int redisPartitions;
+  @Autowired
+  private MessageConsumerRedisImpl messageConsumer;
 
   @Test
   public void testMessageReceived() {
     TestInfo testInfo = new TestInfo();
-
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -53,36 +48,32 @@ public class MessageConsumerRedisImplTest {
   }
 
   @Test
-  public void testMessageReceivedWhenConsumerGroupExists() throws Exception {
+  public void testMessageReceivedWhenConsumerGroupExists() {
     TestInfo testInfo = new TestInfo();
 
-    for (int i = 0; i < redisPartitions; i++) {
+    for (int i = 0; i < redisConfigurationProperties.getPartitions(); i++) {
       sendMessage(testInfo.getKey(), testInfo.getMessage(), testInfo.getMessageId(), testInfo.getChannel(), i);
-      redisTemplate.opsForStream().createGroup(testInfo.getChannel() + "-" + i, ReadOffset.from("0"), testInfo.getSubscriberId());
+      redisTemplate.opsForStream().createGroup(RedisUtil.channelToRedisStream(testInfo.getChannel(), i), ReadOffset.from("0"), testInfo.getSubscriberId());
     }
-
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
     Eventually.eventually(() -> {
-      Assert.assertEquals(redisPartitions, messages.size());
+      Assert.assertEquals(redisConfigurationProperties.getPartitions(), messages.size());
       Assert.assertEquals(testInfo.getMessage(), messages.get(0).getPayload());
       Assert.assertEquals(testInfo.getMessage(), messages.get(1).getPayload());
     });
   }
 
   @Test
-  public void testReceivingPendingMessageAfterRestart() throws InterruptedException {
+  public void testReceivingPendingMessageAfterRestart() {
     TestInfo testInfo = new TestInfo();
-
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
-    messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), message -> {
+    MessageSubscription messageSubscription = messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), message -> {
       messages.add(message);
       throw new RuntimeException("Something happened!");
     });
@@ -96,9 +87,7 @@ public class MessageConsumerRedisImplTest {
 
     messages.clear();
 
-    messageConsumer.close();
-
-    messageConsumer = createMessageConsumer();
+    messageSubscription.unsubscribe();
 
     messageConsumer.subscribe(testInfo.getSubscriberId(), Collections.singleton(testInfo.getChannel()), messages::add);
 
@@ -108,8 +97,6 @@ public class MessageConsumerRedisImplTest {
   @Test
   public void testThatProcessingStoppedOnException() {
     TestInfo testInfo = new TestInfo();
-
-    MessageConsumerRedisImpl messageConsumer = createMessageConsumer();
 
     List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
@@ -137,31 +124,8 @@ public class MessageConsumerRedisImplTest {
     });
   }
 
-
-  private MessageConsumerRedisImpl createMessageConsumer() {
-    RedisCoordinatorFactory redisCoordinatorFactory = new RedisCoordinatorFactoryImpl(redisTemplate,
-            redissonClients,
-            redisPartitions,
-            10000,
-            50,
-            36000000,
-            1000);
-
-    MessageConsumerRedisImpl messageConsumer = new MessageConsumerRedisImpl(redisTemplate,
-            redisCoordinatorFactory);
-
-    messageConsumer.setDecoratedMessageHandlerFactory(new DecoratedMessageHandlerFactory(Collections.emptyList()) {
-      @Override
-      public Consumer<SubscriberIdAndMessage> decorate(MessageHandler mh) {
-        return subscriberIdAndMessage -> mh.accept(subscriberIdAndMessage.getMessage());
-      }
-    });
-
-    return messageConsumer;
-  }
-
   private void sendMessage(String key, String message, String messageId, String channel) {
-    int partition = Math.abs(key.hashCode()) % redisPartitions;
+    int partition = Math.abs(key.hashCode()) % redisConfigurationProperties.getPartitions();
 
     sendMessage(key, message, messageId, channel, partition);
   }
@@ -172,7 +136,7 @@ public class MessageConsumerRedisImplTest {
             .add(StreamRecords.string(Collections.singletonMap(key,
                     String.format("{\"payload\": \"%s\", \"headers\" : {\"ID\" : \"%s\"}}",
                             message,
-                            messageId))).withStreamKey(channel + "-" + partition));
+                            messageId))).withStreamKey(RedisUtil.channelToRedisStream(channel, partition)));
   }
 
 

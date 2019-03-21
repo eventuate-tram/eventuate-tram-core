@@ -1,9 +1,7 @@
 package io.eventuate.tram.redis.common;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -11,12 +9,14 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class CommonRedisConfiguration {
 
-  @Value("${redis.servers:#{\"\"}}")
-  private String redisServersProperty;
+  @Bean
+  public RedisConfigurationProperties redisConfigurationProperties() {
+    return new RedisConfigurationProperties();
+  }
 
   @Bean
-  public RedisServers redisServers() {
-    return new RedisServers(redisServersProperty);
+  public RedisServers redisServers(RedisConfigurationProperties redisConfigurationProperties) {
+    return new RedisServers(redisConfigurationProperties.getServers());
   }
 
   @Bean

@@ -27,18 +27,24 @@ public class ChannelProcessor {
   private String channel;
   private java.util.function.Consumer<SubscriberIdAndMessage> messageHandler;
   private RedisTemplate<String, String> redisTemplate;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
+  private long blockStreamTimeInMilliseconds;
 
   public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
                           String subscriberId,
                           String channel,
                           java.util.function.Consumer<SubscriberIdAndMessage> messageHandler,
-                          String subscriptionIdentificationInfo) {
+                          String subscriptionIdentificationInfo,
+                          long timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                          long blockStreamTimeInMilliseconds) {
 
     this.redisTemplate = redisTemplate;
     this.subscriberId = subscriberId;
     this.channel = channel;
     this.messageHandler = messageHandler;
     this.subscriptionIdentificationInfo = subscriptionIdentificationInfo;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
+    this.blockStreamTimeInMilliseconds = blockStreamTimeInMilliseconds;
 
     logger.info("channel processor is created (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
@@ -80,7 +86,7 @@ public class ChannelProcessor {
       } catch (RedisSystemException e) {
         if (isKeyDoesNotExist(e)) {
           logger.trace("Stream {} does not exist!", channel);
-          sleep();
+          sleep(timeInMillisecondsToSleepWhenKeyDoesNotExist);
           continue;
         } else if (isGroupExistsAlready(e)) {
           logger.trace("Ensured consumer group exists {}", channel);
@@ -155,28 +161,26 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getPendingRecords() {
-    return getRecords(ReadOffset.from("0"));
+    return getRecords(ReadOffset.from("0"), StreamReadOptions.empty());
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords() {
-    return getRecords(ReadOffset.from(">"));
+    return getRecords(ReadOffset.from(">"), StreamReadOptions.empty().block(Duration.ofMillis(blockStreamTimeInMilliseconds)));
   }
 
-  private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset) {
+  private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset, StreamReadOptions options) {
     logger.trace("getRecords {} {} invoked", channel, readOffset);
 
     List<MapRecord<String, Object, Object>> records = redisTemplate
             .opsForStream()
-            .read(Consumer.from(subscriberId, subscriberId),
-                    StreamReadOptions.empty().block(Duration.ofSeconds(10)),
-                    StreamOffset.create(channel, readOffset));
+            .read(Consumer.from(subscriberId, subscriberId), options, StreamOffset.create(channel, readOffset));
     logger.trace("getRecords {} {} found {} records", channel, readOffset, records.size());
     return records;
   }
 
-  private void sleep() {
+  private void sleep(long timeoutInMilliseconds) {
     try {
-      Thread.sleep(500);
+      Thread.sleep(timeoutInMilliseconds);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);

@@ -30,24 +30,34 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
 
   private List<Subscription> subscriptions = new ArrayList<>();
   private final RedisCoordinatorFactory redisCoordinatorFactory;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
+  private long blockStreamTimeInMilliseconds;
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  long timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                                  long blockStreamTimeInMilliseconds) {
     this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            timeInMillisecondsToSleepWhenKeyDoesNotExist,
+            blockStreamTimeInMilliseconds);
   }
 
   public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory) {
+                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  long timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                                  long blockStreamTimeInMilliseconds) {
 
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.redisCoordinatorFactory = redisCoordinatorFactory;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
+    this.blockStreamTimeInMilliseconds = blockStreamTimeInMilliseconds;
 
     logger.info("Consumer created (consumer id = {})", consumerId);
   }
@@ -63,19 +73,13 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             subscriberId,
             channels,
             decoratedMessageHandlerFactory.decorate(handler),
-            redisCoordinatorFactory);
+            redisCoordinatorFactory,
+            timeInMillisecondsToSleepWhenKeyDoesNotExist,
+            blockStreamTimeInMilliseconds);
 
     subscriptions.add(subscription);
 
     return subscription::close;
-  }
-
-  public DecoratedMessageHandlerFactory getDecoratedMessageHandlerFactory() {
-    return decoratedMessageHandlerFactory;
-  }
-
-  public void setDecoratedMessageHandlerFactory(DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
-    this.decoratedMessageHandlerFactory = decoratedMessageHandlerFactory;
   }
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {

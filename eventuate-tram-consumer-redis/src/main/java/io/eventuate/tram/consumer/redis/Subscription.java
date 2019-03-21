@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.redis.common.RedisUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ public class Subscription {
   private RedisTemplate<String, String> redisTemplate;
   private String subscriberId;
   private Consumer<SubscriberIdAndMessage> handler;
+  private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
+  private long blockStreamTimeInMilliseconds;
   private ExecutorService executorService = Executors.newCachedThreadPool();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
@@ -34,13 +37,17 @@ public class Subscription {
                       String subscriberId,
                       Set<String> channels,
                       Consumer<SubscriberIdAndMessage> handler,
-                      RedisCoordinatorFactory redisCoordinatorFactory) {
+                      RedisCoordinatorFactory redisCoordinatorFactory,
+                      long timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                      long blockStreamTimeInMilliseconds) {
 
     this.subscriptionId = subscriptionId;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
     this.subscriberId = subscriberId;
     this.handler = handler;
+    this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
+    this.blockStreamTimeInMilliseconds = blockStreamTimeInMilliseconds;
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
@@ -82,9 +89,11 @@ public class Subscription {
       assignedPartitions.forEach(assignedPartition -> {
         ChannelProcessor channelProcessor = new ChannelProcessor(redisTemplate,
                 subscriberId,
-                channelName + "-" + assignedPartition,
+                RedisUtil.channelToRedisStream(channelName, assignedPartition),
                 handler,
-                identificationInformation());
+                identificationInformation(),
+                timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                blockStreamTimeInMilliseconds);
 
         executorService.submit(channelProcessor::process);
 
