@@ -117,8 +117,8 @@ public class MessagingTest {
   @Autowired
   private RedissonClients redissonClients;
 
-  private static final int DEFAULT_MESSAGE_COUNT = 100;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
+  private static final int DEFAULT_MESSAGE_COUNT = 20;
+  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 400, TimeUnit.MILLISECONDS);
 
 
   private String destination;
@@ -226,11 +226,8 @@ public class MessagingTest {
 
   @Test
   public void testReassignment() throws Exception {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 2; i++) {
       logger.info("testReassignment iteration {}", i);
-      
-      destination = "destination1";
-      subscriberId = "subscriber1";
 
       TestSubscription testSubscription1 = subscribe(2);
 
@@ -362,11 +359,13 @@ public class MessagingTest {
             50,
             36000000,
             1000);
+
     MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
             consumerIdSupplier.get(),
             redisTemplate,
             redisCoordinatorFactory,
-            100);
+            100,
+            10);
 
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 

@@ -28,13 +28,15 @@ public class ChannelProcessor {
   private java.util.function.Consumer<SubscriberIdAndMessage> messageHandler;
   private RedisTemplate<String, String> redisTemplate;
   private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
+  private long blockStreamTimeInMilliseconds;
 
   public ChannelProcessor(RedisTemplate<String, String> redisTemplate,
                           String subscriberId,
                           String channel,
                           java.util.function.Consumer<SubscriberIdAndMessage> messageHandler,
                           String subscriptionIdentificationInfo,
-                          long timeInMillisecondsToSleepWhenKeyDoesNotExist) {
+                          long timeInMillisecondsToSleepWhenKeyDoesNotExist,
+                          long blockStreamTimeInMilliseconds) {
 
     this.redisTemplate = redisTemplate;
     this.subscriberId = subscriberId;
@@ -42,6 +44,7 @@ public class ChannelProcessor {
     this.messageHandler = messageHandler;
     this.subscriptionIdentificationInfo = subscriptionIdentificationInfo;
     this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
+    this.blockStreamTimeInMilliseconds = blockStreamTimeInMilliseconds;
 
     logger.info("channel processor is created (channel = {}, {})", channel, subscriptionIdentificationInfo);
   }
@@ -162,7 +165,7 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords() {
-    return getRecords(ReadOffset.from(">"), StreamReadOptions.empty().block(Duration.ofSeconds(10)));
+    return getRecords(ReadOffset.from(">"), StreamReadOptions.empty().block(Duration.ofMillis(blockStreamTimeInMilliseconds)));
   }
 
   private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset, StreamReadOptions options) {
