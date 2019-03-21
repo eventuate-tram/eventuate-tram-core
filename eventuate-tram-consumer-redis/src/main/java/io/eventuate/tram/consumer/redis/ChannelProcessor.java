@@ -158,21 +158,19 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getPendingRecords() {
-    return getRecords(ReadOffset.from("0"));
+    return getRecords(ReadOffset.from("0"), StreamReadOptions.empty());
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords() {
-    return getRecords(ReadOffset.from(">"));
+    return getRecords(ReadOffset.from(">"), StreamReadOptions.empty().block(Duration.ofSeconds(10)));
   }
 
-  private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset) {
+  private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset, StreamReadOptions options) {
     logger.trace("getRecords {} {} invoked", channel, readOffset);
 
     List<MapRecord<String, Object, Object>> records = redisTemplate
             .opsForStream()
-            .read(Consumer.from(subscriberId, subscriberId),
-                    StreamReadOptions.empty().block(Duration.ofSeconds(10)),
-                    StreamOffset.create(channel, readOffset));
+            .read(Consumer.from(subscriberId, subscriberId), options, StreamOffset.create(channel, readOffset));
     logger.trace("getRecords {} {} found {} records", channel, readOffset, records.size());
     return records;
   }

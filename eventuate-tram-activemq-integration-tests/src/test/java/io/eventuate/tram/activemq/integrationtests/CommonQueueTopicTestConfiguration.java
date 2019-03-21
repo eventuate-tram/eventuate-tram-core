@@ -3,6 +3,7 @@ package io.eventuate.tram.activemq.integrationtests;
 import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
+import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
 import io.eventuate.tram.messaging.common.ChannelType;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Configuration
 @EnableConfigurationProperties(EventuateTramChannelProperties.class)
 @EnableAutoConfiguration
-@Import(TramConsumerCommonConfiguration.class)
+@Import({TramConsumerCommonConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
 public class CommonQueueTopicTestConfiguration {
 
   @Bean

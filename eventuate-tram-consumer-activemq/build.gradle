@@ -2,10 +2,6 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
-
-    // TODO this needs to be removed
-    compile project(":eventuate-tram-consumer-jdbc")
-
     compile "org.apache.activemq:activemq-core:5.7.0"
 }
 
