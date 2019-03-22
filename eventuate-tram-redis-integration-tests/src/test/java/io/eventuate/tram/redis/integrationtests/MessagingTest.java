@@ -62,7 +62,7 @@ public class MessagingTest {
   private static class TestSubscription {
     private MessageConsumerRedisImpl consumer;
     private ConcurrentLinkedQueue<Integer> messageQueue;
-    private Set<Integer> currentPartitions;
+    private Set<Integer> currentPartitions = Collections.emptySet();
 
     public TestSubscription(MessageConsumerRedisImpl consumer, ConcurrentLinkedQueue<Integer> messageQueue) {
       this.consumer = consumer;
@@ -117,6 +117,7 @@ public class MessagingTest {
   @Autowired
   private RedissonClients redissonClients;
 
+  private static final int DEFAULT_PARTITION_COUNT = 2;
   private static final int DEFAULT_MESSAGE_COUNT = 20;
   private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 400, TimeUnit.MILLISECONDS);
 
@@ -136,125 +137,129 @@ public class MessagingTest {
 
   @Test
   public void test1Consumer2Partitions() throws Exception {
-    TestSubscription subscription = subscribe(2);
+    TestSubscription subscription = subscribe();
 
-    waitForRebalance(ImmutableList.of(subscription), 2);
+    assertSubscriptionPartitions(ImmutableList.of(subscription));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(subscription);
   }
 
   @Test
-  public void test2Consumers2Partitions() throws Exception {
-    TestSubscription subscription1 = subscribe(2);
-    TestSubscription subscription2 = subscribe(2);
+  public void test2Consumers2Partitions() {
+    TestSubscription subscription1 = subscribe();
+    TestSubscription subscription2 = subscribe();
 
-    waitForRebalance(ImmutableList.of(subscription1, subscription2), 2);
+    assertSubscriptionPartitions(ImmutableList.of(subscription1, subscription2));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(ImmutableList.of(subscription1, subscription2));
   }
 
   @Test
-  public void test1Consumer2PartitionsThenAddedConsumer() throws Exception {
-    TestSubscription testSubscription1 = subscribe(2);
+  public void test1Consumer2PartitionsThenAddedConsumer() {
+    TestSubscription testSubscription1 = subscribe();
 
-    waitForRebalance(ImmutableList.of(testSubscription1), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(testSubscription1);
 
     testSubscription1.clearMessages();
-    TestSubscription testSubscription2 = subscribe(2);
+    TestSubscription testSubscription2 = subscribe();
 
-    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
   }
 
   @Test
-  public void test2Consumers2PartitionsThenRemovedConsumer() throws Exception {
+  public void test2Consumers2PartitionsThenRemovedConsumer() {
 
-    TestSubscription testSubscription1 = subscribe(2);
-    TestSubscription testSubscription2 = subscribe(2);
+    TestSubscription testSubscription1 = subscribe();
+    TestSubscription testSubscription2 = subscribe();
 
-    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
 
     testSubscription1.clearMessages();
     testSubscription2.close();
 
-    waitForRebalance(ImmutableList.of(testSubscription1), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
 
-    sendMessages(2);
+    sendMessages();
 
     assertMessagesConsumed(testSubscription1);
   }
 
   @Test
-  public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
-    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(5, 9);
+  public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() {
+    int partitionCount = 9;
+    int initialConsumers = 5;
+    int removedConsumers = 2;
+    int addedConsumers = 3;
 
-    waitForRebalance(testSubscriptions, 9);
+    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(initialConsumers, partitionCount);
 
-    sendMessages(9);
+    assertSubscriptionPartitions(testSubscriptions, partitionCount);
+
+    sendMessages(partitionCount);
 
     assertMessagesConsumed(testSubscriptions);
 
-    for (int i = 0; i < 2; i++) {
-      testSubscriptions.poll().close();
-    }
+    closeAndRemoveSubscribers(testSubscriptions, removedConsumers);
 
     testSubscriptions.forEach(TestSubscription::clearMessages);
 
-    testSubscriptions.addAll(createConsumersAndSubscribe(3, 9));
+    testSubscriptions.addAll(createConsumersAndSubscribe(addedConsumers, partitionCount));
 
-    waitForRebalance(testSubscriptions, 9);
+    assertSubscriptionPartitions(testSubscriptions, partitionCount);
 
-    sendMessages(9);
+    sendMessages(partitionCount);
 
     assertMessagesConsumed(testSubscriptions);
   }
 
   @Test
-  public void testReassignment() throws Exception {
-    for (int i = 0; i < 2; i++) {
-      logger.info("testReassignment iteration {}", i);
+  public void testReassignment() {
+    runReassignmentIteration();
+    runReassignmentIteration();
+  }
 
-      TestSubscription testSubscription1 = subscribe(2);
+  private void runReassignmentIteration() {
+    TestSubscription testSubscription1 = subscribe();
 
-      waitForRebalance(ImmutableList.of(testSubscription1), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
 
-      sendMessages(2);
+    sendMessages();
 
-      try {
-        assertMessagesConsumed(testSubscription1);
-      } catch (Throwable t){
-        testSubscription1.close();
-        throw t;
-      }
+    try {
+      assertMessagesConsumed(testSubscription1);
+    } catch (Throwable t){
+      testSubscription1.close();
+      throw t;
+    }
 
-      testSubscription1.clearMessages();
-      TestSubscription testSubscription2 = subscribe(2);
+    testSubscription1.clearMessages();
+    TestSubscription testSubscription2 = subscribe();
 
-      waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
+    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
 
-      sendMessages(2);
+    sendMessages();
 
-      try {
-        assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
-      } finally {
-        testSubscription1.close();
-        testSubscription2.close();
-      }
+    try {
+      assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
+    } finally {
+      testSubscription1.close();
+      testSubscription2.close();
     }
   }
 
@@ -288,9 +293,10 @@ public class MessagingTest {
 
       emptySubscriptions.forEach(testSubscription -> logger.info("[{}] consumer is empty", testSubscription.getConsumer().consumerId));
 
-      Assert.assertTrue(emptySubscriptions.isEmpty());
+      Assert.assertTrue("There are non-empty subscriptions", emptySubscriptions.isEmpty());
 
-      Assert.assertEquals((long) messageCount,
+      Assert.assertEquals("sent messages not equal to consumed messages",
+              (long) messageCount,
               (long) testSubscriptions
                       .stream()
                       .map(testSubscription -> testSubscription.getMessageQueue().size())
@@ -299,16 +305,18 @@ public class MessagingTest {
     });
   }
 
-  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) {
+  private void assertSubscriptionPartitions(List<TestSubscription> subscriptions) {
+    assertSubscriptionPartitions(subscriptions, DEFAULT_PARTITION_COUNT);
+  }
+
+  private void assertSubscriptionPartitions(List<TestSubscription> subscriptions, int expectedPartitionCount) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
             () -> {
               Assert.assertTrue(subscriptions
                       .stream()
-                      .noneMatch(testSubscription ->
-                              testSubscription.getCurrentPartitions() == null ||
-                                      testSubscription.getCurrentPartitions().isEmpty()));
+                      .noneMatch(testSubscription -> testSubscription.getCurrentPartitions().isEmpty()));
 
               List<Integer> allPartitions = subscriptions
                       .stream()
@@ -318,8 +326,8 @@ public class MessagingTest {
 
               Set<Integer> uniquePartitions = new HashSet<>(allPartitions);
 
-              Assert.assertEquals(allPartitions.size(), uniquePartitions.size());
-              Assert.assertEquals(totalPartitions, uniquePartitions.size());
+              Assert.assertEquals("partitions are not unique across subscriptions", allPartitions.size(), uniquePartitions.size());
+              Assert.assertEquals("actual partition count not equals to expected partition count", expectedPartitionCount, uniquePartitions.size());
             });
   }
 
@@ -332,6 +340,17 @@ public class MessagingTest {
     }
 
     return subscriptions;
+  }
+
+  private void closeAndRemoveSubscribers(LinkedList<TestSubscription> subscriptions, int count) {
+    for (int i = 0; i < count; i++) {
+      subscriptions.poll().close();
+    }
+  }
+
+
+  private TestSubscription subscribe() {
+    return subscribe(DEFAULT_PARTITION_COUNT);
   }
 
   private TestSubscription subscribe(int partitionCount) {
@@ -370,6 +389,10 @@ public class MessagingTest {
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRedis);
 
     return messageConsumerRedis;
+  }
+
+  private void sendMessages() {
+    sendMessages(DEFAULT_MESSAGE_COUNT, DEFAULT_PARTITION_COUNT);
   }
 
   private void sendMessages(int partitions) {
