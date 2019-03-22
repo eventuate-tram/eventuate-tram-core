@@ -314,7 +314,7 @@ public class MessagingTest {
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
             () -> {
-              Assert.assertTrue(subscriptions
+              Assert.assertTrue("not all subscriptions have assigned partitions", subscriptions
                       .stream()
                       .noneMatch(testSubscription -> testSubscription.getCurrentPartitions().isEmpty()));
 
