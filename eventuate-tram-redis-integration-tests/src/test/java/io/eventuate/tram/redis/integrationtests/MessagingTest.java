@@ -118,7 +118,7 @@ public class MessagingTest {
   private RedissonClients redissonClients;
 
   private static final int DEFAULT_MESSAGE_COUNT = 20;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 400, TimeUnit.MILLISECONDS);
+  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(200, 400, TimeUnit.MILLISECONDS);
 
 
   private String destination;
