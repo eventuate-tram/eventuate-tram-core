@@ -119,7 +119,7 @@ public class MessagingTest {
 
   private static final int DEFAULT_PARTITION_COUNT = 2;
   private static final int DEFAULT_MESSAGE_COUNT = 20;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 400, TimeUnit.MILLISECONDS);
+  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(200, 400, TimeUnit.MILLISECONDS);
 
 
   private String destination;
@@ -139,7 +139,7 @@ public class MessagingTest {
   public void test1Consumer2Partitions() throws Exception {
     TestSubscription subscription = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(subscription));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(subscription));
 
     sendMessages();
 
@@ -151,7 +151,7 @@ public class MessagingTest {
     TestSubscription subscription1 = subscribe();
     TestSubscription subscription2 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(subscription1, subscription2));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(subscription1, subscription2));
 
     sendMessages();
 
@@ -162,7 +162,7 @@ public class MessagingTest {
   public void test1Consumer2PartitionsThenAddedConsumer() {
     TestSubscription testSubscription1 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1));
 
     sendMessages();
 
@@ -171,7 +171,7 @@ public class MessagingTest {
     testSubscription1.clearMessages();
     TestSubscription testSubscription2 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1, testSubscription2));
 
     sendMessages();
 
@@ -184,7 +184,7 @@ public class MessagingTest {
     TestSubscription testSubscription1 = subscribe();
     TestSubscription testSubscription2 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1, testSubscription2));
 
     sendMessages();
 
@@ -193,7 +193,7 @@ public class MessagingTest {
     testSubscription1.clearMessages();
     testSubscription2.close();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1));
 
     sendMessages();
 
@@ -209,7 +209,7 @@ public class MessagingTest {
 
     LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(initialConsumers, partitionCount);
 
-    assertSubscriptionPartitions(testSubscriptions, partitionCount);
+    assertSubscriptionPartitionsBalanced(testSubscriptions, partitionCount);
 
     sendMessages(partitionCount);
 
@@ -221,7 +221,7 @@ public class MessagingTest {
 
     testSubscriptions.addAll(createConsumersAndSubscribe(addedConsumers, partitionCount));
 
-    assertSubscriptionPartitions(testSubscriptions, partitionCount);
+    assertSubscriptionPartitionsBalanced(testSubscriptions, partitionCount);
 
     sendMessages(partitionCount);
 
@@ -237,7 +237,7 @@ public class MessagingTest {
   private void runReassignmentIteration() {
     TestSubscription testSubscription1 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1));
 
     sendMessages();
 
@@ -251,7 +251,7 @@ public class MessagingTest {
     testSubscription1.clearMessages();
     TestSubscription testSubscription2 = subscribe();
 
-    assertSubscriptionPartitions(ImmutableList.of(testSubscription1, testSubscription2));
+    assertSubscriptionPartitionsBalanced(ImmutableList.of(testSubscription1, testSubscription2));
 
     sendMessages();
 
@@ -305,11 +305,11 @@ public class MessagingTest {
     });
   }
 
-  private void assertSubscriptionPartitions(List<TestSubscription> subscriptions) {
-    assertSubscriptionPartitions(subscriptions, DEFAULT_PARTITION_COUNT);
+  private void assertSubscriptionPartitionsBalanced(List<TestSubscription> subscriptions) {
+    assertSubscriptionPartitionsBalanced(subscriptions, DEFAULT_PARTITION_COUNT);
   }
 
-  private void assertSubscriptionPartitions(List<TestSubscription> subscriptions, int expectedPartitionCount) {
+  private void assertSubscriptionPartitionsBalanced(List<TestSubscription> subscriptions, int expectedPartitionCount) {
     Eventually.eventually(EVENTUALLY_CONFIG.iterations,
             EVENTUALLY_CONFIG.timeout,
             EVENTUALLY_CONFIG.timeUnit,
