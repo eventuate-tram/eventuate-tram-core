@@ -5,10 +5,13 @@ import com.google.common.collect.ImmutableSet;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.GroupMember;
 import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.util.test.async.Eventually;
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -148,12 +151,13 @@ public class SubscriptionTest {
     }) {
       @Override
       protected Coordinator createCoordinator(String groupMemberId,
-                                              String zkUrl,
+                                              CuratorFramework curatorFramework,
                                               String subscriberId,
                                               Set<String> channels,
                                               Runnable leaderSelectedCallback,
                                               Runnable leaderRemovedCallback,
-                                              Consumer<Assignment> assignmentUpdatedCallback) {
+                                              Consumer<Assignment> assignmentUpdatedCallback,
+                                              ZkGroupMember groupMember) {
 
         coordinationCallbacks.setLeaderSelectedCallback(leaderSelectedCallback);
         coordinationCallbacks.setLeaderRemovedCallback(leaderRemovedCallback);

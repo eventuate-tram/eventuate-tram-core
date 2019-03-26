@@ -1,5 +1,6 @@
-package io.eventuate.tram.consumer.rabbitmq;
+package io.eventuate.tram.consumer.common.coordinator;
 
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.consumer.common.coordinator.MemberGroupManager;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.HashSet;
@@ -8,7 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-public class RedisMemberGroupManager {
+public class RedisMemberGroupManager implements MemberGroupManager {
 
   private RedisTemplate<String, String> redisTemplate;
   private String groupId;
@@ -36,6 +37,7 @@ public class RedisMemberGroupManager {
     scheduleCheckForChangesInMemberGroup();
   }
 
+  @Override
   public void stop() {
     timer.cancel();
   }

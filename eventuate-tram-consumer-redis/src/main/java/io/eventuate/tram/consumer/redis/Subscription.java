@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
 import io.eventuate.tram.redis.common.RedisUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

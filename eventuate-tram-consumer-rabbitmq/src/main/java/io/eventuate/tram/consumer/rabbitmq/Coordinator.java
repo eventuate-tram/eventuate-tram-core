@@ -1,22 +1,11 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.*;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.leader.CancelLeadershipException;
-import org.apache.curator.framework.recipes.leader.LeaderSelector;
-import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,29 +19,31 @@ public class Coordinator {
 
   private Runnable leaderSelectedCallback;
   private Runnable leaderRemovedCallback;
-  private Consumer<Assignment> assignmentUpdatedCallback;
   private int partitionCount;
-
-  private String groupPath;
-  private String leaderPath;
-
-  private volatile boolean running = true;
 
   private CuratorFramework curatorFramework;
   private GroupMember groupMember;
-  private NodeCache nodeCache;
-  private LeaderSelector leaderSelector;
-
+  private MemberGroupManagerFactory memberGroupManagerFactory;
+  private AssignmentManager assignmentManager;
+  private AssignmentListener assignmentListener;
+  private CommonLeaderSelector leaderSelector;
+  private PartitionManager partitionManager = new PartitionManager(partitionCount);
+  private MemberGroupManager memberGroupManager;
   private Set<String> previousGroupMembers;
 
   public Coordinator(String groupMemberId,
-                     String zkUrl,
+                     CuratorFramework curatorFramework,
                      String subscriberId,
                      Set<String> channels,
                      Runnable leaderSelectedCallback,
                      Runnable leaderRemovedCallback,
                      Consumer<Assignment> assignmentUpdatedCallback,
-                     int partitionCount) {
+                     int partitionCount,
+                     GroupMember groupMember,
+                     MemberGroupManagerFactory memberGroupManagerFactory,
+                     AssignmentManager assignmentManager,
+                     AssignmentListenerFactory assignmentListenerFactory,
+                     LeaderSelectorFactory leaderSelectorFactory) {
 
     this.groupMemberId = groupMemberId;
     this.subscriberId = subscriberId;
@@ -60,21 +51,16 @@ public class Coordinator {
 
     this.leaderSelectedCallback = leaderSelectedCallback;
     this.leaderRemovedCallback = leaderRemovedCallback;
-    this.assignmentUpdatedCallback = assignmentUpdatedCallback;
     this.partitionCount = partitionCount;
 
-    groupPath = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s", subscriberId);
-    leaderPath = String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId);
+    this.curatorFramework = curatorFramework;
 
-    curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
-            new ExponentialBackoffRetry(1000, 5));
-
-    curatorFramework.start();
-
+    this.groupMember = groupMember;
+    this.memberGroupManagerFactory = memberGroupManagerFactory;
+    this.assignmentManager = assignmentManager;
     createAssignmentNodes();
-    createGroupMember();
-    createNodeCaches();
-    createLeaderSelector();
+    assignmentListener = assignmentListenerFactory.create();
+    leaderSelector = leaderSelectorFactory.create(this::onLeaderSelected, this::onLeaderRemoved);
   }
 
   private void createAssignmentNodes() {
@@ -83,12 +69,7 @@ public class Coordinator {
       channels.forEach(channel -> partitionAssignmentsByChannel.put(channel, new HashSet<>()));
       Assignment assignment = new Assignment(channels, partitionAssignmentsByChannel);
 
-      curatorFramework
-              .create()
-              .creatingParentsIfNeeded()
-              .withMode(CreateMode.EPHEMERAL)
-              .forPath(makeAssignmentPath(groupMemberId, subscriberId),
-                      stringToByteArray(JSonMapper.toJson(assignment)));
+      assignmentManager.initializeAssignment(subscriberId, groupMemberId, assignment);
 
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
@@ -96,157 +77,59 @@ public class Coordinator {
     }
   }
 
-  private void createGroupMember() {
-    groupMember = new GroupMember(curatorFramework, groupPath, groupMemberId);
+  private void onLeaderSelected() {
+    partitionManager = new PartitionManager(partitionCount);
+    previousGroupMembers = new HashSet<>();
+    leaderSelectedCallback.run();
+    memberGroupManager = memberGroupManagerFactory.create(Coordinator.this::onGroupMembersUpdated);
   }
 
-  private void createNodeCaches() {
-    channels.forEach(channel -> {
-      nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupMemberId, subscriberId));
-
-      try {
-        nodeCache.start();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-
-      nodeCache.getListenable().addListener(() -> {
-        Assignment assignment = JSonMapper.fromJson(byteArrayToString(nodeCache.getCurrentData().getData()),
-                Assignment.class);
-
-        assignmentUpdatedCallback.accept(assignment);
-      });
-    });
+  private void onLeaderRemoved() {
+    memberGroupManager.stop();
+    leaderRemovedCallback.run();
   }
 
-  private void createLeaderSelector() {
-    leaderSelector = new LeaderSelector(curatorFramework, leaderPath, new LeaderSelectorListener() {
-      @Override
-      public void takeLeadership(CuratorFramework client) {
+  private void onGroupMembersUpdated(Set<String> currentGroupMembers) {
+    if (!partitionManager.isInitialized()) {
+      Map<String, Assignment> assignments = currentGroupMembers
+              .stream()
+              .collect(Collectors.toMap(Function.identity(), this::readAssignment));
 
-        PartitionManager partitionManager = new PartitionManager(partitionCount);
-        previousGroupMembers = new HashSet<>();
-        leaderSelectedCallback.run();
+      partitionManager
+              .initialize(assignments)
+              .forEach(this::saveAssignment);
+    } else {
 
-        GroupManager groupManager = new GroupManager(curatorFramework, groupPath, currentGroupMembers -> {
-          if (!partitionManager.isInitialized()) {
-            Map<String, Assignment> assignments = currentGroupMembers
-                    .stream()
-                    .collect(Collectors.toMap(Function.identity(), groupMemberId -> readAssignment(groupMemberId)));
+      Set<String> removedGroupMembers = previousGroupMembers
+              .stream()
+              .filter(groupMember -> !currentGroupMembers.contains(groupMember))
+              .collect(Collectors.toSet());
 
-            partitionManager
-                    .initialize(assignments)
-                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
-          } else {
+      Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = currentGroupMembers
+              .stream()
+              .filter(groupMember -> !previousGroupMembers.contains(groupMember))
+              .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
 
-            Set<String> removedGroupMembers = previousGroupMembers
-                    .stream()
-                    .filter(groupMember -> !currentGroupMembers.contains(groupMember))
-                    .collect(Collectors.toSet());
+      partitionManager
+              .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
+              .forEach(this::saveAssignment);
+    }
 
-            Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = currentGroupMembers
-                    .stream()
-                    .filter(groupMember -> !previousGroupMembers.contains(groupMember))
-                    .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
-
-            partitionManager
-                    .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
-                    .forEach((memberId, assignment) -> saveAssignment(memberId, assignment));
-          }
-
-          previousGroupMembers = currentGroupMembers;
-        });
-
-        try {
-          while (running) {
-            try {
-              Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException e) {
-              break;
-            }
-          }
-        } catch (Exception e) {
-          logger.error(e.getMessage(), e);
-        } finally {
-          groupManager.stop();
-          leaderRemovedCallback.run();
-        }
-      }
-
-      @Override
-      public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        if (newState == ConnectionState.SUSPENDED || newState == ConnectionState.LOST) {
-          throw new CancelLeadershipException();
-        }
-      }
-    });
-
-    leaderSelector.autoRequeue();
-
-    leaderSelector.start();
+    previousGroupMembers = currentGroupMembers;
   }
 
   private Assignment readAssignment(String groupMemberId) {
-    try {
-
-      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
-      byte[] binaryData = curatorFramework.getData().forPath(assignmentPath);
-      return JSonMapper.fromJson(byteArrayToString(binaryData), Assignment.class);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
+    return assignmentManager.readAssignment(subscriberId, groupMemberId);
   }
 
   private void saveAssignment(String groupMemberId, Assignment assignment) {
-    try {
-      String assignmentPath = makeAssignmentPath(groupMemberId, subscriberId);
-      byte[] binaryData = stringToByteArray(JSonMapper.toJson(assignment));
-      curatorFramework.setData().forPath(assignmentPath, binaryData);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  private String makeAssignmentPath(String groupMemberId, String subscriberId) {
-    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", subscriberId, groupMemberId);
+    assignmentManager.saveAssignment(subscriberId, groupMemberId, assignment);
   }
 
   public void close() {
-    running = false;
-    leaderSelector.close();
-
-    try {
-      nodeCache.close();
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
-    }
-
+    leaderSelector.stop();
+    assignmentListener.remove();
     groupMember.remove();
-    try {
-      nodeCache.close();
-    } catch (IOException e) {
-      logger.error(e.getMessage(), e);
-    }
     curatorFramework.close();
-  }
-
-  private String byteArrayToString(byte[] bytes) {
-    try {
-      return new String(bytes, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  private byte[] stringToByteArray(String string) {
-    try {
-      return string.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
   }
 }

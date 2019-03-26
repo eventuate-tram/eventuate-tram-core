@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.consumer.common.coordinator.CommonLeaderSelector;
 import io.eventuate.tram.redis.common.RedissonClients;
 import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
@@ -13,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class RedisLeaderSelector {
+public class RedisLeaderSelector implements CommonLeaderSelector {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private RedissonClients redissonClients;
@@ -42,6 +43,7 @@ public class RedisLeaderSelector {
   }
 
 
+  @Override
   public void stop() {
     stopping = true;
 

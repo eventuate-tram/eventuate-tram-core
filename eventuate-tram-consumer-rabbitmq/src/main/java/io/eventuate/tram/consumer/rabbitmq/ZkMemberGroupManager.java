@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
+import io.eventuate.tram.consumer.common.coordinator.MemberGroupManager;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.slf4j.Logger;
@@ -11,14 +12,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class GroupManager {
+public class ZkMemberGroupManager implements MemberGroupManager {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private String path;
   private TreeCache treeCache;
 
-  public GroupManager(CuratorFramework curatorFramework, String path, Consumer<Set<String>> groupMembersUpdatedCallback) {
-    this.path = path;
+  public ZkMemberGroupManager(CuratorFramework curatorFramework, String subscriberId, Consumer<Set<String>> groupMembersUpdatedCallback) {
+    this.path = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s", subscriberId);;
     treeCache = new TreeCache(curatorFramework, path);
 
     treeCache.getListenable().addListener((client, event) ->
@@ -32,6 +33,7 @@ public class GroupManager {
     }
   }
 
+  @Override
   public void stop() {
     treeCache.close();
   }

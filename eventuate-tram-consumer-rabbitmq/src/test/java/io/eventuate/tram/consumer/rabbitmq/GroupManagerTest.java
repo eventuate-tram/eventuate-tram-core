@@ -38,7 +38,7 @@ public class GroupManagerTest {
 
   @Test
   public void testMemberRemovedWhenClosed() {
-    GroupMember groupMember = createGroupMember(createCuratorFramework(), "1");
+    ZkGroupMember groupMember = createGroupMember(createCuratorFramework(), "1");
 
     Set<String> groupMemberIds = new HashSet<>();
 
@@ -83,7 +83,7 @@ public class GroupManagerTest {
       groupMemberIds.addAll(members);
     });
 
-    LinkedList<GroupMember> groupMembers = new LinkedList<>();
+    LinkedList<ZkGroupMember> groupMembers = new LinkedList<>();
 
     for (int i = 0; i < 5; i++) {
       groupMembers.add(createGroupMember(createCuratorFramework(), String.valueOf(i)));
@@ -98,12 +98,12 @@ public class GroupManagerTest {
     Eventually.eventually(() -> Assert.assertEquals(ImmutableSet.of("2", "3", "4"), groupMemberIds));
   }
 
-  private GroupManager createGroupManager(CuratorFramework curatorFramework, Consumer<Set<String>> groupMembersUpdatedCallback) {
-    return new GroupManager(curatorFramework, String.format("/group-test-%s", uniqueId), groupMembersUpdatedCallback);
+  private ZkMemberGroupManager createGroupManager(CuratorFramework curatorFramework, Consumer<Set<String>> groupMembersUpdatedCallback) {
+    return new ZkMemberGroupManager(curatorFramework, uniqueId, groupMembersUpdatedCallback);
   }
 
-  private GroupMember createGroupMember(CuratorFramework curatorFramework, String id) {
-    return new GroupMember(curatorFramework, String.format("/group-test-%s", uniqueId), id);
+  private ZkGroupMember createGroupMember(CuratorFramework curatorFramework, String id) {
+    return new ZkGroupMember(curatorFramework, uniqueId, id);
   }
 
   private CuratorFramework createCuratorFramework() {

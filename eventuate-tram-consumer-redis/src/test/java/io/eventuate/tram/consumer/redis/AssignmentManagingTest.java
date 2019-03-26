@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.redis;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class AssignmentManagingTest {
 
     RedisAssignmentManager redisAssignmentManager = createRedisAssignmentManager();
 
-    redisAssignmentManager.createOrUpdateAssignment(groupId, memberId, assignment);
+    redisAssignmentManager.saveAssignment(groupId, memberId, assignment);
 
     redisAssignmentListener.remove();
   }
@@ -55,7 +56,7 @@ public class AssignmentManagingTest {
   public void testWriteReadAssignment() {
     RedisAssignmentManager redisAssignmentManager = createRedisAssignmentManager();
 
-    redisAssignmentManager.createOrUpdateAssignment(groupId, memberId, assignment);
+    redisAssignmentManager.saveAssignment(groupId, memberId, assignment);
 
     Assert.assertEquals(assignment, redisAssignmentManager.readAssignment(groupId, memberId));
   }

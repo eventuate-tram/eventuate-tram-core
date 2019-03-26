@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
 import io.eventuate.tram.redis.common.RedissonClients;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -45,6 +46,21 @@ public class RedisCoordinatorFactoryImpl implements RedisCoordinatorFactory {
             groupMemberTtlInMilliseconds,
             listenerIntervalInMilliseconds,
             assignmentTtlInMilliseconds,
-            leadershipTtlInMilliseconds);
+            leadershipTtlInMilliseconds,
+            createGroupMember(subscriberId, subscriptionId),
+            (groupMembersUpdatedCallback) ->
+                    new RedisMemberGroupManager(redisTemplate, subscriberId, listenerIntervalInMilliseconds, groupMembersUpdatedCallback),
+            createRedisAssignmentManager(),
+            () -> new RedisAssignmentListener(redisTemplate, subscriberId, subscriptionId, listenerIntervalInMilliseconds, assignmentUpdatedCallback),
+            (leaderSelectedCallback, leaderRemovedCallback) ->
+                    new RedisLeaderSelector(redissonClients, subscriberId, leadershipTtlInMilliseconds, leaderSelectedCallback));
+  }
+
+  private RedisGroupMember createGroupMember(String subscriberId, String groupMemberId) {
+    return new RedisGroupMember(redisTemplate, subscriberId, groupMemberId, groupMemberTtlInMilliseconds);
+  }
+
+  private RedisAssignmentManager createRedisAssignmentManager() {
+    return new RedisAssignmentManager(redisTemplate, assignmentTtlInMilliseconds);
   }
 }
