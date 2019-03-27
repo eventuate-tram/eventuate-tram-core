@@ -29,7 +29,8 @@ public class ZkAssignmentManager implements AssignmentManager  {
               .forPath(makeAssignmentPath(groupId, memberId),
                       stringToByteArray(JSonMapper.toJson(assignment)));
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }

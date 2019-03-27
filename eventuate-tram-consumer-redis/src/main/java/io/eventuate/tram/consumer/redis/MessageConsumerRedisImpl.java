@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
@@ -29,18 +30,18 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private RedisTemplate<String, String> redisTemplate;
 
   private List<Subscription> subscriptions = new ArrayList<>();
-  private final RedisCoordinatorFactory redisCoordinatorFactory;
+  private final CoordinatorFactory coordinatorFactory;
   private long timeInMillisecondsToSleepWhenKeyDoesNotExist;
   private long blockStreamTimeInMilliseconds;
 
   public MessageConsumerRedisImpl(RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  CoordinatorFactory coordinatorFactory,
                                   long timeInMillisecondsToSleepWhenKeyDoesNotExist,
                                   long blockStreamTimeInMilliseconds) {
     this(() -> UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             redisTemplate,
-            redisCoordinatorFactory,
+            coordinatorFactory,
             timeInMillisecondsToSleepWhenKeyDoesNotExist,
             blockStreamTimeInMilliseconds);
   }
@@ -48,14 +49,14 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   public MessageConsumerRedisImpl(Supplier<String> subscriptionIdSupplier,
                                   String consumerId,
                                   RedisTemplate<String, String> redisTemplate,
-                                  RedisCoordinatorFactory redisCoordinatorFactory,
+                                  CoordinatorFactory coordinatorFactory,
                                   long timeInMillisecondsToSleepWhenKeyDoesNotExist,
                                   long blockStreamTimeInMilliseconds) {
 
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;
-    this.redisCoordinatorFactory = redisCoordinatorFactory;
+    this.coordinatorFactory = coordinatorFactory;
     this.timeInMillisecondsToSleepWhenKeyDoesNotExist = timeInMillisecondsToSleepWhenKeyDoesNotExist;
     this.blockStreamTimeInMilliseconds = blockStreamTimeInMilliseconds;
 
@@ -73,7 +74,7 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
             subscriberId,
             channels,
             decoratedMessageHandlerFactory.decorate(handler),
-            redisCoordinatorFactory,
+            coordinatorFactory,
             timeInMillisecondsToSleepWhenKeyDoesNotExist,
             blockStreamTimeInMilliseconds);
 

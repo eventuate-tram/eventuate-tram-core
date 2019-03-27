@@ -4,5 +4,5 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public interface MemberGroupManagerFactory {
-  MemberGroupManager create(Consumer<Set<String>> groupMembersUpdatedCallback);
+  MemberGroupManager create(String groupId, Consumer<Set<String>> groupMembersUpdatedCallback);
 }

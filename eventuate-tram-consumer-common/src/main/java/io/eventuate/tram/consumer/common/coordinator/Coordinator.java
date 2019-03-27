@@ -1,12 +1,12 @@
-package io.eventuate.tram.consumer.redis;
+package io.eventuate.tram.consumer.common.coordinator;
 
-import io.eventuate.tram.consumer.common.coordinator.*;
-import io.eventuate.tram.redis.common.RedissonClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -14,67 +14,46 @@ import java.util.stream.Collectors;
 public class Coordinator {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final String groupMemberId;
+  private final String subscriptionId;
   private final String subscriberId;
   private Set<String> channels;
-  private RedisTemplate<String, String> redisTemplate;
-  private RedissonClients redissonClients;
-  private Consumer<Assignment> assignmentUpdatedCallback;
   private int partitionCount;
-  private long groupMemberTtlInMilliseconds;
-  private long listenerInterval;
-  private long leadershipTtlInMilliseconds;
-
   private GroupMember groupMember;
   private MemberGroupManagerFactory memberGroupManagerFactory;
   private AssignmentListener assignmentListener;
   private CommonLeaderSelector leaderSelector;
   private AssignmentManager assignmentManager;
-  private Optional<MemberGroupManager> memberGroupManager = Optional.empty();
+  private MemberGroupManager memberGroupManager;
   private PartitionManager partitionManager;
-
   private Set<String> previousGroupMembers;
+  private Runnable leaderSelected;
+  private Runnable leaderRemoved;
 
-  public Coordinator(RedisTemplate<String, String> redisTemplate,
-                     RedissonClients redissonClients,
-                     String groupMemberId,
+  public Coordinator(String subscriptionId,
                      String subscriberId,
                      Set<String> channels,
-                     Consumer<Assignment> assignmentUpdatedCallback,
                      int partitionCount,
-                     long groupMemberTtlInMilliseconds,
-                     long listenerIntervalInMilliseconds,
-                     long assignmentTtlInMilliseconds,
-                     long leadershipTtlInMilliseconds,
-                     GroupMember groupMember,
+                     GroupMemberFactory groupMemberFactory,
                      MemberGroupManagerFactory memberGroupManagerFactory,
                      AssignmentManager assignmentManager,
                      AssignmentListenerFactory assignmentListenerFactory,
-                     LeaderSelectorFactory leaderSelectorFactory) {
+                     LeaderSelectorFactory leaderSelectorFactory,
+                     Consumer<Assignment> assignmentUpdatedCallback,
+                     Runnable leaderSelected,
+                     Runnable leaderRemoved) {
 
-
-    this.redisTemplate = redisTemplate;
-    this.redissonClients = redissonClients;
-
-    this.assignmentManager = assignmentManager;
-
-    this.groupMemberId = groupMemberId;
+    this.leaderSelected = leaderSelected;
+    this.leaderRemoved = leaderRemoved;
+    this.subscriptionId = subscriptionId;
     this.subscriberId = subscriberId;
     this.channels = channels;
-
-    this.assignmentUpdatedCallback = assignmentUpdatedCallback;
     this.partitionCount = partitionCount;
-    this.groupMemberTtlInMilliseconds = groupMemberTtlInMilliseconds;
-    this.listenerInterval = listenerIntervalInMilliseconds;
-    this.leadershipTtlInMilliseconds = leadershipTtlInMilliseconds;
-
-    createInitialAssignments();
-
+    this.assignmentManager = assignmentManager;
+    this.groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     this.memberGroupManagerFactory = memberGroupManagerFactory;
-    this.groupMember = groupMember;
-
-    assignmentListener = assignmentListenerFactory.create();
-    leaderSelector = leaderSelectorFactory.create(this::onLeaderSelected, () -> {});
+    createInitialAssignments();
+    assignmentListener = assignmentListenerFactory.create(subscriberId, subscriptionId, assignmentUpdatedCallback);
+    leaderSelector = leaderSelectorFactory.create(subscriberId, this::onLeaderSelected, this::onLeaderRemoved);
   }
 
   private void createInitialAssignments() {
@@ -83,22 +62,24 @@ public class Coordinator {
       channels.forEach(channel -> partitionAssignmentsByChannel.put(channel, new HashSet<>()));
       Assignment assignment = new Assignment(channels, partitionAssignmentsByChannel);
 
-      assignmentManager.initializeAssignment(subscriberId, groupMemberId, assignment);
+      assignmentManager.initializeAssignment(subscriberId, subscriptionId, assignment);
+
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }
 
-  private void createLeaderSelector() {
-    leaderSelector = new RedisLeaderSelector(redissonClients,
-            subscriberId, leadershipTtlInMilliseconds, this::onLeaderSelected);
-  }
-
   private void onLeaderSelected() {
+    leaderSelected.run();
     partitionManager = new PartitionManager(partitionCount);
     previousGroupMembers = new HashSet<>();
-    memberGroupManager = Optional.of(memberGroupManagerFactory.create(this::onGroupMembersUpdated));
+    memberGroupManager = memberGroupManagerFactory.create(subscriberId, Coordinator.this::onGroupMembersUpdated);
+  }
+
+  private void onLeaderRemoved() {
+    leaderRemoved.run();
+    memberGroupManager.stop();
   }
 
   private void onGroupMembersUpdated(Set<String> expectedGroupMembers) {
@@ -130,7 +111,7 @@ public class Coordinator {
     Map<String, Set<String>> addedGroupMembersWithTheirSubscribedChannels = expectedGroupMembers
             .stream()
             .filter(groupMember -> !previousGroupMembers.contains(groupMember))
-            .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(groupMemberId).getChannels()));
+            .collect(Collectors.toMap(Function.identity(), groupMember -> readAssignment(subscriptionId).getChannels()));
 
     partitionManager
             .rebalance(addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers)
@@ -146,7 +127,6 @@ public class Coordinator {
   }
 
   public void close() {
-    memberGroupManager.ifPresent(MemberGroupManager::stop);
     assignmentListener.remove();
     groupMember.remove();
     leaderSelector.stop();

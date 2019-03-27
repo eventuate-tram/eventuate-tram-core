@@ -5,10 +5,14 @@ import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
-import io.eventuate.tram.consumer.rabbitmq.MessageConsumerRabbitMQImpl;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
+import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.util.test.async.Eventually;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +118,7 @@ public class MessagingTest {
 
   private String destination;
   private String subscriberId;
+  private CuratorFramework curatorFramework;
 
   @Before
   public void init() {
@@ -341,7 +346,17 @@ public class MessagingTest {
   }
 
   private MessageConsumerRabbitMQImpl createConsumer(int partitionCount) {
-    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(rabbitMQURL,zkUrl, partitionCount);
+    CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkUrl, new ExponentialBackoffRetry(1000, 5));
+    curatorFramework.start();
+
+    CoordinatorFactory coordinatorFactory = new RabbitMQCoordinatorFactoryImplementation(new ZkAssignmentManager(curatorFramework),
+            (groupId, memberId, assignmentUpdatedCallback) -> new ZkAssignmentListener(curatorFramework, groupId, memberId, assignmentUpdatedCallback),
+            (groupId, groupMembersUpdatedCallback) -> new ZkMemberGroupManager(curatorFramework, groupId, groupMembersUpdatedCallback),
+            (groupId, leaderSelectedCallback, leaderRemovedCallback) -> new ZkLeaderSelector(curatorFramework, groupId, leaderSelectedCallback, leaderRemovedCallback),
+            (groupId, memberId) -> new ZkGroupMember(curatorFramework, groupId, memberId),
+            partitionCount);
+
+    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(coordinatorFactory, rabbitMQURL,zkUrl, partitionCount);
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRabbitMQ);
     return messageConsumerRabbitMQ;
   }

@@ -6,6 +6,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.Coordinator;
 import io.eventuate.tram.consumer.common.coordinator.GroupMember;
 import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
@@ -146,18 +147,16 @@ public class SubscriptionTest {
   private CoordinationCallbacks createSubscription(Connection connection, String subscriberId, String destination, ConcurrentLinkedQueue concurrentLinkedQueue) {
     CoordinationCallbacks coordinationCallbacks = new CoordinationCallbacks();
 
-    new Subscription(null, connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
+    new Subscription(null, null, connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
       concurrentLinkedQueue.add(Integer.valueOf(message.getPayload()));
     }) {
       @Override
       protected Coordinator createCoordinator(String groupMemberId,
-                                              CuratorFramework curatorFramework,
                                               String subscriberId,
                                               Set<String> channels,
                                               Runnable leaderSelectedCallback,
                                               Runnable leaderRemovedCallback,
-                                              Consumer<Assignment> assignmentUpdatedCallback,
-                                              ZkGroupMember groupMember) {
+                                              Consumer<Assignment> assignmentUpdatedCallback) {
 
         coordinationCallbacks.setLeaderSelectedCallback(leaderSelectedCallback);
         coordinationCallbacks.setLeaderRemovedCallback(leaderRemovedCallback);

@@ -3,11 +3,10 @@ package io.eventuate.tram.consumer.rabbitmq;
 import com.rabbitmq.client.*;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.Coordinator;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +22,7 @@ public class Subscription {
   private final String subscriptionId = UUID.randomUUID().toString();
   private final String consumerId;
 
+  private CoordinatorFactory coordinatorFactory;
   private Connection connection;
   private String subscriberId;
   private Set<String> channels;
@@ -35,9 +35,9 @@ public class Subscription {
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
   private Channel subscriberGroupChannel;
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
-  private CuratorFramework curatorFramework;
 
-  public Subscription(String consumerId,
+  public Subscription(CoordinatorFactory coordinatorFactory,
+                      String consumerId,
                       Connection connection,
                       String zkUrl,
                       String subscriberId,
@@ -48,6 +48,7 @@ public class Subscription {
     logger.info("Creating subscription for channels {} and partition count {}. {}",
             channels, partitionCount, identificationInformation());
 
+    this.coordinatorFactory = coordinatorFactory;
     this.consumerId = consumerId;
     this.connection = connection;
     this.subscriberId = subscriberId;
@@ -59,20 +60,13 @@ public class Subscription {
 
     consumerChannel = createRabbitMQChannel();
 
-    curatorFramework = CuratorFrameworkFactory.newClient(zkUrl,
-            new ExponentialBackoffRetry(1000, 5));
-
-    curatorFramework.start();
-
     coordinator = createCoordinator(
             subscriptionId,
-            curatorFramework,
             subscriberId,
             channels,
             this::leaderSelected,
             this::leaderRemoved,
-            this::assignmentUpdated,
-            createGroupMember());
+            this::assignmentUpdated);
 
     logger.info("Created subscription for channels {} and partition count {}. {}",
             channels, partitionCount, identificationInformation());
@@ -83,31 +77,13 @@ public class Subscription {
   }
 
   protected Coordinator createCoordinator(String groupMemberId,
-                                          CuratorFramework curatorFramework,
                                           String subscriberId,
                                           Set<String> channels,
                                           Runnable leaderSelectedCallback,
                                           Runnable leaderRemovedCallback,
-                                          java.util.function.Consumer<Assignment> assignmentUpdatedCallback,
-                                          ZkGroupMember groupMember) {
+                                          java.util.function.Consumer<Assignment> assignmentUpdatedCallback) {
 
-    return new Coordinator(groupMemberId,
-            curatorFramework,
-            subscriberId,
-            channels,
-            leaderSelectedCallback,
-            leaderRemovedCallback,
-            assignmentUpdatedCallback,
-            partitionCount,
-            groupMember,
-            (groupMembersUpdatedCallback) ->
-                    new ZkMemberGroupManager(curatorFramework, subscriberId, groupMembersUpdatedCallback),
-            new ZkAssignmentManager(curatorFramework),
-            () -> new ZkAssignmentListener(curatorFramework, subscriberId, groupMemberId, assignmentUpdatedCallback),
-            (onSelected, onRemoved) ->  new ZkLeaderSelector(curatorFramework,
-                    subscriberId,
-                    () -> {leaderSelectedCallback.run(); onSelected.run();},
-                    () -> {leaderRemovedCallback.run(); onRemoved.run();}));
+    return coordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, assignmentUpdatedCallback, leaderSelectedCallback, leaderRemovedCallback);
   }
 
 
@@ -123,10 +99,6 @@ public class Subscription {
     }
 
     logger.info("Subscription is closed. {}", identificationInformation());
-  }
-
-  private ZkGroupMember createGroupMember() {
-    return new ZkGroupMember(curatorFramework, subscriberId, subscriptionId);
   }
 
   private Channel createRabbitMQChannel() {

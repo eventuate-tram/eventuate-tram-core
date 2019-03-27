@@ -12,9 +12,9 @@ public class ZkGroupMember implements GroupMember {
   private CuratorFramework curatorFramework;
   private String path;
 
-  public ZkGroupMember(CuratorFramework curatorFramework, String subscriberId, String groupMemberId) {
+  public ZkGroupMember(CuratorFramework curatorFramework, String groupId, String memberId) {
     this.curatorFramework = curatorFramework;
-    this.path = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s/%s", subscriberId, groupMemberId);
+    this.path = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s/%s", groupId, memberId);
 
     try {
       curatorFramework

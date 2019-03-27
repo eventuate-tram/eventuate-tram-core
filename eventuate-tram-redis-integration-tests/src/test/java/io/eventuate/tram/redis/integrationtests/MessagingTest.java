@@ -5,9 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
-import io.eventuate.tram.consumer.redis.MessageConsumerRedisImpl;
-import io.eventuate.tram.consumer.redis.RedisCoordinatorFactory;
-import io.eventuate.tram.consumer.redis.RedisCoordinatorFactoryImpl;
+import io.eventuate.tram.consumer.redis.*;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
@@ -30,8 +29,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -371,18 +369,18 @@ public class MessagingTest {
   }
 
   private MessageConsumerRedisImpl createConsumer(int partitionCount) {
-    RedisCoordinatorFactory redisCoordinatorFactory = new RedisCoordinatorFactoryImpl(redisTemplate,
-            redissonClients,
-            partitionCount,
-            10000,
-            50,
-            36000000,
-            1000);
+
+    CoordinatorFactory coordinatorFactory = new RedisCoordinatorFactoryImpl(new RedisAssignmentManager(redisTemplate, 3600000),
+            (groupId, memberId, assignmentUpdatedCallback) -> new RedisAssignmentListener(redisTemplate, groupId, memberId, 50, assignmentUpdatedCallback),
+            (groupId, groupMembersUpdatedCallback) -> new RedisMemberGroupManager(redisTemplate, groupId, 50, groupMembersUpdatedCallback),
+            (groupId, leaderSelectedCallback, leaderRemovedCallback) -> new RedisLeaderSelector(redissonClients, groupId, 10000, leaderSelectedCallback, leaderRemovedCallback),
+            (groupId, memberId) -> new RedisGroupMember(redisTemplate, groupId, memberId, 1000),
+            partitionCount);
 
     MessageConsumerRedisImpl messageConsumerRedis = new MessageConsumerRedisImpl(subscriptionIdSupplier,
             consumerIdSupplier.get(),
             redisTemplate,
-            redisCoordinatorFactory,
+            coordinatorFactory,
             100,
             10);
 

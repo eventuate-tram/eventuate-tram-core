@@ -21,6 +21,7 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
   private String groupId;
   private long lockTimeInMilliseconds;
   private Runnable leaderSelectedCallback;
+  private Runnable leaderRemovedCallback;
   private RedissonRedLock lock;
   private boolean locked = false;
   private Timer timer = new Timer();
@@ -31,12 +32,14 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
   public RedisLeaderSelector(RedissonClients redissonClients,
                              String groupId,
                              long lockTimeInMilliseconds,
-                             Runnable leaderSelectedCallback) {
+                             Runnable leaderSelectedCallback,
+                             Runnable leaderRemovedCallback) {
 
     this.groupId = groupId;
     this.redissonClients = redissonClients;
     this.lockTimeInMilliseconds = lockTimeInMilliseconds;
     this.leaderSelectedCallback = leaderSelectedCallback;
+    this.leaderRemovedCallback = leaderRemovedCallback;
 
     createRedLock();
     scheduleLocking();
@@ -95,7 +98,8 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
           locked = true;
           leaderSelectedCallback.run();
         }
-      } else {
+      } else if (locked) {
+        leaderRemovedCallback.run();
         locked = false;
       }
     } catch (InterruptedException e) {
@@ -106,6 +110,7 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
   private void handleStop() {
     if (locked && !stoppingRefreshing) {
       lock.unlock();
+      leaderRemovedCallback.run();
     }
 
     stopCountDownLatch.countDown();

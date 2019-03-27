@@ -18,10 +18,10 @@ public class ZkAssignmentListener implements AssignmentListener {
   private NodeCache nodeCache;
 
   public ZkAssignmentListener(CuratorFramework curatorFramework,
-                              String subscriberId,
-                              String groupMemberId,
+                              String groupId,
+                              String memberId,
                               Consumer<Assignment> assignmentUpdatedCallback) {
-    nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(subscriberId, groupMemberId));
+    nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupId, memberId));
 
     try {
       nodeCache.start();
@@ -46,8 +46,8 @@ public class ZkAssignmentListener implements AssignmentListener {
     }
   }
 
-  private String makeAssignmentPath(String subscriberId, String groupMemberId) {
-    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", subscriberId, groupMemberId);
+  private String makeAssignmentPath(String groupId, String memberId) {
+    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", groupId, memberId);
   }
 
   private String byteArrayToString(byte[] bytes) {

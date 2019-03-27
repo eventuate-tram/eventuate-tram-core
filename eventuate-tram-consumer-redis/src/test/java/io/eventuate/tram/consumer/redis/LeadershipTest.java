@@ -108,6 +108,6 @@ public class LeadershipTest {
   }
 
   private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter) {
-    return new RedisLeaderSelector(redissonClients, groupId, 100, invocationCounter::incrementAndGet);
+    return new RedisLeaderSelector(redissonClients, groupId, 100, invocationCounter::incrementAndGet, () -> {});
   }
 }

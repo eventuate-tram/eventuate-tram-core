@@ -2,6 +2,8 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.Coordinator;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.redis.common.RedisUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -38,7 +40,7 @@ public class Subscription {
                       String subscriberId,
                       Set<String> channels,
                       Consumer<SubscriberIdAndMessage> handler,
-                      RedisCoordinatorFactory redisCoordinatorFactory,
+                      CoordinatorFactory coordinatorFactory,
                       long timeInMillisecondsToSleepWhenKeyDoesNotExist,
                       long blockStreamTimeInMilliseconds) {
 
@@ -52,7 +54,7 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    coordinator = redisCoordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, this::assignmentUpdated);
+    coordinator = coordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, this::assignmentUpdated, () -> {}, () -> {});
 
     logger.info("subscription created (channels = {}, {})", channels, identificationInformation());
   }

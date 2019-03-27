@@ -4,6 +4,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -26,13 +27,18 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   @Autowired
   private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
+  private CoordinatorFactory coordinatorFactory;
   private Connection connection;
   private int partitionCount;
   private String zkUrl;
 
   private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRabbitMQImpl(String rabbitMQUrl, String zkUrl, int partitionCount) {
+  public MessageConsumerRabbitMQImpl(CoordinatorFactory coordinatorFactory,
+                                     String rabbitMQUrl,
+                                     String zkUrl,
+                                     int partitionCount) {
+    this.coordinatorFactory = coordinatorFactory;
     this.partitionCount = partitionCount;
     this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
@@ -61,7 +67,8 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
     Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
 
-    Subscription subscription = new Subscription(id,
+    Subscription subscription = new Subscription(coordinatorFactory,
+            id,
             connection,
             zkUrl,
             subscriberId,
