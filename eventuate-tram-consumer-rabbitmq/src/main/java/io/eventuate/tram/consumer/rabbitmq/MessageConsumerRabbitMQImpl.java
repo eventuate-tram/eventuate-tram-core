@@ -5,6 +5,8 @@ import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLifecycleHook;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
@@ -24,23 +27,38 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   public final String id = UUID.randomUUID().toString();
 
+  public final String consumerId;
+  private Supplier<String> subscriptionIdSupplier;
+
   @Autowired
   private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
   private CoordinatorFactory coordinatorFactory;
   private Connection connection;
   private int partitionCount;
-  private String zkUrl;
 
   private List<Subscription> subscriptions = new ArrayList<>();
 
   public MessageConsumerRabbitMQImpl(CoordinatorFactory coordinatorFactory,
                                      String rabbitMQUrl,
-                                     String zkUrl,
                                      int partitionCount) {
+    this(() -> UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            coordinatorFactory,
+            rabbitMQUrl,
+            partitionCount);
+  }
+
+  public MessageConsumerRabbitMQImpl(Supplier<String> subscriptionIdSupplier,
+                                     String consumerId,
+                                     CoordinatorFactory coordinatorFactory,
+                                     String rabbitMQUrl,
+                                     int partitionCount) {
+
+    this.subscriptionIdSupplier = subscriptionIdSupplier;
+    this.consumerId = consumerId;
     this.coordinatorFactory = coordinatorFactory;
     this.partitionCount = partitionCount;
-    this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
 
     logger.info("consumer {} created and ready to subscribe", id);
@@ -48,6 +66,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
     subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
+  }
+
+  public void setLeaderHook(SubscriptionLeaderHook leaderHook) {
+    subscriptions.forEach(subscription -> subscription.setLeaderHook(leaderHook));
   }
 
   private void prepareRabbitMQConnection(String rabbitMQUrl) {
@@ -68,9 +90,9 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
 
     Subscription subscription = new Subscription(coordinatorFactory,
-            id,
+            consumerId,
+            subscriptionIdSupplier.get(),
             connection,
-            zkUrl,
             subscriberId,
             channels,
             partitionCount,
@@ -109,5 +131,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     }
 
     logger.info("consumer {} is closed", id);
+  }
+
+  @Override
+  public String getId() {
+    return consumerId;
   }
 }

@@ -15,18 +15,32 @@ import java.util.function.Consumer;
 public class ZkMemberGroupManager implements MemberGroupManager {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
+  private String groupId;
+  private String memberId;
   private String path;
   private TreeCache treeCache;
 
-  public ZkMemberGroupManager(CuratorFramework curatorFramework, String subscriberId, Consumer<Set<String>> groupMembersUpdatedCallback) {
-    this.path = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s", subscriberId);;
+  public ZkMemberGroupManager(CuratorFramework curatorFramework,
+                              String groupId,
+                              String memberId,
+                              Consumer<Set<String>> groupMembersUpdatedCallback) {
+
+    this.groupId = groupId;
+    this.memberId = memberId;
+    path = ZkUtil.pathForMemberGroup(groupId);
     treeCache = new TreeCache(curatorFramework, path);
 
-    treeCache.getListenable().addListener((client, event) ->
-      groupMembersUpdatedCallback.accept(getCurrentMemberIds()));
+    treeCache.getListenable().addListener((client, event) -> {
+      Set<String> members = getCurrentMemberIds();
+      logger.info("Calling groupMembersUpdatedCallback.accept, members: {}, group: {}, member: {}", members, groupId, memberId);
+      groupMembersUpdatedCallback.accept(members);
+      logger.info("Called groupMembersUpdatedCallback.accept, members: {}, group: {}, member: {}", members, groupId, memberId);
+    });
 
     try {
+      logger.info("Starting group manager, group: {}, member: {}", groupId, memberId);
       treeCache.start();
+      logger.info("Started group manager, group: {}, member: {}", groupId, memberId);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
@@ -35,7 +49,9 @@ public class ZkMemberGroupManager implements MemberGroupManager {
 
   @Override
   public void stop() {
+    logger.info("Stopping group manager, group: {}, member: {}", groupId, memberId);
     treeCache.close();
+    logger.info("Stopped group manager, group: {}, member: {}", groupId, memberId);
   }
 
   private Set<String> getCurrentMemberIds() {

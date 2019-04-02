@@ -6,10 +6,13 @@ import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.springframework.util.SimpleIdGenerator;
 
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * Provides a DSL for writing unit tests for domain event handlers
@@ -26,10 +29,25 @@ public class DomainEventHandlerUnitTestSupport {
   }
 
   public DomainEventHandlerUnitTestSupport eventHandlers(DomainEventHandlers domainEventHandlers) {
-    this.dispatcher = new DomainEventDispatcher("MockId", domainEventHandlers, (subscriberId, channels, handler) -> {
-      DomainEventHandlerUnitTestSupport.this.handler = handler;
-      return () -> {};
+
+    this.dispatcher = new DomainEventDispatcher("MockId", domainEventHandlers, new MessageConsumer() {
+      @Override
+      public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
+        DomainEventHandlerUnitTestSupport.this.handler = handler;
+        return () -> {};
+      }
+
+      @Override
+      public String getId() {
+        return null;
+      }
+
+      @Override
+      public void close() {
+
+      }
     });
+
     dispatcher.initialize();
     return this;
   }

@@ -19,12 +19,15 @@ public class TramConsumerRabbitMQConfiguration {
   @Value("${eventuatelocal.zookeeper.connection.string}")
   private String zkUrl;
 
-  @Bean
-  public MessageConsumer messageConsumer(CoordinatorFactory coordinatorFactory,
-                                         @Value("${rabbitmq.url}") String rabbitMQUrl,
-                                         @Value("${eventuate.rabbitmq.partition.count:#{2}}") int partitionCount) {
+  @Value("${eventuate.rabbitmq.partition.count:#{2}}")
+  private int partitionCount;
 
-    return new MessageConsumerRabbitMQImpl(coordinatorFactory, rabbitMQUrl, zkUrl, partitionCount);
+  @Value("${rabbitmq.url}")
+  private String rabbitMQUrl;
+
+  @Bean
+  public MessageConsumer messageConsumer(CoordinatorFactory coordinatorFactory) {
+    return new MessageConsumerRabbitMQImpl(coordinatorFactory, rabbitMQUrl, partitionCount);
   }
 
   @Bean
@@ -32,14 +35,13 @@ public class TramConsumerRabbitMQConfiguration {
                                                AssignmentListenerFactory assignmentListenerFactory,
                                                MemberGroupManagerFactory memberGroupManagerFactory,
                                                LeaderSelectorFactory leaderSelectorFactory,
-                                               GroupMemberFactory groupMemberFactory,
-                                               @Value("${eventuate.rabbitmq.partition.count:#{2}}") int partitionCoun) {
-    return new RabbitMQCoordinatorFactoryImplementation(assignmentManager,
+                                               GroupMemberFactory groupMemberFactory) {
+    return new CoordinatorFactoryImpl(assignmentManager,
             assignmentListenerFactory,
             memberGroupManagerFactory,
             leaderSelectorFactory,
             groupMemberFactory,
-            partitionCoun);
+            partitionCount);
   }
 
   @Bean
@@ -49,14 +51,14 @@ public class TramConsumerRabbitMQConfiguration {
 
   @Bean
   public LeaderSelectorFactory leaderSelectorFactory(CuratorFramework curatorFramework) {
-    return (groupId, leaderSelectedCallback, leaderRemovedCallback) ->
-            new ZkLeaderSelector(curatorFramework, groupId, leaderSelectedCallback, leaderRemovedCallback);
+    return (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) ->
+            new ZkLeaderSelector(curatorFramework, groupId, memberId, leaderSelectedCallback, leaderRemovedCallback);
   }
 
   @Bean
   public MemberGroupManagerFactory memberGroupManagerFactory(CuratorFramework curatorFramework) {
-    return (groupId, groupMembersUpdatedCallback) ->
-            new ZkMemberGroupManager(curatorFramework, groupId, groupMembersUpdatedCallback);
+    return (groupId, memberId, groupMembersUpdatedCallback) ->
+            new ZkMemberGroupManager(curatorFramework, groupId, memberId, groupMembersUpdatedCallback);
   }
 
   @Bean

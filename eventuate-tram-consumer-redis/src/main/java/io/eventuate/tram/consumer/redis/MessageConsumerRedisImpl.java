@@ -2,6 +2,8 @@ package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLifecycleHook;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
@@ -10,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class MessageConsumerRedisImpl implements MessageConsumer {
@@ -21,7 +20,6 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   public final String consumerId;
-
   private Supplier<String> subscriptionIdSupplier;
 
   @Autowired
@@ -87,8 +85,17 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
     subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
   }
 
+  public void setLeaderHook(SubscriptionLeaderHook leaderHook) {
+    subscriptions.forEach(subscription -> subscription.setLeaderHook(leaderHook));
+  }
+
   public void close() {
     subscriptions.forEach(Subscription::close);
     subscriptions.clear();
+  }
+
+  @Override
+  public String getId() {
+    return consumerId;
   }
 }

@@ -33,7 +33,7 @@ public class TramConsumerRedisConfiguration {
                                                     LeaderSelectorFactory leaderSelectorFactory,
                                                     GroupMemberFactory groupMemberFactory,
                                                     RedisConfigurationProperties redisConfigurationProperties) {
-    return new RedisCoordinatorFactoryImpl(assignmentManager,
+    return new CoordinatorFactoryImpl(assignmentManager,
             assignmentListenerFactory,
             memberGroupManagerFactory,
             leaderSelectorFactory,
@@ -54,9 +54,10 @@ public class TramConsumerRedisConfiguration {
   @Bean
   public LeaderSelectorFactory leaderSelectorFactory(RedissonClients redissonClients,
                                                      RedisConfigurationProperties redisConfigurationProperties) {
-    return (groupId, leaderSelectedCallback, leaderRemovedCallback) ->
+    return (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) ->
             new RedisLeaderSelector(redissonClients,
                     groupId,
+                    memberId,
                     redisConfigurationProperties.getLeadershipTtlInMilliseconds(),
                     leaderSelectedCallback,
                     leaderRemovedCallback);
@@ -65,9 +66,10 @@ public class TramConsumerRedisConfiguration {
   @Bean
   public MemberGroupManagerFactory memberGroupManagerFactory(RedisTemplate<String, String> redisTemplate,
                                                              RedisConfigurationProperties redisConfigurationProperties) {
-    return (groupId, groupMembersUpdatedCallback) ->
+    return (groupId, memberId, groupMembersUpdatedCallback) ->
             new RedisMemberGroupManager(redisTemplate,
                     groupId,
+                    memberId,
                     redisConfigurationProperties.getListenerIntervalInMilliseconds(),
                     groupMembersUpdatedCallback);
   }

@@ -3,10 +3,7 @@ package io.eventuate.tram.consumer.common.coordinator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,7 +50,7 @@ public class Coordinator {
     this.memberGroupManagerFactory = memberGroupManagerFactory;
     createInitialAssignments();
     assignmentListener = assignmentListenerFactory.create(subscriberId, subscriptionId, assignmentUpdatedCallback);
-    leaderSelector = leaderSelectorFactory.create(subscriberId, this::onLeaderSelected, this::onLeaderRemoved);
+    leaderSelector = leaderSelectorFactory.create(subscriberId, subscriptionId, this::onLeaderSelected, this::onLeaderRemoved);
   }
 
   private void createInitialAssignments() {
@@ -74,15 +71,21 @@ public class Coordinator {
     leaderSelected.run();
     partitionManager = new PartitionManager(partitionCount);
     previousGroupMembers = new HashSet<>();
-    memberGroupManager = memberGroupManagerFactory.create(subscriberId, Coordinator.this::onGroupMembersUpdated);
+    memberGroupManager = memberGroupManagerFactory.create(subscriberId, subscriptionId, Coordinator.this::onGroupMembersUpdated);
   }
 
   private void onLeaderRemoved() {
-    leaderRemoved.run();
+    logger.info("Calling memberGroupManager.stop(), subscriberId : {}, subscriptionId : {}", subscriberId, subscriptionId);
     memberGroupManager.stop();
+    logger.info("Called memberGroupManager.stop(), subscriberId : {}, subscriptionId : {}", subscriberId, subscriptionId);
+
+    logger.info("Calling leaderRemoved, subscriberId : {}, subscriptionId : {}", subscriberId, subscriptionId);
+    leaderRemoved.run();
+    logger.info("Called leaderRemoved, subscriberId : {}, subscriptionId : {}", subscriberId, subscriptionId);
   }
 
   private void onGroupMembersUpdated(Set<String> expectedGroupMembers) {
+    logger.info("Updating group members, expectedGroupMembers : {}, subscriberId : {}, subscriptionId : {}", expectedGroupMembers, subscriberId, subscriptionId);
     if (!partitionManager.isInitialized()) {
       initializePartitionManager(expectedGroupMembers);
     } else {
@@ -90,9 +93,11 @@ public class Coordinator {
     }
 
     previousGroupMembers = expectedGroupMembers;
+    logger.info("Updated group members, subscriberId : {}, subscriptionId : {}", subscriberId, subscriptionId);
   }
 
   private void initializePartitionManager(Set<String> expectedGroupMembers) {
+    logger.info("Initializing partition manager, expectedGroupMembers : {}, subscriberId : {}, subscriptionId : {}", expectedGroupMembers, subscriberId, subscriptionId);
     Map<String, Assignment> assignments = expectedGroupMembers
             .stream()
             .collect(Collectors.toMap(Function.identity(), this::readAssignment));
@@ -103,6 +108,8 @@ public class Coordinator {
   }
 
   private void rebalance(Set<String> expectedGroupMembers) {
+    logger.info("Preparing to rebalance, expectedGroupMembers : {}, subscriberId : {}, subscriptionId : {}", expectedGroupMembers, subscriberId, subscriptionId);
+
     Set<String> removedGroupMembers = previousGroupMembers
             .stream()
             .filter(groupMember -> !expectedGroupMembers.contains(groupMember))

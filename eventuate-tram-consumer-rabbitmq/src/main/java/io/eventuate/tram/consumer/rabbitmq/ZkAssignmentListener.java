@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.function.Consumer;
 
 public class ZkAssignmentListener implements AssignmentListener {
@@ -21,7 +20,7 @@ public class ZkAssignmentListener implements AssignmentListener {
                               String groupId,
                               String memberId,
                               Consumer<Assignment> assignmentUpdatedCallback) {
-    nodeCache = new NodeCache(curatorFramework, makeAssignmentPath(groupId, memberId));
+    nodeCache = new NodeCache(curatorFramework, ZkUtil.pathForAssignment(groupId, memberId));
 
     try {
       nodeCache.start();
@@ -30,7 +29,7 @@ public class ZkAssignmentListener implements AssignmentListener {
     }
 
     nodeCache.getListenable().addListener(() -> {
-      Assignment assignment = JSonMapper.fromJson(byteArrayToString(nodeCache.getCurrentData().getData()),
+      Assignment assignment = JSonMapper.fromJson(ZkUtil.byteArrayToString(nodeCache.getCurrentData().getData()),
               Assignment.class);
 
       assignmentUpdatedCallback.accept(assignment);
@@ -43,19 +42,6 @@ public class ZkAssignmentListener implements AssignmentListener {
       nodeCache.close();
     } catch (IOException e) {
       logger.error(e.getMessage(), e);
-    }
-  }
-
-  private String makeAssignmentPath(String groupId, String memberId) {
-    return String.format("/eventuate-tram/rabbitmq/consumer-assignments/%s/%s", groupId, memberId);
-  }
-
-  private String byteArrayToString(byte[] bytes) {
-    try {
-      return new String(bytes, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage(), e);
-      throw new RuntimeException(e);
     }
   }
 }

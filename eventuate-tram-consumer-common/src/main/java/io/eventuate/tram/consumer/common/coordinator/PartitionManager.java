@@ -1,6 +1,5 @@
 package io.eventuate.tram.consumer.common.coordinator;
 
-import io.eventuate.tram.consumer.common.coordinator.Assignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +60,11 @@ public class PartitionManager {
 
     Map<String, Assignment> reassignments = rebalance(assignmentsToRebalance);
     Map<String, Assignment> changedAssignments = filterUnchangedAssignments(currentAssignments, reassignments);
-    currentAssignments = reassignments;
 
     logger.info("Rebalancing: addedGroupMembersWithTheirSubscribedChannels = {}, removedGroupMembers = {}, currentAssignments = {}, reassignments = {}",
             addedGroupMembersWithTheirSubscribedChannels, removedGroupMembers, currentAssignments, reassignments);
+
+    currentAssignments = reassignments;
 
     return changedAssignments;
   }

@@ -1,12 +1,9 @@
-package io.eventuate.tram.consumer.rabbitmq;
-
-import io.eventuate.tram.consumer.common.coordinator.*;
+package io.eventuate.tram.consumer.common.coordinator;
 
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class RabbitMQCoordinatorFactoryImplementation implements CoordinatorFactory {
-
+public class CoordinatorFactoryImpl implements CoordinatorFactory {
   private AssignmentManager assignmentManager;
   private AssignmentListenerFactory assignmentListenerFactory;
   private MemberGroupManagerFactory memberGroupManagerFactory;
@@ -14,12 +11,13 @@ public class RabbitMQCoordinatorFactoryImplementation implements CoordinatorFact
   private GroupMemberFactory groupMemberFactory;
   private int partitionCount;
 
-  public RabbitMQCoordinatorFactoryImplementation(AssignmentManager assignmentManager,
-                                                  AssignmentListenerFactory assignmentListenerFactory,
-                                                  MemberGroupManagerFactory memberGroupManagerFactory,
-                                                  LeaderSelectorFactory leaderSelectorFactory,
-                                                  GroupMemberFactory groupMemberFactory,
-                                                  int partitionCount) {
+  public CoordinatorFactoryImpl(AssignmentManager assignmentManager,
+                                AssignmentListenerFactory assignmentListenerFactory,
+                                MemberGroupManagerFactory memberGroupManagerFactory,
+                                LeaderSelectorFactory leaderSelectorFactory,
+                                GroupMemberFactory groupMemberFactory,
+                                int partitionCount) {
+
     this.assignmentManager = assignmentManager;
     this.assignmentListenerFactory = assignmentListenerFactory;
     this.memberGroupManagerFactory = memberGroupManagerFactory;
@@ -35,6 +33,7 @@ public class RabbitMQCoordinatorFactoryImplementation implements CoordinatorFact
                                      Consumer<Assignment> assignmentUpdatedCallback,
                                      Runnable leaderSelected,
                                      Runnable leaderRemoved) {
+
     return new Coordinator(subscriptionId,
             subscriberId,
             channels,

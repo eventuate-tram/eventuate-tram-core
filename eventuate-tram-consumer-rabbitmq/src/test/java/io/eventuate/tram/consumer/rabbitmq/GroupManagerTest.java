@@ -99,7 +99,7 @@ public class GroupManagerTest {
   }
 
   private ZkMemberGroupManager createGroupManager(CuratorFramework curatorFramework, Consumer<Set<String>> groupMembersUpdatedCallback) {
-    return new ZkMemberGroupManager(curatorFramework, uniqueId, groupMembersUpdatedCallback);
+    return new ZkMemberGroupManager(curatorFramework, uniqueId, UUID.randomUUID().toString(), groupMembersUpdatedCallback);
   }
 
   private ZkGroupMember createGroupMember(CuratorFramework curatorFramework, String id) {

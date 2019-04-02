@@ -1,6 +1,8 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.coordinator.MemberGroupManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.HashSet;
@@ -10,9 +12,11 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 
 public class RedisMemberGroupManager implements MemberGroupManager {
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private RedisTemplate<String, String> redisTemplate;
   private String groupId;
+  private String memberId;
   private long refreshPeriodInMilliseconds;
   private Consumer<Set<String>> groupMembersUpdatedCallback;
 
@@ -22,17 +26,21 @@ public class RedisMemberGroupManager implements MemberGroupManager {
 
   public RedisMemberGroupManager(RedisTemplate<String, String> redisTemplate,
                                  String groupId,
+                                 String memberId,
                                  long checkIntervalInMilliseconds,
                                  Consumer<Set<String>> groupMembersUpdatedCallback) {
     this.redisTemplate = redisTemplate;
     this.groupId = groupId;
+    this.memberId = memberId;
     this.refreshPeriodInMilliseconds = checkIntervalInMilliseconds;
     this.groupMembersUpdatedCallback = groupMembersUpdatedCallback;
 
     groupKey = RedisKeyUtil.keyForMemberGroupSet(groupId);
     checkedMembers = getCurrentGroupMembers();
 
+    logger.info("Calling groupMembersUpdatedCallback.accept, members : {}, group: {}, member: {}", checkedMembers, groupId, memberId);
     groupMembersUpdatedCallback.accept(checkedMembers);
+    logger.info("Calling groupMembersUpdatedCallback.accept, members : {}, group: {}, member: {}", checkedMembers, groupId, memberId);
 
     scheduleCheckForChangesInMemberGroup();
   }
@@ -60,7 +68,9 @@ public class RedisMemberGroupManager implements MemberGroupManager {
             .forEach(expiredMemberId -> removeExpiredGroupMember(currentMembers, expiredMemberId));
 
     if (!checkedMembers.equals(currentMembers)) {
+      logger.info("Calling groupMembersUpdatedCallback.accept, members : {}, group: {}, member: {}", currentMembers, groupId, memberId);
       groupMembersUpdatedCallback.accept(currentMembers);
+      logger.info("Calling groupMembersUpdatedCallback.accept, members : {}, group: {}, member: {}", currentMembers, groupId, memberId);
       checkedMembers = currentMembers;
     }
   }

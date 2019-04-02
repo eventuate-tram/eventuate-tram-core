@@ -14,7 +14,7 @@ public class ZkGroupMember implements GroupMember {
 
   public ZkGroupMember(CuratorFramework curatorFramework, String groupId, String memberId) {
     this.curatorFramework = curatorFramework;
-    this.path = String.format("/eventuate-tram/rabbitmq/consumer-groups/%s/%s", groupId, memberId);
+    this.path = ZkUtil.pathForGroupMember(groupId, memberId);
 
     try {
       curatorFramework

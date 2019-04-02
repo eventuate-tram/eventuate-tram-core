@@ -45,12 +45,8 @@ public class SubscriptionTest {
     }
   }
 
-
   @Value("${rabbitmq.url}")
   private String rabbitMQURL;
-
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
 
   @Autowired
   private EventuateRabbitMQProducer eventuateRabbitMQProducer;
@@ -147,7 +143,7 @@ public class SubscriptionTest {
   private CoordinationCallbacks createSubscription(Connection connection, String subscriberId, String destination, ConcurrentLinkedQueue concurrentLinkedQueue) {
     CoordinationCallbacks coordinationCallbacks = new CoordinationCallbacks();
 
-    new Subscription(null, null, connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
+    new Subscription(null, null, null, connection, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
       concurrentLinkedQueue.add(Integer.valueOf(message.getPayload()));
     }) {
       @Override

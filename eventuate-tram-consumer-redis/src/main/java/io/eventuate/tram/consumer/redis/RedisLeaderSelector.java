@@ -19,6 +19,7 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
 
   private RedissonClients redissonClients;
   private String groupId;
+  private String memberId;
   private long lockTimeInMilliseconds;
   private Runnable leaderSelectedCallback;
   private Runnable leaderRemovedCallback;
@@ -31,11 +32,13 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
 
   public RedisLeaderSelector(RedissonClients redissonClients,
                              String groupId,
+                             String memberId,
                              long lockTimeInMilliseconds,
                              Runnable leaderSelectedCallback,
                              Runnable leaderRemovedCallback) {
 
     this.groupId = groupId;
+    this.memberId = memberId;
     this.redissonClients = redissonClients;
     this.lockTimeInMilliseconds = lockTimeInMilliseconds;
     this.leaderSelectedCallback = leaderSelectedCallback;
@@ -96,10 +99,14 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
       if (lock.tryLock(lockTimeInMilliseconds / 4, lockTimeInMilliseconds, TimeUnit.MILLISECONDS)) {
         if (!locked) {
           locked = true;
+          logger.info("Calling leaderSelectedCallback, groupId : {}, memberId: {}", groupId, memberId);
           leaderSelectedCallback.run();
+          logger.info("Called leaderSelectedCallback, groupId : {}, memberId: {}", groupId, memberId);
         }
       } else if (locked) {
+        logger.info("Calling leaderRemovedCallback, groupId : {}, memberId: {}", groupId, memberId);
         leaderRemovedCallback.run();
+        logger.info("Called leaderRemovedCallback, groupId : {}, memberId: {}", groupId, memberId);
         locked = false;
       }
     } catch (InterruptedException e) {
@@ -109,8 +116,10 @@ public class RedisLeaderSelector implements CommonLeaderSelector {
 
   private void handleStop() {
     if (locked && !stoppingRefreshing) {
-      lock.unlock();
+      logger.info("Calling leaderRemovedCallback, groupId : {}, memberId: {}", groupId, memberId);
       leaderRemovedCallback.run();
+      logger.info("Called leaderRemovedCallback, groupId : {}, memberId: {}", groupId, memberId);
+      lock.unlock();
     }
 
     stopCountDownLatch.countDown();

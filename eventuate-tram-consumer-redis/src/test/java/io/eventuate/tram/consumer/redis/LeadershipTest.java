@@ -22,10 +22,12 @@ public class LeadershipTest {
   private RedissonClients redissonClients;
 
   private String groupId;
+  private String memberId;
 
   @Before
   public void init() {
     groupId = UUID.randomUUID().toString();
+    memberId = UUID.randomUUID().toString();
   }
 
   @Test
@@ -108,6 +110,6 @@ public class LeadershipTest {
   }
 
   private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter) {
-    return new RedisLeaderSelector(redissonClients, groupId, 100, invocationCounter::incrementAndGet, () -> {});
+    return new RedisLeaderSelector(redissonClients, groupId, memberId,100, invocationCounter::incrementAndGet, () -> {});
   }
 }
