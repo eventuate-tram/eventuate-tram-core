@@ -1,12 +1,13 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
+import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.server.quorum.Leader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +52,8 @@ public class TramConsumerRabbitMQConfiguration {
 
   @Bean
   public LeaderSelectorFactory leaderSelectorFactory(CuratorFramework curatorFramework) {
-    return (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) ->
-            new ZkLeaderSelector(curatorFramework, groupId, memberId, leaderSelectedCallback, leaderRemovedCallback);
+    return (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) ->
+            new ZkLeaderSelector(curatorFramework, lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback);
   }
 
   @Bean

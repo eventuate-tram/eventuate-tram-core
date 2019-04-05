@@ -1,6 +1,7 @@
 package io.eventuate.tram.rabbitmq.integrationtests;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
@@ -75,7 +76,7 @@ public class MessagingTest extends AbstractMessagingTest {
     CoordinatorFactory coordinatorFactory = new CoordinatorFactoryImpl(new ZkAssignmentManager(curatorFramework),
             (groupId, memberId, assignmentUpdatedCallback) -> new ZkAssignmentListener(curatorFramework, groupId, memberId, assignmentUpdatedCallback),
             (groupId, memberId, groupMembersUpdatedCallback) -> new ZkMemberGroupManager(curatorFramework, groupId, memberId, groupMembersUpdatedCallback),
-            (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) -> new ZkLeaderSelector(curatorFramework, groupId, memberId, leaderSelectedCallback, leaderRemovedCallback),
+            (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) -> new ZkLeaderSelector(curatorFramework, lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback),
             (groupId, memberId) -> new ZkGroupMember(curatorFramework, groupId, memberId),
             partitionCount);
 

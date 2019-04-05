@@ -16,6 +16,11 @@ kafka:
     - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
+redis:
+  image: redis:5.0.3
+  ports:
+    - 6379:6379
+
 postgres:
   build: ./postgres
   ports:

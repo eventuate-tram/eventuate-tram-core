@@ -8,6 +8,7 @@ public interface CoordinatorFactory {
                               Set<String> channels,
                               String subscriptionId,
                               Consumer<Assignment> assignmentUpdatedCallback,
+                              String lockId,
                               Runnable leaderSelected,
                               Runnable leaderRemoved);
 }

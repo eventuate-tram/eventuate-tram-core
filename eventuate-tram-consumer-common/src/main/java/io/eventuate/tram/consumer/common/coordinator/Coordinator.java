@@ -1,5 +1,7 @@
 package io.eventuate.tram.consumer.common.coordinator;
 
+import io.eventuate.coordination.leadership.EventuateLeaderSelector;
+import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +20,7 @@ public class Coordinator {
   private GroupMember groupMember;
   private MemberGroupManagerFactory memberGroupManagerFactory;
   private AssignmentListener assignmentListener;
-  private CommonLeaderSelector leaderSelector;
+  private EventuateLeaderSelector leaderSelector;
   private AssignmentManager assignmentManager;
   private MemberGroupManager memberGroupManager;
   private PartitionManager partitionManager;
@@ -36,6 +38,7 @@ public class Coordinator {
                      AssignmentListenerFactory assignmentListenerFactory,
                      LeaderSelectorFactory leaderSelectorFactory,
                      Consumer<Assignment> assignmentUpdatedCallback,
+                     String lockId,
                      Runnable leaderSelected,
                      Runnable leaderRemoved) {
 
@@ -49,8 +52,15 @@ public class Coordinator {
     this.groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     this.memberGroupManagerFactory = memberGroupManagerFactory;
     createInitialAssignments();
+
     assignmentListener = assignmentListenerFactory.create(subscriberId, subscriptionId, assignmentUpdatedCallback);
-    leaderSelector = leaderSelectorFactory.create(subscriberId, subscriptionId, this::onLeaderSelected, this::onLeaderRemoved);
+
+    leaderSelector = leaderSelectorFactory.create(lockId,
+            String.format("[subscriberId: %s, subscriptionId: %s]", subscriberId, subscriptionId),
+            this::onLeaderSelected,
+            this::onLeaderRemoved);
+
+    leaderSelector.start();
   }
 
   private void createInitialAssignments() {

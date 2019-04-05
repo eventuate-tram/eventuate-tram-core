@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RedissonClients {
+  private RedisServers redisServers;
   private List<RedissonClient> redissonClients;
 
   public RedissonClients(RedisServers redisServers) {
+    this.redisServers = redisServers;
+
     redissonClients = redisServers
             .getHostsAndPorts()
             .stream()
@@ -23,6 +26,8 @@ public class RedissonClients {
 
   private RedissonClient createRedissonClient(RedisServers.HostAndPort hostAndPort) {
     Config config = new Config();
+    config.useSingleServer().setRetryAttempts(Integer.MAX_VALUE);
+    config.useSingleServer().setRetryInterval(100);
     config.useSingleServer().setAddress(String.format("redis://%s:%s", hostAndPort.getHost(), hostAndPort.getPort()));
     return Redisson.create(config);
   }

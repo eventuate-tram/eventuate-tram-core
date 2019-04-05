@@ -16,6 +16,10 @@ if [ -d "eventuate-tram-${BROKER}-integration-tests" ]; then
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-${BROKER}-integration-tests:cleanTest :eventuate-tram-${BROKER}-integration-tests:test $GRADLE_TASK_OPTIONS
 fi
 
+if [ -d "eventuate-tram-${BROKER}-common" ]; then
+./gradlew $GRADLE_OPTIONS :eventuate-tram-${BROKER}-common:cleanTest :eventuate-tram-${BROKER}-common:test $GRADLE_TASK_OPTIONS
+fi
+
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-consumer-${BROKER}:cleanTest :eventuate-tram-consumer-${BROKER}:test $GRADLE_TASK_OPTIONS
 
 docker-compose -f docker-compose-${BROKER}.yml down -v

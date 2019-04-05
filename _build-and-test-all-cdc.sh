@@ -30,9 +30,9 @@ $DOCKER_COMPOSE up -d cdcservice
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-in-memory:cleanTest :eventuate-tram-e2e-tests-in-memory:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-kafka:cleanTest :eventuate-tram-e2e-tests-jdbc-kafka:test
 
+$DOCKER_COMPOSE stop kafka
 
 if [[ "${DATABASE}" == "mysql" ]]; then
-    $DOCKER_COMPOSE stop kafka
     $DOCKER_COMPOSE up -d activemq
     $DOCKER_COMPOSE stop cdcservice
     $DOCKER_COMPOSE rm --force cdcservice
@@ -62,17 +62,31 @@ if [[ "${DATABASE}" == "mysql" ]]; then
 
 
     $DOCKER_COMPOSE stop rabbitmq
-    $DOCKER_COMPOSE up -d redis
-    $DOCKER_COMPOSE stop cdcservice
-    $DOCKER_COMPOSE rm --force cdcservice
-
     export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
-
-    $DOCKER_COMPOSE up -d cdcservice
-    ./wait-for-services.sh $DOCKER_HOST_IP 8099
-
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-redis:cleanTest :eventuate-tram-e2e-tests-jdbc-redis:test
+else
+    if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
+      export SPRING_PROFILES_ACTIVE=Redis
+    else
+      export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},Redis
+    fi
 fi
+
+$DOCKER_COMPOSE stop zookeeper
+$DOCKER_COMPOSE up -d redis
+$DOCKER_COMPOSE stop cdcservice
+$DOCKER_COMPOSE rm --force cdcservice
+
+
+$DOCKER_COMPOSE up -d cdcservice
+./wait-for-services.sh $DOCKER_HOST_IP 8099
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-redis:cleanTest :eventuate-tram-e2e-tests-jdbc-redis:test
+
+$DOCKER_COMPOSE stop redis
+sleep 10
+$DOCKER_COMPOSE start redis
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-e2e-tests-jdbc-redis:cleanTest :eventuate-tram-e2e-tests-jdbc-redis:test
 
 $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v

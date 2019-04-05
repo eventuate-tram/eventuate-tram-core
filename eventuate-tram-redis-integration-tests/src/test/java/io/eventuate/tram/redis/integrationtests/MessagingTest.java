@@ -10,6 +10,7 @@ import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
+import io.eventuate.tram.redis.common.RedisLeaderSelector;
 import io.eventuate.tram.redis.common.RedissonClients;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class MessagingTest extends AbstractMessagingTest {
     CoordinatorFactory coordinatorFactory = new CoordinatorFactoryImpl(new RedisAssignmentManager(redisTemplate, 3600000),
             (groupId, memberId, assignmentUpdatedCallback) -> new RedisAssignmentListener(redisTemplate, groupId, memberId, 50, assignmentUpdatedCallback),
             (groupId, memberId, groupMembersUpdatedCallback) -> new RedisMemberGroupManager(redisTemplate, groupId, memberId,50, groupMembersUpdatedCallback),
-            (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) -> new RedisLeaderSelector(redissonClients, groupId, memberId,10000, leaderSelectedCallback, leaderRemovedCallback),
+            (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) -> new RedisLeaderSelector(redissonClients, lockId, leaderId,10000, leaderSelectedCallback, leaderRemovedCallback),
             (groupId, memberId) -> new RedisGroupMember(redisTemplate, groupId, memberId, 1000),
             partitionCount);
 

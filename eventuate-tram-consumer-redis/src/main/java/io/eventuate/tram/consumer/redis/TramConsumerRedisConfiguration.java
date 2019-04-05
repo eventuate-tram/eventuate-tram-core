@@ -1,10 +1,12 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.eventuate.tram.redis.common.RedisConfigurationProperties;
+import io.eventuate.tram.redis.common.RedisLeaderSelector;
 import io.eventuate.tram.redis.common.RedissonClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,10 +56,10 @@ public class TramConsumerRedisConfiguration {
   @Bean
   public LeaderSelectorFactory leaderSelectorFactory(RedissonClients redissonClients,
                                                      RedisConfigurationProperties redisConfigurationProperties) {
-    return (groupId, memberId, leaderSelectedCallback, leaderRemovedCallback) ->
+    return (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) ->
             new RedisLeaderSelector(redissonClients,
-                    groupId,
-                    memberId,
+                    lockId,
+                    leaderId,
                     redisConfigurationProperties.getLeadershipTtlInMilliseconds(),
                     leaderSelectedCallback,
                     leaderRemovedCallback);

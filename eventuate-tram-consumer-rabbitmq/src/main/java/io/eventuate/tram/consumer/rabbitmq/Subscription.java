@@ -87,7 +87,13 @@ public class Subscription {
                                           Runnable leaderRemovedCallback,
                                           java.util.function.Consumer<Assignment> assignmentUpdatedCallback) {
 
-    return coordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, assignmentUpdatedCallback, leaderSelectedCallback, leaderRemovedCallback);
+    return coordinatorFactory.makeCoordinator(subscriberId,
+            channels,
+            subscriptionId,
+            assignmentUpdatedCallback,
+            String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId),
+            leaderSelectedCallback,
+            leaderRemovedCallback);
   }
 
 

@@ -1,5 +1,7 @@
 package io.eventuate.tram.consumer.common.coordinator;
 
+import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -18,6 +20,7 @@ public class CoordinatorFactoryImpl implements CoordinatorFactory {
                                 GroupMemberFactory groupMemberFactory,
                                 int partitionCount) {
 
+
     this.assignmentManager = assignmentManager;
     this.assignmentListenerFactory = assignmentListenerFactory;
     this.memberGroupManagerFactory = memberGroupManagerFactory;
@@ -31,6 +34,7 @@ public class CoordinatorFactoryImpl implements CoordinatorFactory {
                                      Set<String> channels,
                                      String subscriptionId,
                                      Consumer<Assignment> assignmentUpdatedCallback,
+                                     String lockId,
                                      Runnable leaderSelected,
                                      Runnable leaderRemoved) {
 
@@ -44,6 +48,7 @@ public class CoordinatorFactoryImpl implements CoordinatorFactory {
             assignmentListenerFactory,
             leaderSelectorFactory,
             assignmentUpdatedCallback,
+            lockId,
             leaderSelected,
             leaderRemoved);
   }
