@@ -31,7 +31,6 @@ public class Subscription {
   private Map<String, String> consumerTagByQueue = new HashMap<>();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
-  private Channel subscriberGroupChannel;
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
   private Optional<SubscriptionLeaderHook> leaderHook = Optional.empty();
 
@@ -123,7 +122,7 @@ public class Subscription {
     leaderHook.ifPresent(hook -> hook.leaderUpdated(true, subscriptionId));
     logger.info("Subscription selected as leader. {}", identificationInformation());
 
-    subscriberGroupChannel = createRabbitMQChannel();
+    Channel subscriberGroupChannel = createRabbitMQChannel();
 
     for (String channelName : channels) {
       try {
@@ -147,17 +146,17 @@ public class Subscription {
         throw new RuntimeException(e);
       }
     }
-  }
 
-  private void leaderRemoved() {
-    leaderHook.ifPresent(hook -> hook.leaderUpdated(false, subscriptionId));
-
-    logger.info("Revoking leadership from subscription. {}", identificationInformation());
     try {
       subscriberGroupChannel.close();
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
+  }
+
+  private void leaderRemoved() {
+    logger.info("Revoking leadership from subscription. {}", identificationInformation());
+    leaderHook.ifPresent(hook -> hook.leaderUpdated(false, subscriptionId));
     logger.info("Leadership is revoked from subscription. {}", identificationInformation());
   }
 
