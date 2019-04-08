@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("!Redis")
 public class ZookeeperConfiguration {
   @Bean
   public EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties() {
@@ -25,7 +26,6 @@ public class ZookeeperConfiguration {
     return makeStartedCuratorClient(connectionString);
   }
 
-  @Profile("!Redis")
   @Bean
   public LeaderSelectorFactory connectorLeaderSelectorFactory(CuratorFramework curatorFramework) {
     return (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) ->
