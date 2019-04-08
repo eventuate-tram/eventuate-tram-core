@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.rabbitmq;
 
 import com.rabbitmq.client.*;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import org.slf4j.Logger;
@@ -16,9 +17,10 @@ import java.util.stream.Collectors;
 public class Subscription {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final String subscriptionId = UUID.randomUUID().toString();
+  private final String subscriptionId;
   private final String consumerId;
 
+  private CoordinatorFactory coordinatorFactory;
   private Connection connection;
   private String subscriberId;
   private Set<String> channels;
@@ -29,12 +31,13 @@ public class Subscription {
   private Map<String, String> consumerTagByQueue = new HashMap<>();
   private Coordinator coordinator;
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
-  private Channel subscriberGroupChannel;
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
+  private Optional<SubscriptionLeaderHook> leaderHook = Optional.empty();
 
-  public Subscription(String consumerId,
+  public Subscription(CoordinatorFactory coordinatorFactory,
+                      String consumerId,
+                      String subscriptionId,
                       Connection connection,
-                      String zkUrl,
                       String subscriberId,
                       Set<String> channels,
                       int partitionCount,
@@ -43,7 +46,9 @@ public class Subscription {
     logger.info("Creating subscription for channels {} and partition count {}. {}",
             channels, partitionCount, identificationInformation());
 
+    this.coordinatorFactory = coordinatorFactory;
     this.consumerId = consumerId;
+    this.subscriptionId = subscriptionId;
     this.connection = connection;
     this.subscriberId = subscriberId;
     this.channels = channels;
@@ -56,7 +61,6 @@ public class Subscription {
 
     coordinator = createCoordinator(
             subscriptionId,
-            zkUrl,
             subscriberId,
             channels,
             this::leaderSelected,
@@ -71,23 +75,26 @@ public class Subscription {
     this.subscriptionLifecycleHook = Optional.ofNullable(subscriptionLifecycleHook);
   }
 
+  public void setLeaderHook(SubscriptionLeaderHook leaderHook) {
+    this.leaderHook = Optional.ofNullable(leaderHook);
+  }
+
   protected Coordinator createCoordinator(String groupMemberId,
-                                          String zkUrl,
                                           String subscriberId,
                                           Set<String> channels,
                                           Runnable leaderSelectedCallback,
                                           Runnable leaderRemovedCallback,
                                           java.util.function.Consumer<Assignment> assignmentUpdatedCallback) {
 
-    return new Coordinator(groupMemberId,
-            zkUrl,
-            subscriberId,
+    return coordinatorFactory.makeCoordinator(subscriberId,
             channels,
-            leaderSelectedCallback,
-            leaderRemovedCallback,
+            subscriptionId,
             assignmentUpdatedCallback,
-            partitionCount);
+            String.format("/eventuate-tram/rabbitmq/consumer-leaders/%s", subscriberId),
+            leaderSelectedCallback,
+            leaderRemovedCallback);
   }
+
 
   public void close() {
     logger.info("Closing subscription. {}", identificationInformation());
@@ -112,9 +119,10 @@ public class Subscription {
   }
 
   private void leaderSelected() {
+    leaderHook.ifPresent(hook -> hook.leaderUpdated(true, subscriptionId));
     logger.info("Subscription selected as leader. {}", identificationInformation());
 
-    subscriberGroupChannel = createRabbitMQChannel();
+    Channel subscriberGroupChannel = createRabbitMQChannel();
 
     for (String channelName : channels) {
       try {
@@ -138,15 +146,17 @@ public class Subscription {
         throw new RuntimeException(e);
       }
     }
+
+    try {
+      subscriberGroupChannel.close();
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
   }
 
   private void leaderRemoved() {
     logger.info("Revoking leadership from subscription. {}", identificationInformation());
-    try {
-      subscriberGroupChannel.close();
-    } catch (IOException | TimeoutException e) {
-      logger.error(e.getMessage(), e);
-    }
+    leaderHook.ifPresent(hook -> hook.leaderUpdated(false, subscriptionId));
     logger.info("Leadership is revoked from subscription. {}", identificationInformation());
   }
 
@@ -202,7 +212,7 @@ public class Subscription {
           consumerChannel.queueDeclare(queue, true, false, false, null);
           consumerChannel.queueBind(queue, exchange, "10");
 
-          String tag = consumerChannel.basicConsume(queue, false, createConsumer(queue));
+          String tag = consumerChannel.basicConsume(queue, false, createConsumer());
 
           consumerTagByQueue.put(queue, tag);
 
@@ -221,7 +231,7 @@ public class Subscription {
     logger.info("assignment {} is updated. {}", assignment, identificationInformation());
   }
 
-  private Consumer createConsumer(String queueName) {
+  private Consumer createConsumer() {
     return new DefaultConsumer(consumerChannel) {
       @Override
       public void handleDelivery(String consumerTag,

@@ -1,0 +1,12 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-redis-common")
+
+    testCompile 'com.google.guava:guava:19.0'
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}
+
+

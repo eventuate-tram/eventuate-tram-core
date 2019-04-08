@@ -8,14 +8,10 @@ cdcservice:
     - postgreswalpipeline
     - kafka
     - zookeeper
-    - activemq
-    - rabbitmq
   environment:
     EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
     SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-    ACTIVEMQ_URL: tcp://activemq:61616
-    RABBITMQ_URL: rabbitmq
 
     EVENTUATE_CDC_READER_MYSQLREADER_TYPE: mysql-binlog
     EVENTUATE_CDC_READER_MYSQLREADER_DATASOURCEURL: jdbc:mysql://mysqlbinlogpipeline:3306/eventuate

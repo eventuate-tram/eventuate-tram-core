@@ -3,7 +3,14 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging")
+    compile project(":eventuate-tram-jdbc")
 
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    compile 'mysql:mysql-connector-java:5.1.36'
+    compile ('org.postgresql:postgresql:9.4-1200-jdbc41') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
+    
     compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

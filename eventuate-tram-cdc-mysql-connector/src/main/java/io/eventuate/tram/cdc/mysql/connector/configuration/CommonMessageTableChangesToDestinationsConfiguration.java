@@ -1,27 +1,50 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
+import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
-import io.eventuate.local.common.EventuateLocalZookeperConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;
-import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.local.java.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.local.java.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.local.java.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameResolver;
+import io.eventuate.local.unified.cdc.pipeline.common.health.BinlogEntryReaderHealthCheck;
+import io.eventuate.local.unified.cdc.pipeline.common.health.CdcDataPublisherHealthCheck;
+import io.eventuate.tram.cdc.mysql.connector.CdcProcessingStatusController;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestinationPublishingStrategy;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
-@EnableConfigurationProperties(EventuateKafkaProducerConfigurationProperties.class)
-@Import(EventuateKafkaPropertiesConfiguration.class)
 public class CommonMessageTableChangesToDestinationsConfiguration {
+
+  @Bean
+  public CdcProcessingStatusController cdcProcessingStatusController(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    return new CdcProcessingStatusController(binlogEntryReaderProvider);
+  }
+
+  @Bean
+  public BinlogEntryReaderHealthCheck binlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    return new BinlogEntryReaderHealthCheck(binlogEntryReaderProvider);
+  }
+
+  @Bean
+  public CdcDataPublisherHealthCheck cdcDataPublisherHealthCheck(CdcDataPublisher cdcDataPublisher) {
+    return new CdcDataPublisherHealthCheck(cdcDataPublisher);
+  }
+
+  @Bean
+  public DefaultSourceTableNameResolver defaultSourceTableNameResolver() {
+    return pipelineType -> {
+      if ("eventuate-tram".equals(pipelineType) || "default".equals(pipelineType)) return "message";
+      if ("eventuate-local".equals(pipelineType)) return "events";
+
+      throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
+    };
+  }
+
+  @Bean
+  public BinlogEntryReaderProvider dbClientProvider() {
+    return new BinlogEntryReaderProvider();
+  }
 
   @Bean
   public EventuateConfigurationProperties eventuateConfigurationProperties() {
@@ -29,34 +52,7 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties() {
-    return new EventuateLocalZookeperConfigurationProperties();
-  }
-
-  @Bean
-  public EventuateKafkaProducer eventuateKafkaProducer(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                       EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
-    return new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaProducerConfigurationProperties);
-  }
-
-  @Bean
   public PublishingStrategy<MessageWithDestination> publishingStrategy() {
     return new MessageWithDestinationPublishingStrategy();
-  }
-
-  @Bean(destroyMethod = "close")
-  public CuratorFramework curatorFramework(EventuateLocalZookeperConfigurationProperties eventuateLocalZookeperConfigurationProperties) {
-    String connectionString = eventuateLocalZookeperConfigurationProperties.getConnectionString();
-    return makeStartedCuratorClient(connectionString);
-  }
-
-  static CuratorFramework makeStartedCuratorClient(String connectionString) {
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-    CuratorFramework client = CuratorFrameworkFactory.
-            builder().retryPolicy(retryPolicy)
-            .connectString(connectionString)
-            .build();
-    client.start();
-    return client;
   }
 }

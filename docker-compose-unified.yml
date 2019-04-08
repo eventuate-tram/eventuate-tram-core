@@ -1,5 +1,5 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC4
+  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC6
   ports:
     - 2181:2181
     - 2888:2888
@@ -7,7 +7,7 @@ zookeeper:
 
 
 kafka:
-  image: eventuateio/eventuateio-local-kafka:0.30.0.RC4
+  image: eventuateio/eventuateio-local-kafka:0.30.0.RC6
   ports:
     - 9092:9092
   links:
@@ -16,20 +16,6 @@ kafka:
     - ADVERTISED_HOST_NAME=${DOCKER_HOST_IP}
     - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
     - ZOOKEEPER_SERVERS=zookeeper:2181
-
-activemq:
-  image: webcenter/activemq:5.14.3
-  ports:
-    - 8161:8161
-    - 61616:61616
-    - 61613:61613
-    - 1883:1883
-    - 61614:61614
-
-rabbitmq:
-  build: ./rabbitmq
-  ports:
-    - 5672:5672
 
 mysqlbinlogpipeline:
   build: ./mysql

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,6 +27,8 @@ import java.util.function.Consumer;
 public class MessageConsumerKafkaImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
+
+  private final String id = UUID.randomUUID().toString();
 
   private String bootstrapServers;
   private List<EventuateKafkaConsumer> consumers = new ArrayList<>();
@@ -84,5 +87,10 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
 
   private Message toMessage(ConsumerRecord<String, String> record) {
     return JSonMapper.fromJson(record.value(), MessageImpl.class);
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 }

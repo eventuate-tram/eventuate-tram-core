@@ -1,7 +1,8 @@
 package io.eventuate.tram.consumer.activemq;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.ChannelType;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
@@ -12,7 +13,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.*;
 import java.util.*;
@@ -20,16 +20,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class MessageConsumerActiveMQImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired
-  private TransactionTemplate transactionTemplate;
+  private final String id = UUID.randomUUID().toString();
 
   @Autowired
-  private DuplicateMessageDetector duplicateMessageDetector;
+  private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
   private ActiveMQConnectionFactory connectionFactory;
 
@@ -76,7 +76,9 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
         consumers.add(consumer);
         subscriptionConsumers.add(consumer);
 
-        processingFutures.add(CompletableFuture.supplyAsync(() -> process(subscriberId, consumer, handler)));
+        Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
+
+        processingFutures.add(CompletableFuture.supplyAsync(() -> process(subscriberId, consumer, decoratedHandler)));
       }
       return () -> {
         subscriptionConsumers.forEach(consumer -> {
@@ -93,7 +95,9 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
     }
   }
 
-  private Void process(String subscriberId, javax.jms.MessageConsumer consumer, MessageHandler handler) {
+  private Void process(String subscriberId,
+                       javax.jms.MessageConsumer consumer,
+                       Consumer<SubscriberIdAndMessage> decoratedHandler) {
     while (runFlag.get()) {
       try {
         javax.jms.Message message = consumer.receive(100);
@@ -105,26 +109,16 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
         TextMessage textMessage = (TextMessage) message;
         Message tramMessage = JSonMapper.fromJson(textMessage.getText(), MessageImpl.class);
 
-        transactionTemplate.execute(ts -> {
-          if (duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-            logger.trace("Duplicate message {} {}", subscriberId, tramMessage.getId());
-            acknowledge(textMessage);
-            return null;
-          }
-
-          try {
-            logger.trace("Invoking handler {} {}", subscriberId, tramMessage.getId());
-            handler.accept(tramMessage);
-            logger.trace("handled message {} {}", subscriberId, tramMessage.getId());
-          } catch (Throwable t) {
-            logger.trace("Got exception {} {}", subscriberId, tramMessage.getId());
-            logger.trace("Got exception ", t);
-          } finally {
-            acknowledge(textMessage);
-          }
-
-          return null;
-        });
+        try {
+          logger.trace("Invoking handler {} {}", subscriberId, tramMessage.getId());
+          decoratedHandler.accept(new SubscriberIdAndMessage(subscriberId, tramMessage));
+          logger.trace("handled message {} {}", subscriberId, tramMessage.getId());
+        } catch (Throwable t) {
+          logger.trace("Got exception {} {}", subscriberId, tramMessage.getId());
+          logger.trace("Got exception ", t);
+        } finally {
+          acknowledge(textMessage);
+        }
 
       } catch (JMSException e) {
         logger.error(e.getMessage(), e);
@@ -165,5 +159,10 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
     } catch (JMSException e) {
       logger.error(e.getMessage(), e);
     }
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 }

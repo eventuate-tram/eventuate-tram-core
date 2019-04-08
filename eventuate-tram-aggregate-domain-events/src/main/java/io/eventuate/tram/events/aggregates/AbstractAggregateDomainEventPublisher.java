@@ -21,6 +21,10 @@ public abstract class AbstractAggregateDomainEventPublisher<A, E extends DomainE
     this.idSupplier = idSupplier;
   }
 
+  public Class<A> getAggregateType() {
+    return aggregateType;
+  }
+
   public void publish(A aggregate, List<E> events) {
     eventPublisher.publish(aggregateType, idSupplier.apply(aggregate), (List<DomainEvent>) events);
   }

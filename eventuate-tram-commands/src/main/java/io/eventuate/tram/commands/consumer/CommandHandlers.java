@@ -27,4 +27,8 @@ public class CommandHandlers {
     cause.printStackTrace();
     throw new UnsupportedOperationException("implement me", cause);
   }
+
+  public List<CommandHandler> getHandlers() {
+    return handlers;
+  }
 }
