@@ -5,10 +5,14 @@ import com.google.common.collect.ImmutableSet;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.Coordinator;
+import io.eventuate.tram.consumer.common.coordinator.GroupMember;
 import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.util.test.async.Eventually;
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +45,8 @@ public class SubscriptionTest {
     }
   }
 
-
   @Value("${rabbitmq.url}")
   private String rabbitMQURL;
-
-  @Value("${eventuatelocal.zookeeper.connection.string}")
-  private String zkUrl;
 
   @Autowired
   private EventuateRabbitMQProducer eventuateRabbitMQProducer;
@@ -143,12 +143,11 @@ public class SubscriptionTest {
   private CoordinationCallbacks createSubscription(Connection connection, String subscriberId, String destination, ConcurrentLinkedQueue concurrentLinkedQueue) {
     CoordinationCallbacks coordinationCallbacks = new CoordinationCallbacks();
 
-    new Subscription(null, connection, zkUrl, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
+    new Subscription(null, null, null, connection, subscriberId, ImmutableSet.of(destination), 2, (message, runnable) -> {
       concurrentLinkedQueue.add(Integer.valueOf(message.getPayload()));
     }) {
       @Override
       protected Coordinator createCoordinator(String groupMemberId,
-                                              String zkUrl,
                                               String subscriberId,
                                               Set<String> channels,
                                               Runnable leaderSelectedCallback,

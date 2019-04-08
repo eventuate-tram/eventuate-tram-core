@@ -26,7 +26,7 @@ public class SqlDialectConfiguration {
   }
 
   @Bean
-  public SqlDialectSelector sqlDialectSelector(@Value("${spring.datasource.driver.class.name}") String driver) {
+  public SqlDialectSelector sqlDialectSelector(@Value("${spring.datasource.driver-class-name}") String driver) {
     return new SqlDialectSelector(driver);
   }
 }

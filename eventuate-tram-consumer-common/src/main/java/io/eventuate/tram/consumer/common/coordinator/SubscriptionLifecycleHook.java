@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.rabbitmq;
+package io.eventuate.tram.consumer.common.coordinator;
 
 import java.util.Set;
 

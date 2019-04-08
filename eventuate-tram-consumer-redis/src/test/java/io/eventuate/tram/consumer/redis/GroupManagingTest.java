@@ -76,6 +76,7 @@ public class GroupManagingTest {
   private RedisMemberGroupManager createRedisMemberGroupManager() {
     return new RedisMemberGroupManager(redisTemplate,
             groupId,
+            memberId,
             100,
             updatedMembers -> {
               members.clear();

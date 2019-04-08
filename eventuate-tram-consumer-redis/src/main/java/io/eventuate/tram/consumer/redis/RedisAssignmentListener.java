@@ -1,6 +1,8 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.Assignment;
+import io.eventuate.tram.consumer.common.coordinator.AssignmentListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Optional;
@@ -8,7 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-public class RedisAssignmentListener {
+public class RedisAssignmentListener implements AssignmentListener {
   private RedisTemplate<String, String> redisTemplate;
   private Consumer<Assignment> assignmentUpdatedCallback;
   private long assignmentListenerInterval;

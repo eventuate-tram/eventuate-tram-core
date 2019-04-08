@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.redis.common.RedisUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -30,6 +31,7 @@ public class Subscription {
   private Map<String, Set<Integer>> currentPartitionsByChannel = new HashMap<>();
   private ConcurrentHashMap<ChannelPartition, ChannelProcessor> channelProcessorsByChannelAndPartition = new ConcurrentHashMap<>();
   private Optional<SubscriptionLifecycleHook> subscriptionLifecycleHook = Optional.empty();
+  private Optional<SubscriptionLeaderHook> leaderHook = Optional.empty();
 
   public Subscription(String subscriptionId,
                       String consumerId,
@@ -37,7 +39,7 @@ public class Subscription {
                       String subscriberId,
                       Set<String> channels,
                       Consumer<SubscriberIdAndMessage> handler,
-                      RedisCoordinatorFactory redisCoordinatorFactory,
+                      CoordinatorFactory coordinatorFactory,
                       long timeInMillisecondsToSleepWhenKeyDoesNotExist,
                       long blockStreamTimeInMilliseconds) {
 
@@ -51,13 +53,23 @@ public class Subscription {
 
     channels.forEach(channelName -> currentPartitionsByChannel.put(channelName, new HashSet<>()));
 
-    coordinator = redisCoordinatorFactory.makeCoordinator(subscriberId, channels, subscriptionId, this::assignmentUpdated);
+    coordinator = coordinatorFactory.makeCoordinator(subscriberId,
+            channels,
+            subscriptionId,
+            this::assignmentUpdated,
+            RedisKeyUtil.keyForLeaderLock(subscriberId),
+            () -> leaderHook.ifPresent(hook -> hook.leaderUpdated(true, subscriptionId)),
+            () -> leaderHook.ifPresent(hook -> hook.leaderUpdated(false, subscriptionId)));
 
     logger.info("subscription created (channels = {}, {})", channels, identificationInformation());
   }
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
     this.subscriptionLifecycleHook = Optional.ofNullable(subscriptionLifecycleHook);
+  }
+
+  public void setLeaderHook(SubscriptionLeaderHook leaderHook) {
+    this.leaderHook = Optional.ofNullable(leaderHook);
   }
 
   private void assignmentUpdated(Assignment assignment) {

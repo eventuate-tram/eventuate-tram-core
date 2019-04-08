@@ -8,6 +8,7 @@ dependencies {
     compile('org.apache.curator:curator-framework:2.11.0')
     compile('org.apache.curator:curator-recipes:2.11.0')
 
+    compile "io.eventuate.local.java:eventuate-coordination-leadership-zookeeper:$eventuateLocalVersion"
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

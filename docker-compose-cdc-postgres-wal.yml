@@ -3,6 +3,7 @@ cdcservice:
   links:
     - postgres
     - kafka
+    - redis
     - zookeeper
   ports:
     - "8099:8080"
@@ -17,4 +18,5 @@ cdcservice:
     EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
     EVENTUATELOCAL_CDC_READER_NAME: ${EVENTUATELOCAL_CDC_READER_NAME}
     SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-
+    EVENTUATE_REDIS_SERVERS: redis:6379
+    EVENTUATE_REDIS_PARTITIONS: 2

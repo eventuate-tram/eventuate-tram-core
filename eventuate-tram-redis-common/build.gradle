@@ -1,10 +1,13 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
+    compile "io.eventuate.local.java:eventuate-coordination-leadership:$eventuateLocalVersion"
     compile 'org.springframework.data:spring-data-redis:2.2.0.M1'
     compile 'io.lettuce:lettuce-core:5.1.4.RELEASE'
     compile 'org.redisson:redisson:3.10.3'
     compile 'org.apache.commons:commons-pool2:2.0'
     compile 'org.apache.commons:commons-lang3:3.8.1'
     testCompile 'com.google.guava:guava:19.0'
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

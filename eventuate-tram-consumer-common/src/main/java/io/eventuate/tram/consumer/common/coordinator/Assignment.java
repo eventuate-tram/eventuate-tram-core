@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.rabbitmq;
+package io.eventuate.tram.consumer.common.coordinator;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;

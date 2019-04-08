@@ -1,7 +1,5 @@
-package io.eventuate.tram.consumer.redis;
+package io.eventuate.tram.redis.common;
 
-import io.eventuate.tram.redis.common.CommonRedisConfiguration;
-import io.eventuate.tram.redis.common.RedissonClients;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,10 +20,12 @@ public class LeadershipTest {
   private RedissonClients redissonClients;
 
   private String groupId;
+  private String memberId;
 
   @Before
   public void init() {
     groupId = UUID.randomUUID().toString();
+    memberId = UUID.randomUUID().toString();
   }
 
   @Test
@@ -69,6 +69,19 @@ public class LeadershipTest {
   }
 
   @Test
+  public void testThatOnlyOneLeaderWorkInTheSameTime() throws Exception {
+    AtomicInteger callbackInvocationCounterForLeader1 = new AtomicInteger(0);
+    AtomicInteger callbackInvocationCounterForLeader2 = new AtomicInteger(0);
+
+    createLeaderSelector(callbackInvocationCounterForLeader1, true);
+    createLeaderSelector(callbackInvocationCounterForLeader2, true);
+
+    Thread.sleep(3000);
+
+    assertLeadershipWasAssignedForOneSelector(callbackInvocationCounterForLeader1, callbackInvocationCounterForLeader2);
+  }
+
+  @Test
   public void testThatLeaderChangedWhenExpired() throws Exception {
     AtomicInteger callbackInvocationCounterForLeader1 = new AtomicInteger(0);
     AtomicInteger callbackInvocationCounterForLeader2 = new AtomicInteger(0);
@@ -108,6 +121,28 @@ public class LeadershipTest {
   }
 
   private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter) {
-    return new RedisLeaderSelector(redissonClients, groupId, 100, invocationCounter::incrementAndGet);
+    return createLeaderSelector(invocationCounter, false);
+  }
+
+  private RedisLeaderSelector createLeaderSelector(AtomicInteger invocationCounter, boolean infinite) {
+    RedisLeaderSelector redisLeaderSelector = new RedisLeaderSelector(redissonClients,
+            String.format("some:path:%s", groupId),
+            String.format("[groupId: %s, memberId: %s]", groupId, memberId),
+            100,
+            () -> {
+              invocationCounter.incrementAndGet();
+              if (infinite) {
+                try {
+                  Thread.sleep(Long.MAX_VALUE);
+                } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+            },
+            () -> {});
+
+    redisLeaderSelector.start();
+
+    return redisLeaderSelector;
   }
 }

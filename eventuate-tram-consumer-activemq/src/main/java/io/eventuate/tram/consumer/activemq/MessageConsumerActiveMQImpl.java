@@ -26,6 +26,8 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
+  private final String id = UUID.randomUUID().toString();
+
   @Autowired
   private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
@@ -157,5 +159,10 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
     } catch (JMSException e) {
       logger.error(e.getMessage(), e);
     }
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 }

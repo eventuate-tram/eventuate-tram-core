@@ -169,12 +169,14 @@ public class ChannelProcessor {
   }
 
   private List<MapRecord<String, Object, Object>> getRecords(ReadOffset readOffset, StreamReadOptions options) {
-    logger.trace("getRecords {} {} invoked", channel, readOffset);
-
     List<MapRecord<String, Object, Object>> records = redisTemplate
             .opsForStream()
             .read(Consumer.from(subscriberId, subscriberId), options, StreamOffset.create(channel, readOffset));
-    logger.trace("getRecords {} {} found {} records", channel, readOffset, records.size());
+
+    if (records.size() > 0) {
+      logger.trace("getRecords {} {} found {} records", channel, readOffset, records.size());
+    }
+
     return records;
   }
 

@@ -1,25 +1,24 @@
 package io.eventuate.tram.rabbitmq.integrationtests;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
-import io.eventuate.tram.consumer.rabbitmq.MessageConsumerRabbitMQImpl;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactoryImpl;
+import io.eventuate.tram.redis.integrationtests.AbstractMessagingTest;
+import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
-import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -28,13 +27,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class MessagingTest {
+public class MessagingTest extends AbstractMessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
@@ -46,56 +43,6 @@ public class MessagingTest {
     }
   }
 
-  private static class EventuallyConfig {
-    public final int iterations;
-    public final int timeout;
-    public final TimeUnit timeUnit;
-
-    public EventuallyConfig(int iterations, int timeout, TimeUnit timeUnit) {
-      this.iterations = iterations;
-      this.timeout = timeout;
-      this.timeUnit = timeUnit;
-    }
-  }
-
-  private static class TestSubscription {
-    private MessageConsumerRabbitMQImpl consumer;
-    private ConcurrentLinkedQueue<Integer> messageQueue;
-    private Set<Integer> currentPartitions;
-
-    public TestSubscription(MessageConsumerRabbitMQImpl consumer, ConcurrentLinkedQueue<Integer> messageQueue) {
-      this.consumer = consumer;
-      this.messageQueue = messageQueue;
-    }
-
-    public MessageConsumerRabbitMQImpl getConsumer() {
-      return consumer;
-    }
-
-    public ConcurrentLinkedQueue<Integer> getMessageQueue() {
-      return messageQueue;
-    }
-
-    public Set<Integer> getCurrentPartitions() {
-      return currentPartitions;
-    }
-
-    public void setCurrentPartitions(Set<Integer> currentPartitions) {
-      this.currentPartitions = currentPartitions;
-    }
-
-    public void clearMessages() {
-      messageQueue.clear();
-    }
-
-    public void close() {
-      consumer.close();
-      messageQueue.clear();
-    }
-  }
-
-  private Logger logger = LoggerFactory.getLogger(getClass());
-
   @Value("${rabbitmq.url}")
   private String rabbitMQURL;
 
@@ -105,227 +52,8 @@ public class MessagingTest {
   @Autowired
   private EventuateRabbitMQProducer eventuateRabbitMQProducer;
 
-  @Autowired
-  private ApplicationContext applicationContext;
-
-  private static final int DEFAULT_MESSAGE_COUNT = 100;
-  private static final EventuallyConfig EVENTUALLY_CONFIG = new EventuallyConfig(100, 1, TimeUnit.SECONDS);
-
-
-  private String destination;
-  private String subscriberId;
-
-  @Before
-  public void init() {
-    destination = "destination" + UUID.randomUUID();
-    subscriberId = "subscriber" + UUID.randomUUID();
-  }
-
-  @Test
-  public void test1Consumer2Partitions() throws Exception {
-    TestSubscription subscription = subscribe(2);
-
-    waitForRebalance(ImmutableList.of(subscription), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(subscription);
-  }
-
-  @Test
-  public void test2Consumers2Partitions() throws Exception {
-    TestSubscription subscription1 = subscribe(2);
-    TestSubscription subscription2 = subscribe(2);
-
-    waitForRebalance(ImmutableList.of(subscription1, subscription2), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(ImmutableList.of(subscription1, subscription2));
-  }
-
-  @Test
-  public void test1Consumer2PartitionsThenAddedConsumer() throws Exception {
-    TestSubscription testSubscription1 = subscribe(2);
-
-    waitForRebalance(ImmutableList.of(testSubscription1), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(testSubscription1);
-
-    testSubscription1.clearMessages();
-    TestSubscription testSubscription2 = subscribe(2);
-
-    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
-  }
-
-  @Test
-  public void test2Consumers2PartitionsThenRemovedConsumer() throws Exception {
-
-    TestSubscription testSubscription1 = subscribe(2);
-    TestSubscription testSubscription2 = subscribe(2);
-
-    waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2));
-
-    testSubscription1.clearMessages();
-    testSubscription2.close();
-
-    waitForRebalance(ImmutableList.of(testSubscription1), 2);
-
-    sendMessages();
-
-    assertMessagesConsumed(testSubscription1);
-  }
-
-  @Test
-  public void test5Consumers9PartitionsThenRemoved2ConsumersAndAdded3Consumers() throws Exception {
-
-    LinkedList<TestSubscription> testSubscriptions = createConsumersAndSubscribe(5, 9);
-
-    waitForRebalance(testSubscriptions, 9);
-
-    sendMessages();
-
-    assertMessagesConsumed(testSubscriptions);
-
-    for (int i = 0; i < 2; i++) {
-      testSubscriptions.poll().close();
-    }
-
-    testSubscriptions.forEach(TestSubscription::clearMessages);
-
-    testSubscriptions.addAll(createConsumersAndSubscribe(3, 9));
-
-    waitForRebalance(testSubscriptions, 9);
-
-    sendMessages();
-
-    assertMessagesConsumed(testSubscriptions);
-  }
-
-  @Test
-  public void testReassignment() throws Exception {
-    for (int i = 0; i < 10; i++) {
-      logger.info("testReassignment iteration {}", i);
-      
-      destination = "destination1";
-      subscriberId = "subscriber1";
-
-      TestSubscription testSubscription1 = subscribe(2);
-
-      waitForRebalance(ImmutableList.of(testSubscription1), 2);
-
-      sendMessages(2);
-
-      try {
-        assertMessagesConsumed(testSubscription1, 2);
-      } catch (Throwable t){
-        testSubscription1.close();
-        throw t;
-      }
-
-      testSubscription1.clearMessages();
-      TestSubscription testSubscription2 = subscribe(2);
-
-      waitForRebalance(ImmutableList.of(testSubscription1, testSubscription2), 2);
-
-      sendMessages(2);
-
-      try {
-        assertMessagesConsumed(ImmutableList.of(testSubscription1, testSubscription2), 2);
-      } finally {
-        testSubscription1.close();
-        testSubscription2.close();
-      }
-    }
-  }
-
-  private void assertMessagesConsumed(TestSubscription testSubscription) {
-    assertMessagesConsumed(testSubscription, DEFAULT_MESSAGE_COUNT);
-  }
-
-  private void assertMessagesConsumed(TestSubscription testSubscription, int messageCount) {
-    Eventually.eventually(EVENTUALLY_CONFIG.iterations,
-            EVENTUALLY_CONFIG.timeout,
-            EVENTUALLY_CONFIG.timeUnit,
-            () -> Assert.assertEquals(String.format("consumer %s did not receive expected messages", testSubscription.getConsumer().id),
-                    messageCount,
-                    testSubscription.messageQueue.size()));
-  }
-
-  private void assertMessagesConsumed(List<TestSubscription> testSubscriptions) {
-    assertMessagesConsumed(testSubscriptions, DEFAULT_MESSAGE_COUNT);
-  }
-
-  private void assertMessagesConsumed(List<TestSubscription> testSubscriptions, int messageCount) {
-    Eventually.eventually(EVENTUALLY_CONFIG.iterations,
-            EVENTUALLY_CONFIG.timeout,
-            EVENTUALLY_CONFIG.timeUnit,
-            () -> {
-
-      List<TestSubscription> emptySubscriptions = testSubscriptions
-              .stream()
-              .filter(testSubscription -> testSubscription.messageQueue.isEmpty())
-              .collect(Collectors.toList());
-
-      emptySubscriptions.forEach(testSubscription -> logger.info("[{}] consumer is empty", testSubscription.getConsumer().id));
-
-      Assert.assertTrue(emptySubscriptions.isEmpty());
-
-      Assert.assertEquals((long) messageCount,
-              (long) testSubscriptions
-                      .stream()
-                      .map(testSubscription -> testSubscription.getMessageQueue().size())
-                      .reduce((a, b) -> a + b)
-                      .orElse(0));
-    });
-  }
-
-  private void waitForRebalance(List<TestSubscription> subscriptions, int totalPartitions) throws Exception {
-    Eventually.eventually(EVENTUALLY_CONFIG.iterations,
-            EVENTUALLY_CONFIG.timeout,
-            EVENTUALLY_CONFIG.timeUnit,
-            () -> {
-              Assert.assertTrue(subscriptions
-                      .stream()
-                      .noneMatch(testSubscription ->
-                              testSubscription.getCurrentPartitions() == null ||
-                                      testSubscription.getCurrentPartitions().isEmpty()));
-
-              List<Integer> allPartitions = subscriptions
-                      .stream()
-                      .map(TestSubscription::getCurrentPartitions)
-                      .flatMap(Collection::stream)
-                      .collect(Collectors.toList());
-
-              Set<Integer> uniquePartitions = new HashSet<>(allPartitions);
-
-              Assert.assertEquals(allPartitions.size(), uniquePartitions.size());
-              Assert.assertEquals(totalPartitions, uniquePartitions.size());
-            });
-  }
-
-  private LinkedList<TestSubscription> createConsumersAndSubscribe(int consumerCount, int partitionCount) {
-
-    LinkedList<TestSubscription> subscriptions = new LinkedList<>();
-
-    for (int i = 0; i < consumerCount; i++) {
-      subscriptions.add(subscribe(partitionCount));
-    }
-
-    return subscriptions;
-  }
-
-  private TestSubscription subscribe(int partitionCount) {
+  @Override
+  protected TestSubscription subscribe(int partitionCount) {
     ConcurrentLinkedQueue<Integer> messageQueue = new ConcurrentLinkedQueue<>();
 
     MessageConsumerRabbitMQImpl consumer = createConsumer(partitionCount);
@@ -336,26 +64,34 @@ public class MessagingTest {
     TestSubscription testSubscription = new TestSubscription(consumer, messageQueue);
 
     consumer.setSubscriptionLifecycleHook((channel, subscriptionId, currentPartitions) -> testSubscription.setCurrentPartitions(currentPartitions));
+    consumer.setLeaderHook((leader, subscriptionId) -> testSubscription.setLeader(leader));
 
     return testSubscription;
   }
 
   private MessageConsumerRabbitMQImpl createConsumer(int partitionCount) {
-    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(rabbitMQURL,zkUrl, partitionCount);
+    CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkUrl, new ExponentialBackoffRetry(1000, 5));
+    curatorFramework.start();
+
+    CoordinatorFactory coordinatorFactory = new CoordinatorFactoryImpl(new ZkAssignmentManager(curatorFramework),
+            (groupId, memberId, assignmentUpdatedCallback) -> new ZkAssignmentListener(curatorFramework, groupId, memberId, assignmentUpdatedCallback),
+            (groupId, memberId, groupMembersUpdatedCallback) -> new ZkMemberGroupManager(curatorFramework, groupId, memberId, groupMembersUpdatedCallback),
+            (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) -> new ZkLeaderSelector(curatorFramework, lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback),
+            (groupId, memberId) -> new ZkGroupMember(curatorFramework, groupId, memberId),
+            partitionCount);
+
+    MessageConsumerRabbitMQImpl messageConsumerRabbitMQ = new MessageConsumerRabbitMQImpl(subscriptionIdSupplier, consumerIdSupplier.get(), coordinatorFactory, rabbitMQURL, partitionCount);
     applicationContext.getAutowireCapableBeanFactory().autowireBean(messageConsumerRabbitMQ);
     return messageConsumerRabbitMQ;
   }
 
-  private void sendMessages() {
-    sendMessages(DEFAULT_MESSAGE_COUNT);
-  }
-
-  private void sendMessages(int messageCount) {
+  @Override
+  protected void sendMessages(int messageCount, int partitions) {
     for (int i = 0; i < messageCount; i++) {
       eventuateRabbitMQProducer.send(destination,
               String.valueOf(i),
               JSonMapper.toJson(new MessageImpl(String.valueOf(i),
-                      Collections.singletonMap("ID", UUID.randomUUID().toString()))));
+                      Collections.singletonMap("ID", messageIdSupplier.get()))));
     }
   }
 }

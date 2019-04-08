@@ -1,15 +1,15 @@
 package io.eventuate.tram.consumer.redis;
 
+import io.eventuate.tram.consumer.common.coordinator.GroupMember;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public class RedisGroupMember {
+public class RedisGroupMember implements GroupMember {
 
   private RedisTemplate<String, String> redisTemplate;
-  private String groupId;
   private String memberId;
   private long ttlInMilliseconds;
   private String groupKey;
@@ -22,7 +22,6 @@ public class RedisGroupMember {
                           long ttlInMilliseconds) {
 
     this.redisTemplate = redisTemplate;
-    this.groupId = groupId;
     this.memberId = memberId;
     this.ttlInMilliseconds = ttlInMilliseconds;
 
@@ -34,6 +33,7 @@ public class RedisGroupMember {
     scheduleGroupMemberTtlRefresh();
   }
 
+  @Override
   public void remove() {
     stopTtlRefreshing();
 

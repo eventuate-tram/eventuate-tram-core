@@ -128,4 +128,13 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
       }
     };
   }
+
+  @Override
+  public String getId() {
+    return null;
+  }
+
+  @Override
+  public void close() {
+  }
 }
