@@ -8,6 +8,7 @@ public class KafkaCondition implements Condition {
   @Override
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     return !context.getEnvironment().acceptsProfiles("ActiveMQ") &&
-            !context.getEnvironment().acceptsProfiles("RabbitMQ");
+            !context.getEnvironment().acceptsProfiles("RabbitMQ") &&
+            !context.getEnvironment().acceptsProfiles("Redis");
   }
 }

@@ -23,6 +23,11 @@ public class DomainEventHandlersBuilder {
     return this;
   }
 
+  public DomainEventHandlersBuilder andForAggregateType(String aggregateType) {
+    this.aggregateType = aggregateType;
+    return this;
+  }
+
   public DomainEventHandlers build() {
     return new DomainEventHandlers(handlers);
   }

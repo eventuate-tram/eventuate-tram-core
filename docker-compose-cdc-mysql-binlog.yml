@@ -8,6 +8,7 @@ cdcservice:
     - zookeeper
     - activemq
     - rabbitmq
+    - redis
   environment:
     SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
     SPRING_DATASOURCE_USERNAME: mysqluser
@@ -28,3 +29,5 @@ cdcservice:
     SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     ACTIVEMQ_URL: tcp://activemq:61616
     RABBITMQ_URL: rabbitmq
+    EVENTUATE_REDIS_SERVERS: redis:6379
+    EVENTUATE_REDIS_PARTITIONS: 2

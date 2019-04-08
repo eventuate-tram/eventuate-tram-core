@@ -1,0 +1,9 @@
+
+
+dependencies {
+    compile project(":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-messaging-jdbc")
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+
+}

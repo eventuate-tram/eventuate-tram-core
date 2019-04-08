@@ -9,15 +9,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("ActiveMQ")
 public class ActiveMQMessageTableChangesToDestinationsConfiguration {
   @Bean
-  @Profile("ActiveMQ")
   public PublishingFilter activeMQDuplicatePublishingDetector() {
     return (fileOffset, topic) -> true;
   }
 
   @Bean
-  @Profile("ActiveMQ")
   public DataProducerFactory activeMQDataProducerFactory(@Value("${activemq.url}") String activeMQURL) {
     return () -> new EventuateActiveMQProducer(activeMQURL);
   }

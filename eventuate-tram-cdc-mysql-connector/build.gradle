@@ -4,6 +4,7 @@ dependencies {
     compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-producer-activemq")
     compile project(":eventuate-tram-producer-rabbitmq")
+    compile project(":eventuate-tram-producer-redis")
     compile "io.eventuate.local.java:eventuate-local-java-cdc-connector-unified:$eventuateLocalVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"
 

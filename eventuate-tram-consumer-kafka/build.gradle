@@ -2,6 +2,7 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-consumer-jdbc")
     compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
 

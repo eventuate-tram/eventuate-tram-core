@@ -2,7 +2,11 @@ package io.eventuate.tram.consumer.rabbitmq;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
+import io.eventuate.tram.consumer.common.coordinator.SubscriptionLifecycleHook;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -10,11 +14,12 @@ import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
@@ -22,21 +27,38 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   public final String id = UUID.randomUUID().toString();
 
-  @Autowired
-  private TransactionTemplate transactionTemplate;
+  public final String consumerId;
+  private Supplier<String> subscriptionIdSupplier;
 
   @Autowired
-  private DuplicateMessageDetector duplicateMessageDetector;
+  private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
+  private CoordinatorFactory coordinatorFactory;
   private Connection connection;
   private int partitionCount;
-  private String zkUrl;
 
   private List<Subscription> subscriptions = new ArrayList<>();
 
-  public MessageConsumerRabbitMQImpl(String rabbitMQUrl, String zkUrl, int partitionCount) {
+  public MessageConsumerRabbitMQImpl(CoordinatorFactory coordinatorFactory,
+                                     String rabbitMQUrl,
+                                     int partitionCount) {
+    this(() -> UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            coordinatorFactory,
+            rabbitMQUrl,
+            partitionCount);
+  }
+
+  public MessageConsumerRabbitMQImpl(Supplier<String> subscriptionIdSupplier,
+                                     String consumerId,
+                                     CoordinatorFactory coordinatorFactory,
+                                     String rabbitMQUrl,
+                                     int partitionCount) {
+
+    this.subscriptionIdSupplier = subscriptionIdSupplier;
+    this.consumerId = consumerId;
+    this.coordinatorFactory = coordinatorFactory;
     this.partitionCount = partitionCount;
-    this.zkUrl = zkUrl;
     prepareRabbitMQConnection(rabbitMQUrl);
 
     logger.info("consumer {} created and ready to subscribe", id);
@@ -44,6 +66,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
 
   public void setSubscriptionLifecycleHook(SubscriptionLifecycleHook subscriptionLifecycleHook) {
     subscriptions.forEach(subscription -> subscription.setSubscriptionLifecycleHook(subscriptionLifecycleHook));
+  }
+
+  public void setLeaderHook(SubscriptionLeaderHook leaderHook) {
+    subscriptions.forEach(subscription -> subscription.setLeaderHook(leaderHook));
   }
 
   private void prepareRabbitMQConnection(String rabbitMQUrl) {
@@ -61,13 +87,16 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
     logger.info("consumer {} with subscriberId {} is subscribing to channels {}", id, subscriberId, channels);
 
-    Subscription subscription = new Subscription(id,
+    Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
+
+    Subscription subscription = new Subscription(coordinatorFactory,
+            consumerId,
+            subscriptionIdSupplier.get(),
             connection,
-            zkUrl,
             subscriberId,
             channels,
             partitionCount,
-            (message, acknowledgeCallback) -> handleMessage(subscriberId, handler, message, acknowledgeCallback));
+            (message, acknowledgeCallback) -> handleMessage(subscriberId, decoratedHandler, message, acknowledgeCallback));
 
     subscriptions.add(subscription);
 
@@ -78,26 +107,16 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     };
   }
 
-  private void handleMessage(String subscriberId, MessageHandler handler, Message tramMessage, Runnable acknowledgeCallback) {
-    transactionTemplate.execute(ts -> {
-      if (duplicateMessageDetector.isDuplicate(subscriberId, tramMessage.getId())) {
-        logger.info("consumer {} with subscriberId {} received message duplicate with id{}", id, subscriberId, tramMessage.getId());
-        acknowledgeCallback.run();
-        return null;
-      }
-
-      try {
-        handler.accept(tramMessage);
-        logger.info("consumer {} with subscriberId {} handled message with id {}", id, subscriberId, tramMessage.getId());
-      } catch (Throwable t) {
-        logger.info("consumer {} with subscriberId {} got exception when tried to handle message with id {}", id, subscriberId, tramMessage.getId());
-        logger.info("Got exception ", t);
-      } finally {
-        acknowledgeCallback.run();
-      }
-
-      return null;
-    });
+  private void handleMessage(String subscriberId, Consumer<SubscriberIdAndMessage> decoratedHandler, Message tramMessage, Runnable acknowledgeCallback) {
+    try {
+      decoratedHandler.accept(new SubscriberIdAndMessage(subscriberId, tramMessage));
+      logger.info("consumer {} with subscriberId {} handled message with id {}", id, subscriberId, tramMessage.getId());
+    } catch (Throwable t) {
+      logger.info("consumer {} with subscriberId {} got exception when tried to handle message with id {}", id, subscriberId, tramMessage.getId());
+      logger.info("Got exception ", t);
+    } finally {
+      acknowledgeCallback.run();
+    }
   }
 
   public void close() {
@@ -112,5 +131,10 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
     }
 
     logger.info("consumer {} is closed", id);
+  }
+
+  @Override
+  public String getId() {
+    return consumerId;
   }
 }
