@@ -49,10 +49,10 @@ public class Coordinator {
     this.channels = channels;
     this.partitionCount = partitionCount;
     this.assignmentManager = assignmentManager;
-    this.groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     this.memberGroupManagerFactory = memberGroupManagerFactory;
-    createInitialAssignments();
 
+    createInitialAssignments();
+    groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     assignmentListener = assignmentListenerFactory.create(subscriberId, subscriptionId, assignmentUpdatedCallback);
 
     leaderSelector = leaderSelectorFactory.create(lockId,
