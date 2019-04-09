@@ -49,10 +49,10 @@ public class Coordinator {
     this.channels = channels;
     this.partitionCount = partitionCount;
     this.assignmentManager = assignmentManager;
-    this.groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     this.memberGroupManagerFactory = memberGroupManagerFactory;
-    createInitialAssignments();
 
+    createInitialAssignments();
+    groupMember = groupMemberFactory.create(subscriberId, subscriptionId);
     assignmentListener = assignmentListenerFactory.create(subscriberId, subscriptionId, assignmentUpdatedCallback);
 
     leaderSelector = leaderSelectorFactory.create(lockId,
@@ -96,10 +96,16 @@ public class Coordinator {
 
   private void onGroupMembersUpdated(Set<String> expectedGroupMembers) {
     logger.info("Updating group members, expectedGroupMembers : {}, subscriberId : {}, subscriptionId : {}", expectedGroupMembers, subscriberId, subscriptionId);
-    if (!partitionManager.isInitialized()) {
-      initializePartitionManager(expectedGroupMembers);
-    } else {
-      rebalance(expectedGroupMembers);
+
+    try {
+      if (!partitionManager.isInitialized()) {
+        initializePartitionManager(expectedGroupMembers);
+      } else {
+        rebalance(expectedGroupMembers);
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      return;
     }
 
     previousGroupMembers = expectedGroupMembers;
