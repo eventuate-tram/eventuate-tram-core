@@ -3,11 +3,12 @@ apply plugin: PublicModulePlugin
 dependencies {
     compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-messaging-jdbc")
 
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.3"
     compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
+
+    compile "io.eventuate.local.java:eventuate-local-java-jdbc:$eventuateLocalVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 

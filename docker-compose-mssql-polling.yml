@@ -1,0 +1,26 @@
+zookeeper:
+  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC6
+  ports:
+    - 2181:2181
+    - 2888:2888
+    - 3888:3888
+
+
+kafka:
+  image: eventuateio/eventuateio-local-kafka:0.30.0.RC6
+  ports:
+    - 9092:9092
+  links:
+    - zookeeper
+  environment:
+    - ADVERTISED_HOST_NAME=${DOCKER_HOST_IP}
+    - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
+    - ZOOKEEPER_SERVERS=zookeeper:2181
+
+mssql:
+  build: ./mssql
+  ports:
+    - 1433:1433
+  environment:
+    SA_PASSWORD: Eventuate123!
+    ACCEPT_EULA: Y
