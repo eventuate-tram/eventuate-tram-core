@@ -2,7 +2,9 @@
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
-    compile project(":eventuate-tram-messaging-jdbc")
+    compile project(":eventuate-tram-jdbc")
+
+    compile "io.eventuate.local.java:eventuate-local-java-jdbc:$eventuateLocalVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
