@@ -2,8 +2,6 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
-    compile project(":eventuate-tram-consumer-jdbc")
-    compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
 
     compile "io.eventuate.local.java:eventuate-local-java-common:$eventuateLocalVersion"
