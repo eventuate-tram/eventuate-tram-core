@@ -4,8 +4,8 @@ import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.ChannelType;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
@@ -42,12 +42,27 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
   private AtomicBoolean runFlag = new AtomicBoolean(true);
 
   public MessageConsumerActiveMQImpl(String url) {
-    this(url, Collections.emptyMap());
+    this(url, Collections.emptyMap(), Optional.empty(), Optional.empty());
   }
 
-  public MessageConsumerActiveMQImpl(String url, Map<String, ChannelType> messageModes) {
+  public MessageConsumerActiveMQImpl(String url,
+                                     Optional<String> user,
+                                     Optional<String> password) {
+    this(url, Collections.emptyMap(), user, password);
+  }
+
+  public MessageConsumerActiveMQImpl(String url,
+                                     Map<String, ChannelType> messageModes) {
+    this(url, messageModes, Optional.empty(), Optional.empty());
+  }
+
+  public MessageConsumerActiveMQImpl(String url,
+                                     Map<String, ChannelType> messageModes,
+                                     Optional<String> user,
+                                     Optional<String> password) {
     this.messageModes = messageModes;
-    connectionFactory = new ActiveMQConnectionFactory(url);
+    connectionFactory = createActiveMQConnectionFactory(url, user, password);
+
     try {
       connection = connectionFactory.createConnection();
       connection.setExceptionListener(e -> logger.error(e.getMessage(), e));
@@ -93,6 +108,13 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
+  }
+
+  private ActiveMQConnectionFactory createActiveMQConnectionFactory(String url, Optional<String> user, Optional<String> password) {
+    return user
+            .flatMap(usr -> password.flatMap(pass ->
+                    Optional.of(new ActiveMQConnectionFactory(usr, pass, url))))
+            .orElseGet(() -> new ActiveMQConnectionFactory(url));
   }
 
   private Void process(String subscriberId,

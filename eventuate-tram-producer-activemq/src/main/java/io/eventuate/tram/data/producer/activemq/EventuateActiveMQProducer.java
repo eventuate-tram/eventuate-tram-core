@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.jms.*;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class EventuateActiveMQProducer implements DataProducer {
@@ -22,9 +23,22 @@ public class EventuateActiveMQProducer implements DataProducer {
     this(url, Collections.emptyMap());
   }
 
+  public EventuateActiveMQProducer(String url, Optional<String> user, Optional<String> password) {
+    this(url, Collections.emptyMap(), user, password);
+  }
+
+
   public EventuateActiveMQProducer(String url, Map<String, ChannelType> messageModes) {
+    this(url, messageModes, Optional.empty(), Optional.empty());
+  }
+
+  public EventuateActiveMQProducer(String url,
+                                   Map<String, ChannelType> messageModes,
+                                   Optional<String> user,
+                                   Optional<String> password) {
+
     this.messageModes = messageModes;
-    ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+    ActiveMQConnectionFactory connectionFactory = createActiveMQConnectionFactory(url, user, password);
     try {
       connection = connectionFactory.createConnection();
       connection.setExceptionListener(e -> logger.error(e.getMessage(), e));
@@ -66,6 +80,13 @@ public class EventuateActiveMQProducer implements DataProducer {
     }
 
     return CompletableFuture.completedFuture(null);
+  }
+
+  private ActiveMQConnectionFactory createActiveMQConnectionFactory(String url, Optional<String> user, Optional<String> password) {
+    return user
+            .flatMap(usr -> password.flatMap(pass ->
+                    Optional.of(new ActiveMQConnectionFactory(usr, pass, url))))
+            .orElseGet(() -> new ActiveMQConnectionFactory(url));
   }
 
   @Override
