@@ -1,10 +1,10 @@
 package io.eventuate.tram.testing;
 
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.CommandMessageHeaders;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.EventMessageHeaders;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.util.test.async.Eventually;
 

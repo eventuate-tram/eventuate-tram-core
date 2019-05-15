@@ -14,7 +14,7 @@ additional-redis-2:
     - 6381:6379
 
 mysql:
-  build: ./mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:

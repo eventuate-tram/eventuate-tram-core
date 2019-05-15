@@ -1,8 +1,8 @@
 package io.eventuate.tram.consumer.kafka;
 
-import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.local.java.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
+import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.jdbc.CommonJdbcMessagingConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;

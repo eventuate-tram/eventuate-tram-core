@@ -1,6 +1,7 @@
 package io.eventuate.tram.rabbitmq.integrationtests;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
@@ -10,7 +11,6 @@ import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactoryImpl;
 import io.eventuate.tram.redis.integrationtests.AbstractMessagingTest;
 import io.eventuate.tram.consumer.rabbitmq.*;
 import io.eventuate.tram.data.producer.rabbitmq.EventuateRabbitMQProducer;
-import io.eventuate.tram.messaging.common.MessageImpl;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;

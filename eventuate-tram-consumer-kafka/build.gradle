@@ -6,8 +6,8 @@ dependencies {
     compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
 
-    compile "io.eventuate.local.java:eventuate-local-java-common:$eventuateLocalVersion"
-    compile "io.eventuate.local.java:eventuate-local-java-kafka:$eventuateLocalVersion"
+    compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-kafka:$eventuateCommonVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }

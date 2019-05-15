@@ -1,9 +1,9 @@
 package io.eventuate.tram.commands.consumer;
 
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.commands.common.CommandMessageHeaders;
 import io.eventuate.tram.commands.common.paths.ResourcePath;
 import io.eventuate.tram.commands.common.paths.ResourcePathPattern;
-import io.eventuate.tram.messaging.common.Message;
 
 import java.util.List;
 import java.util.Map;

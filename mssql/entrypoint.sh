@@ -1,1 +1,0 @@
-/opt/mssql/bin/sqlservr & /usr/src/app/create-schema.sh & sleep infinity

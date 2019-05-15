@@ -1,6 +1,7 @@
 package io.eventuate.tram.messaging.producer;
 
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

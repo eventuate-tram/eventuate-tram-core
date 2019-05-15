@@ -1,9 +1,9 @@
 package io.eventuate.tram.consumer.redis;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.lettuce.core.RedisCommandExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,17 +1,17 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC7
+  image: test-eventuate-zookeeper
   ports:
     - 2181:2181
     - 2888:2888
     - 3888:3888
 
 rabbitmq:
-  build: ./rabbitmq
+  image: test-eventuate-rabbitmq
   ports:
     - 5672:5672
 
 mysql:
-  build: ./mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:

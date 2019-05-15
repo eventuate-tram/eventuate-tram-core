@@ -1,11 +1,11 @@
 package io.eventuate.tram.activemq.integrationtests;
 
-import io.eventuate.tram.cdc.mysql.connector.EventuateTramChannelProperties;
+import io.eventuate.common.ChannelType;
+import io.eventuate.tram.cdc.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
-import io.eventuate.tram.messaging.common.ChannelType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -1,5 +1,6 @@
 package io.eventuate.tram.commands.consumer;
 
+
 import io.eventuate.tram.messaging.common.Message;
 
 import java.util.List;

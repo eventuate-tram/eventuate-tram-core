@@ -2,12 +2,12 @@ package io.eventuate.tram.consumer.rabbitmq;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
 import io.eventuate.tram.consumer.common.coordinator.SubscriptionLifecycleHook;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;

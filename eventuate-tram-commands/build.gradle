@@ -3,8 +3,7 @@ apply plugin: PrivateModulePlugin
 dependencies {
     compile project(":eventuate-tram-messaging")
 
+    compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
     compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
     compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
-
-
 }

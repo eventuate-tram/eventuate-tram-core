@@ -2,7 +2,8 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
-    compile project(":eventuate-tram-redis-common")
+    compile "io.eventuate.common:eventuate-common-redis:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-coordination-leadership-redis:$eventuateCommonVersion"
 
     testCompile 'com.google.guava:guava:19.0'
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

@@ -1,5 +1,5 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC7
+  image: test-eventuate-zookeeper
   ports:
     - 2181:2181
     - 2888:2888
@@ -15,7 +15,7 @@ activemq:
     - 61614:61614
 
 mysql:
-  build: ./mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:

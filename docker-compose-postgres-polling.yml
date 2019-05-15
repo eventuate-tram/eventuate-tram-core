@@ -1,12 +1,12 @@
 zookeeper:
-  image: eventuateio/eventuateio-local-zookeeper:0.30.0.RC7
+  image: test-eventuate-zookeeper
   ports:
     - 2181:2181
     - 2888:2888
     - 3888:3888
 
 kafka:
-  image: eventuateio/eventuateio-local-kafka:0.30.0.RC7
+  image: test-eventuate-kafka
   ports:
     - 9092:9092
   links:
@@ -22,7 +22,7 @@ redis:
     - 6379:6379
 
 postgres:
-  build: ./postgres
+  image: test-eventuate-postgres
   ports:
     - 5432:5432
   environment:

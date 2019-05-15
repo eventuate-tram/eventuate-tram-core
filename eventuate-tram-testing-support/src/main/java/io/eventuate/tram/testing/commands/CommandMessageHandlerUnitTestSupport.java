@@ -1,5 +1,6 @@
 package io.eventuate.tram.testing.commands;
 
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.DefaultChannelMapping;
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
@@ -7,7 +8,6 @@ import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;

@@ -1,7 +1,7 @@
 package io.eventuate.tram.testutil;
 
-import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.util.test.async.Eventually;
 import org.slf4j.Logger;

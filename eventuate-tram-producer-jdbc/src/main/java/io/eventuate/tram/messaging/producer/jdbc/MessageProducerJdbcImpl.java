@@ -1,9 +1,9 @@
 package io.eventuate.tram.messaging.producer.jdbc;
 
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.AbstractMessageProducer;
 import io.eventuate.tram.messaging.producer.MessageProducer;

@@ -1,14 +1,6 @@
-include 'eventuate-tram-cdc-mysql-connector'
-include 'eventuate-tram-cdc-mysql-connector-autoconfigure'
-include 'eventuate-tram-cdc-mysql-service'
-
-include 'eventuate-tram-redis-common'
 include 'eventuate-tram-jdbc'
 include 'eventuate-tram-messaging'
 include 'eventuate-tram-producer-jdbc'
-include 'eventuate-tram-producer-activemq'
-include 'eventuate-tram-producer-rabbitmq'
-include 'eventuate-tram-producer-redis'
 include 'eventuate-tram-in-memory'
 include 'eventuate-tram-consumer-common'
 include 'eventuate-tram-consumer-kafka'
@@ -31,15 +23,6 @@ include 'eventuate-tram-commands'
 include 'eventuate-tram-commands-mysql-kafka-integration-test'
 
 include 'eventuate-tram-test-util'
-
-include 'eventuate-tram-e2e-tests-common'
-include 'eventuate-tram-e2e-tests-in-memory'
-include 'eventuate-tram-e2e-tests-jdbc-activemq'
-include 'eventuate-tram-e2e-tests-jdbc-rabbitmq'
-include 'eventuate-tram-e2e-tests-jdbc-kafka'
-include 'eventuate-tram-e2e-tests-jdbc-redis'
-
-include 'eventuate-tram-eventuate-local-tests'
 
 include "eventuate-tram-testing-support"
 include "eventuate-tram-testing-support-spring-cloud-contract"

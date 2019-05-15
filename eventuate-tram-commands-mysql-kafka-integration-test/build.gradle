@@ -9,9 +9,9 @@ dependencies {
     compile project(":eventuate-tram-consumer-activemq")
     compile project(":eventuate-tram-commands")
 
-    testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
+    testCompile "io.eventuate.cdc:eventuate-cdc-connector-autoconfigure:$eventuateCdcVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
-    testCompile "io.eventuate.local.java:eventuate-local-java-test-util:$eventuateLocalVersion"
+    testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 

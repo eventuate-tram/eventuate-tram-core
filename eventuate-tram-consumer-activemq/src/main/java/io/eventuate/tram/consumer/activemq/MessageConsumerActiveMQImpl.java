@@ -1,9 +1,9 @@
 package io.eventuate.tram.consumer.activemq;
 
+import io.eventuate.common.ChannelType;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
-import io.eventuate.tram.messaging.common.ChannelType;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;

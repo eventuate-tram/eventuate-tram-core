@@ -1,11 +1,11 @@
 package io.eventuate.tram.activemq.integrationtests;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.common.ChannelType;
+import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.activemq.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
-import io.eventuate.tram.messaging.common.ChannelType;
-import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;

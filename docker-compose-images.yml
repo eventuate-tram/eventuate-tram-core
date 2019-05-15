@@ -18,7 +18,7 @@ cdcservice:
     EVENTUATELOCAL_CDC_BINLOG_CLIENT_ID: 1234567890
 
 mysql:
-  image: test-eventuate-tram-mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:

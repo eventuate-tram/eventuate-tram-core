@@ -1,10 +1,10 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
 import com.rabbitmq.client.*;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.coordinator.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

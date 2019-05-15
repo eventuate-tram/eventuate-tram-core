@@ -1,13 +1,13 @@
 package io.eventuate.tram.consumer.kafka;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumer;
-import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerMessageHandler;
-import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
+import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerMessageHandler;
+import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;

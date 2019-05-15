@@ -1,13 +1,13 @@
 package io.eventuate.tram.commands.consumer;
 
+import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.commands.common.ChannelMapping;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.Success;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Test;

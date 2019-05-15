@@ -1,10 +1,10 @@
 apply plugin: PrivateModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-producer-redis")
     compile project(":eventuate-tram-consumer-redis")
-    compile project(":eventuate-tram-cdc-mysql-connector")
     compile project(":eventuate-tram-common-integration-tests")
+    compile "io.eventuate.common:eventuate-common-producer-redis:$eventuateCommonVersion"
+    compile "io.eventuate.cdc:eventuate-tram-cdc-connector:$eventuateCdcVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
