@@ -19,17 +19,8 @@ public class EventuateActiveMQProducer implements DataProducer {
   private Session session;
   private Map<String, ChannelType> messageModes;
 
-  public EventuateActiveMQProducer(String url) {
-    this(url, Collections.emptyMap());
-  }
-
   public EventuateActiveMQProducer(String url, Optional<String> user, Optional<String> password) {
     this(url, Collections.emptyMap(), user, password);
-  }
-
-
-  public EventuateActiveMQProducer(String url, Map<String, ChannelType> messageModes) {
-    this(url, messageModes, Optional.empty(), Optional.empty());
   }
 
   public EventuateActiveMQProducer(String url,

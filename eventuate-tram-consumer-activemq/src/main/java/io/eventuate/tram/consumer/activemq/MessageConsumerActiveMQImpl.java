@@ -41,19 +41,10 @@ public class MessageConsumerActiveMQImpl implements MessageConsumer {
 
   private AtomicBoolean runFlag = new AtomicBoolean(true);
 
-  public MessageConsumerActiveMQImpl(String url) {
-    this(url, Collections.emptyMap(), Optional.empty(), Optional.empty());
-  }
-
   public MessageConsumerActiveMQImpl(String url,
                                      Optional<String> user,
                                      Optional<String> password) {
     this(url, Collections.emptyMap(), user, password);
-  }
-
-  public MessageConsumerActiveMQImpl(String url,
-                                     Map<String, ChannelType> messageModes) {
-    this(url, messageModes, Optional.empty(), Optional.empty());
   }
 
   public MessageConsumerActiveMQImpl(String url,
