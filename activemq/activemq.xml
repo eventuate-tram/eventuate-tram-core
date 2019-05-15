@@ -42,7 +42,7 @@
         <plugins>
             <simpleAuthenticationPlugin>
                 <users>
-                    <authenticationUser username="eventuate" password="eventuate" groups="users,admins"/>
+                    <authenticationUser username="eventuateuser" password="eventuatepassword" groups="users,admins"/>
                 </users>
             </simpleAuthenticationPlugin>
         </plugins>
