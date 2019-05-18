@@ -7,11 +7,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.util.Optional;
+
 @Configuration
 @Import(TramConsumerCommonConfiguration.class)
 public class TramConsumerActiveMQConfiguration {
   @Bean
-  public MessageConsumer messageConsumer(@Value("${activemq.url}") String activeMQURL) {
-    return new MessageConsumerActiveMQImpl(activeMQURL);
+  public MessageConsumer messageConsumer(@Value("${activemq.url}") String activeMQURL,
+                                         @Value("${activemq.user:#{null}}") String activeMQUser,
+                                         @Value("${activemq.password:#{null}}") String activeMQPassword) {
+    return new MessageConsumerActiveMQImpl(activeMQURL, Optional.ofNullable(activeMQUser), Optional.ofNullable(activeMQPassword));
   }
 }

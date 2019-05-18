@@ -6,7 +6,7 @@ zookeeper:
     - 3888:3888
 
 activemq:
-  image: webcenter/activemq:5.14.3
+  build: ./activemq
   ports:
     - 8161:8161
     - 61616:61616

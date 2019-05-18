@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.util.Optional;
+
 @Configuration
 @Profile("ActiveMQ")
 public class ActiveMQMessageTableChangesToDestinationsConfiguration {
@@ -17,7 +19,11 @@ public class ActiveMQMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public DataProducerFactory activeMQDataProducerFactory(@Value("${activemq.url}") String activeMQURL) {
-    return () -> new EventuateActiveMQProducer(activeMQURL);
+  public DataProducerFactory activeMQDataProducerFactory(@Value("${activemq.url}") String activeMQURL,
+                                                         @Value("${activemq.user:#{null}}") String activeMQUser,
+                                                         @Value("${activemq.password:#{null}}") String activeMQPassword) {
+    return () -> new EventuateActiveMQProducer(activeMQURL,
+            Optional.ofNullable(activeMQUser),
+            Optional.ofNullable(activeMQPassword));
   }
 }
