@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.jdbc;
 
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
   private final TransactionTemplate transactionTemplate;
 
 
-  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql,  TransactionTemplate transactionTemplate) {
+  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql, TransactionTemplate transactionTemplate) {
     this.transactionTemplate = transactionTemplate;
     this.eventuateSchema = eventuateSchema;
     this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;

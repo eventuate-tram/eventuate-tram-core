@@ -3,4 +3,5 @@ apply plugin: PublicModulePlugin
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
 }
