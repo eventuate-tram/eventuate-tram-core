@@ -35,7 +35,7 @@ public class EventuateTramMessageVerifier implements MessageVerifier<Message> {
 
   @PostConstruct
   public void subscribe() {
-    messageConsumer.subscribe("etmv", singleton("*"), m -> {
+    messageConsumer.subscribe(getClass().getName(), singleton("*"), m -> {
       String destination = m.getRequiredHeader(Message.DESTINATION);
       getForDestination(destination).add(m);
     });

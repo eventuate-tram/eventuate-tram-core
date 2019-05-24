@@ -70,11 +70,12 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
     String destination = message.getRequiredHeader(Message.DESTINATION);
     List<MessageHandlerWithSubscriberId> handlers = subscriptions.getOrDefault(destination, Collections.emptyList());
     sendToHandlers(destination, message, handlers);
+    logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
     sendToHandlers(destination, message, wildcardSubscriptions);
+    logger.info("sending to wildcard channel {} that has {} subscriptions this message {} ", destination, wildcardSubscriptions.size(), message);
   }
 
   private void sendToHandlers(String destination, Message message, List<MessageHandlerWithSubscriberId> handlers) {
-    logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
     preReceive(message);
     for (MessageHandlerWithSubscriberId handler : handlers) {
       executor.execute(() -> transactionTemplate.execute(ts -> {
