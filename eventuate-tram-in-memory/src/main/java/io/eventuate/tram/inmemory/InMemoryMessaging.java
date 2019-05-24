@@ -69,10 +69,10 @@ public class InMemoryMessaging extends AbstractMessageProducer implements Messag
   private void send(Message message) {
     String destination = message.getRequiredHeader(Message.DESTINATION);
     List<MessageHandlerWithSubscriberId> handlers = subscriptions.getOrDefault(destination, Collections.emptyList());
-    sendToHandlers(destination, message, handlers);
     logger.info("sending to channel {} that has {} subscriptions this message {} ", destination, handlers.size(), message);
-    sendToHandlers(destination, message, wildcardSubscriptions);
+    sendToHandlers(destination, message, handlers);
     logger.info("sending to wildcard channel {} that has {} subscriptions this message {} ", destination, wildcardSubscriptions.size(), message);
+    sendToHandlers(destination, message, wildcardSubscriptions);
   }
 
   private void sendToHandlers(String destination, Message message, List<MessageHandlerWithSubscriberId> handlers) {
