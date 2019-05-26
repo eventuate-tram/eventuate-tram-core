@@ -1,4 +1,5 @@
-import org.gradle.api.*
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
 class PublicModulePlugin implements Plugin<Project> {
     void apply(Project project) {

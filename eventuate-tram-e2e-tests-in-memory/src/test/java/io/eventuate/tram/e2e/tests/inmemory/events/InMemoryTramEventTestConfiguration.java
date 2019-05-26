@@ -8,9 +8,6 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({
-        AbstractTramEventTestConfiguration.class,
-        TramInMemoryConfiguration.class,
-})
-class JdbcKafkaTramEventTestConfiguration {
+@Import({AbstractTramEventTestConfiguration.class, TramInMemoryConfiguration.class,})
+class InMemoryTramEventTestConfiguration {
 }

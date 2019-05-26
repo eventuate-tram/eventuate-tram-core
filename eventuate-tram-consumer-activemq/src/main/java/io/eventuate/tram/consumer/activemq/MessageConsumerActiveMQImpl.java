@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.activemq;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.common.ChannelType;
 import io.eventuate.tram.messaging.common.MessageImpl;
@@ -22,7 +23,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class MessageConsumerActiveMQImpl implements MessageConsumer {
+public class MessageConsumerActiveMQImpl implements MessageConsumerImplementation {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 

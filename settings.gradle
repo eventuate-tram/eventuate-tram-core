@@ -5,6 +5,8 @@ include 'eventuate-tram-cdc-mysql-service'
 include 'eventuate-tram-redis-common'
 include 'eventuate-tram-jdbc'
 include 'eventuate-tram-messaging'
+include 'eventuate-tram-messaging-producer-common'
+
 include 'eventuate-tram-producer-jdbc'
 include 'eventuate-tram-producer-activemq'
 include 'eventuate-tram-producer-rabbitmq'

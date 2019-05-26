@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.rabbitmq;
 
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -27,7 +28,7 @@ public class TramConsumerRabbitMQConfiguration {
   private String rabbitMQUrl;
 
   @Bean
-  public MessageConsumer messageConsumer(CoordinatorFactory coordinatorFactory) {
+  public MessageConsumerImplementation messageConsumerImplementation(CoordinatorFactory coordinatorFactory) {
     return new MessageConsumerRabbitMQImpl(coordinatorFactory, rabbitMQUrl, partitionCount);
   }
 

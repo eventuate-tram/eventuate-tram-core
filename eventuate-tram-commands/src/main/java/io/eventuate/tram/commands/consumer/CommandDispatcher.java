@@ -1,12 +1,12 @@
 package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.commands.common.ChannelMapping;
 import io.eventuate.tram.commands.common.CommandMessageHeaders;
 import io.eventuate.tram.commands.common.Failure;
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.common.paths.ResourcePath;
 import io.eventuate.tram.commands.common.paths.ResourcePathPattern;
+import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.EMPTY_MAP;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toSet;
 
 public class CommandDispatcher {
 
@@ -32,36 +31,24 @@ public class CommandDispatcher {
   private String commandDispatcherId;
   private CommandHandlers commandHandlers;
 
-  @Autowired
-  private ChannelMapping channelMapping;
-
-  @Autowired
   private MessageConsumer messageConsumer;
 
-  @Autowired
   private MessageProducer messageProducer;
 
   public CommandDispatcher(String commandDispatcherId,
                            CommandHandlers commandHandlers,
-                           ChannelMapping channelMapping,
                            MessageConsumer messageConsumer,
                            MessageProducer messageProducer) {
     this.commandDispatcherId = commandDispatcherId;
     this.commandHandlers = commandHandlers;
-    this.channelMapping = channelMapping;
     this.messageConsumer = messageConsumer;
     this.messageProducer = messageProducer;
-  }
-
-  public CommandDispatcher(String commandDispatcherId, CommandHandlers commandHandlers) {
-    this.commandDispatcherId = commandDispatcherId;
-    this.commandHandlers = commandHandlers;
   }
 
   @PostConstruct
   public void initialize() {
     messageConsumer.subscribe(commandDispatcherId,
-            commandHandlers.getChannels().stream().map(channelMapping::transform).collect(toSet()),
+            commandHandlers.getChannels(),
             this::messageHandler);
   }
 
@@ -97,7 +84,7 @@ public class CommandDispatcher {
     }
 
     if (replies != null) {
-      publish(correlationHeaders, replies, defaultReplyChannel);
+      sendReplies(correlationHeaders, replies, defaultReplyChannel);
     } else {
       logger.trace("Null replies - not publishling");
     }
@@ -122,9 +109,9 @@ public class CommandDispatcher {
     }).orElse(EMPTY_MAP);
   }
 
-  private void publish(Map<String, String> correlationHeaders, List<Message> replies, Optional<String> defaultReplyChannel) {
+  private void sendReplies(Map<String, String> correlationHeaders, List<Message> replies, Optional<String> defaultReplyChannel) {
     for (Message reply : replies)
-      messageProducer.send(channelMapping.transform(destination(defaultReplyChannel)),
+      messageProducer.send(destination(defaultReplyChannel),
               MessageBuilder
                       .withMessage(reply)
                       .withExtraHeaders("", correlationHeaders)
@@ -159,10 +146,10 @@ public class CommandDispatcher {
 
     if (m.isPresent()) {
       List<Message> replies = m.get().invoke(cause);
-      publish(correlationHeaders(message.getHeaders()), replies, defaultReplyChannel);
+      sendReplies(correlationHeaders(message.getHeaders()), replies, defaultReplyChannel);
     } else {
       List<Message> replies = singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build());
-      publish(correlationHeaders(message.getHeaders()), replies, defaultReplyChannel);
+      sendReplies(correlationHeaders(message.getHeaders()), replies, defaultReplyChannel);
     }
   }
 

@@ -1,9 +1,9 @@
 package io.eventuate.e2e.tests.basic.events;
 
+import io.eventuate.e2e.tests.basic.events.domain.AccountDebited;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
-import io.eventuate.e2e.tests.basic.events.domain.AccountDebited;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;

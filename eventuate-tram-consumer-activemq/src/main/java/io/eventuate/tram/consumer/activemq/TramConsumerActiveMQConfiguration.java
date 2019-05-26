@@ -1,5 +1,6 @@
 package io.eventuate.tram.consumer.activemq;
 
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,10 +13,12 @@ import java.util.Optional;
 @Configuration
 @Import(TramConsumerCommonConfiguration.class)
 public class TramConsumerActiveMQConfiguration {
+
   @Bean
-  public MessageConsumer messageConsumer(@Value("${activemq.url}") String activeMQURL,
+  public MessageConsumerImplementation messageConsumerImplementation(@Value("${activemq.url}") String activeMQURL,
                                          @Value("${activemq.user:#{null}}") String activeMQUser,
                                          @Value("${activemq.password:#{null}}") String activeMQPassword) {
     return new MessageConsumerActiveMQImpl(activeMQURL, Optional.ofNullable(activeMQUser), Optional.ofNullable(activeMQPassword));
   }
+
 }

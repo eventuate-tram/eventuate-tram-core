@@ -39,7 +39,7 @@ public class TracingMessagingInterceptor implements MessageInterceptor {
     MessageHeaderPropagation.removeAnyTraceHeaders(headers, this.tracing.propagation().keys());
     this.injector.inject(span.context(), headers);
     if (!span.isNoop()) {
-      span.kind(Span.Kind.PRODUCER).name("send " + message.getRequiredHeader(Message.DESTINATION)).start();
+      span.kind(Span.Kind.PRODUCER).name("doSend " + message.getRequiredHeader(Message.DESTINATION)).start();
       addMessageTags(span, message);
     }
   }

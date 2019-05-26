@@ -10,7 +10,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,8 +25,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {TramConsumerRedisConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
+@SpringBootTest(classes = MessageConsumerRedisImplTest.Config.class)
 public class MessageConsumerRedisImplTest {
+
+  @Configuration
+  @EnableAutoConfiguration
+  @Import({TramConsumerRedisConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
+  static class Config {
+  }
 
   @Autowired
   private RedisTemplate<String, String> redisTemplate;

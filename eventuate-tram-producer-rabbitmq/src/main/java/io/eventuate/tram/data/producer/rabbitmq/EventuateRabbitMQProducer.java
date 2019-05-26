@@ -1,6 +1,9 @@
 package io.eventuate.tram.data.producer.rabbitmq;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.local.java.common.broker.DataProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

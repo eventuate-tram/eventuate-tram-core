@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
 import io.eventuate.tram.consumer.common.coordinator.SubscriptionLifecycleHook;
@@ -12,10 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
-public class MessageConsumerRedisImpl implements MessageConsumer {
+public class MessageConsumerRedisImpl implements MessageConsumerImplementation {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -50,7 +54,6 @@ public class MessageConsumerRedisImpl implements MessageConsumer {
                                   CoordinatorFactory coordinatorFactory,
                                   long timeInMillisecondsToSleepWhenKeyDoesNotExist,
                                   long blockStreamTimeInMilliseconds) {
-
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.redisTemplate = redisTemplate;

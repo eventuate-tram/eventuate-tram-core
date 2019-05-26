@@ -6,8 +6,6 @@ import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import java.util.List;
 import java.util.function.Function;
 
-import static java.util.Arrays.asList;
-
 public abstract class AbstractAggregateDomainEventPublisher<A, E extends DomainEvent> {
   private Function<A, Object> idSupplier;
   private DomainEventPublisher eventPublisher;

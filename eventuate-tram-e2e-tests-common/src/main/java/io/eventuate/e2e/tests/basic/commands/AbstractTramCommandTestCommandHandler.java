@@ -1,6 +1,9 @@
 package io.eventuate.e2e.tests.basic.commands;
 
-import io.eventuate.tram.commands.consumer.*;
+import io.eventuate.tram.commands.consumer.CommandHandlers;
+import io.eventuate.tram.commands.consumer.CommandHandlersBuilder;
+import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.messaging.common.Message;
 
 import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withSuccess;

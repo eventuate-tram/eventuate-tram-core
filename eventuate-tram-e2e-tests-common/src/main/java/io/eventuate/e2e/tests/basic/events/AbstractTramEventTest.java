@@ -1,8 +1,8 @@
 package io.eventuate.e2e.tests.basic.events;
 
+import io.eventuate.e2e.tests.basic.events.domain.AccountDebited;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
-import io.eventuate.e2e.tests.basic.events.domain.AccountDebited;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

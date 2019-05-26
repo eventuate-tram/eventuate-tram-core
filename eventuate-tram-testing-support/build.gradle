@@ -7,4 +7,7 @@ dependencies {
 
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     compile "junit:junit:4.12"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile project(":eventuate-tram-in-memory")
 }

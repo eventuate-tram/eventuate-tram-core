@@ -2,8 +2,6 @@ package io.eventuate.tram.consumer.common.coordinator;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.tram.consumer.common.coordinator.Assignment;
-import io.eventuate.tram.consumer.common.coordinator.PartitionManager;
 import org.junit.Assert;
 import org.junit.Test;
 

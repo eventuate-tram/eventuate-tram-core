@@ -2,11 +2,12 @@ package io.eventuate.tram.redis.integrationtests;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
+import io.eventuate.tram.common.integrationtests.AbstractMessagingTest;
+import io.eventuate.tram.consumer.common.TramConsumerBaseCommonConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
+import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactoryImpl;
 import io.eventuate.tram.consumer.redis.*;
-import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
@@ -22,8 +23,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MessagingTest.Config.class)
@@ -32,7 +33,7 @@ public class MessagingTest extends AbstractMessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({CommonRedisConfiguration.class, TramConsumerCommonConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
+  @Import({CommonRedisConfiguration.class, TramConsumerBaseCommonConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class})
   public static class Config {
   }
 

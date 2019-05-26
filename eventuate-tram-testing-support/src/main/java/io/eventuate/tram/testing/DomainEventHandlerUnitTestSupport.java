@@ -1,5 +1,6 @@
 package io.eventuate.tram.testing;
 
+import io.eventuate.tram.events.common.DefaultDomainEventNameMapping;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
@@ -46,7 +47,7 @@ public class DomainEventHandlerUnitTestSupport {
       public void close() {
 
       }
-    });
+    }, new DefaultDomainEventNameMapping());
 
     dispatcher.initialize();
     return this;
@@ -72,7 +73,7 @@ public class DomainEventHandlerUnitTestSupport {
       String id = idGenerator.generateId().toString();
       message.getHeaders().put(Message.ID, id);
       handler.accept(message);
-    });
+    }, new DefaultDomainEventNameMapping());
 
     publisher.publish(aggregateType, aggregateId, Collections.singletonList(event));
     return this;

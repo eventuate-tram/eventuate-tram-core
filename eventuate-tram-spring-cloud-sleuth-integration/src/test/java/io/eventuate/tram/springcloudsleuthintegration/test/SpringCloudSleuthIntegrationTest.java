@@ -1,7 +1,6 @@
 package io.eventuate.tram.springcloudsleuthintegration.test;
 
 import io.eventuate.tram.inmemory.TramInMemoryConfiguration;
-import io.eventuate.tram.springcloudsleuthintegration.TramSpringCloudSleuthIntegrationConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,7 +81,7 @@ public class SpringCloudSleuthIntegrationTest {
 
     List<ZipkinSpan> trace = traces.get(0);
     ZipkinSpan parentSpan = trace.stream().filter(s -> s.hasTag("http.path", "/foo/" + id)).findFirst().get();
-    ZipkinSpan sendSpan = trace.stream().filter(s -> s.hasName("send testchannel")).findFirst().get();
+    ZipkinSpan sendSpan = trace.stream().filter(s -> s.hasName("dosend testchannel")).findFirst().get();
     assertChildOf(parentSpan, sendSpan);
     ZipkinSpan receiveSpan = trace.stream().filter(s -> s.hasName("receive testchannel")).findFirst().get();
     assertChildOf(sendSpan, receiveSpan);

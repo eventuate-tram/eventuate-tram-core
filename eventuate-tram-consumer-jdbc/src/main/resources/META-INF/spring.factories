@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.eventuate.tram.consumer.jdbc.TramConsumerJdbcAutoConfiguration

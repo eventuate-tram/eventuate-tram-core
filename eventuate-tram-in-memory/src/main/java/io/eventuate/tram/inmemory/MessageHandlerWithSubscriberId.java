@@ -1,13 +1,15 @@
 package io.eventuate.tram.inmemory;
 
-import io.eventuate.tram.messaging.consumer.MessageHandler;
+import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+
+import java.util.function.Consumer;
 
 public class MessageHandlerWithSubscriberId {
 
   private String subscriber;
-  private MessageHandler messageHandler;
+  private Consumer<SubscriberIdAndMessage> messageHandler;
 
-  public MessageHandlerWithSubscriberId(String subscriber, MessageHandler messageHandler) {
+  public MessageHandlerWithSubscriberId(String subscriber, Consumer<SubscriberIdAndMessage> messageHandler) {
     this.subscriber = subscriber;
     this.messageHandler = messageHandler;
   }
@@ -16,7 +18,7 @@ public class MessageHandlerWithSubscriberId {
     return subscriber;
   }
 
-  public MessageHandler getMessageHandler() {
+  public Consumer<SubscriberIdAndMessage> getMessageHandler() {
     return messageHandler;
   }
 }

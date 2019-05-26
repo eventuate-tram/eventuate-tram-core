@@ -7,6 +7,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JdbcKafkaTramEventTestConfiguration.class)
+@SpringBootTest(classes = InMemoryTramEventTestConfiguration.class)
 public class InMemoryTramEventTest extends AbstractTramEventTest {
 }

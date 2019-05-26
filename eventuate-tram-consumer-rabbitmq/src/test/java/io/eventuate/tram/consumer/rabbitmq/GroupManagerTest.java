@@ -11,7 +11,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @RunWith(SpringRunner.class)

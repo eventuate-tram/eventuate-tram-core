@@ -1,8 +1,6 @@
 package io.eventuate.tram.cdc.mysql.connector.configuration;
 
 import io.eventuate.local.common.BinlogFileOffset;
-import io.eventuate.local.java.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.local.java.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;

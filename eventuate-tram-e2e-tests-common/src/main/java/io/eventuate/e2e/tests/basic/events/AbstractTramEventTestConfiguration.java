@@ -1,5 +1,6 @@
 package io.eventuate.e2e.tests.basic.events;
 
+import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -19,10 +20,11 @@ public class AbstractTramEventTestConfiguration {
   @Bean
   public DomainEventDispatcher domainEventDispatcher(AbstractTramEventTestConfig config,
                                                      TramEventTestEventConsumer target,
-                                                     MessageConsumer messageConsumer) {
+                                                     MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
     return new DomainEventDispatcher("eventDispatcherId" + config.getUniqueId(),
             target.domainEventHandlers(),
-            messageConsumer);
+            messageConsumer,
+            domainEventNameMapping);
   }
 
   @Bean

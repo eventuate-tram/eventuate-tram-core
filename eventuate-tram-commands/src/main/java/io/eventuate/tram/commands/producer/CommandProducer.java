@@ -9,7 +9,7 @@ public interface CommandProducer {
   /**
    * Sends a command
    * @param channel
-   * @param command the command to send
+   * @param command the command to doSend
    * @param replyTo
    * @param headers additional headers  @return the id of the sent command
    */
@@ -19,7 +19,7 @@ public interface CommandProducer {
    * Sends a command
    * @param channel
    * @param resource
-   * @param command the command to send
+   * @param command the command to doSend
    * @param replyTo
    *@param headers additional headers  @return the id of the sent command
    */

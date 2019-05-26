@@ -1,10 +1,10 @@
 package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.tram.commands.common.ChannelMapping;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.Success;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
+import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
@@ -14,10 +14,7 @@ import org.junit.Test;
 
 import static java.util.Collections.singletonMap;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class CommandDispatcherTest {
 
@@ -67,7 +64,6 @@ public class CommandDispatcherTest {
 
     CommandDispatcher dispatcher = new CommandDispatcher(commandDispatcherId,
             defineCommandHandlers(target),
-            channelMapping,
             messageConsumer,
             messageProducer);
 
