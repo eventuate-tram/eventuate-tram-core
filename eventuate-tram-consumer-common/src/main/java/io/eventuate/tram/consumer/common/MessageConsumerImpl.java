@@ -8,14 +8,14 @@ import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class ChannelMappingMessageConsumer implements MessageConsumer {
+public final class MessageConsumerImpl implements MessageConsumer {
 
   // This could be implemented as Around advice
 
   private ChannelMapping channelMapping;
   private MessageConsumerImplementation target;
 
-  protected ChannelMappingMessageConsumer(ChannelMapping channelMapping, MessageConsumerImplementation target) {
+  protected MessageConsumerImpl(ChannelMapping channelMapping, MessageConsumerImplementation target) {
     this.channelMapping = channelMapping;
     this.target = target;
   }

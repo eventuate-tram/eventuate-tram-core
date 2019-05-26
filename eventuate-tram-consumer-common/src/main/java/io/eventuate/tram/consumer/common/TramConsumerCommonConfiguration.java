@@ -12,6 +12,6 @@ public class TramConsumerCommonConfiguration {
 
   @Bean
   public MessageConsumer messageConsumer(MessageConsumerImplementation messageConsumerImplementation, ChannelMapping channelMapping) {
-    return new ChannelMappingMessageConsumer(channelMapping, messageConsumerImplementation);
+    return new MessageConsumerImpl(channelMapping, messageConsumerImplementation);
   }
 }

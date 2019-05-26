@@ -1,15 +1,15 @@
 package io.eventuate.e2e.tests.basic.events;
 
-import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
-import io.eventuate.tram.messaging.consumer.MessageConsumer;
+import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
+import io.eventuate.tram.events.subscriber.TramEventSubscriberConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(TramEventsPublisherConfiguration.class)
+@Import({TramEventsPublisherConfiguration.class, TramEventSubscriberConfiguration.class})
 public class AbstractTramEventTestConfiguration {
 
   @Bean
@@ -20,11 +20,8 @@ public class AbstractTramEventTestConfiguration {
   @Bean
   public DomainEventDispatcher domainEventDispatcher(AbstractTramEventTestConfig config,
                                                      TramEventTestEventConsumer target,
-                                                     MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
-    return new DomainEventDispatcher("eventDispatcherId" + config.getUniqueId(),
-            target.domainEventHandlers(),
-            messageConsumer,
-            domainEventNameMapping);
+                                                     DomainEventDispatcherFactory domainEventDispatcherFactory) {
+    return domainEventDispatcherFactory.make("eventDispatcherId" + config.getUniqueId(), target.domainEventHandlers());
   }
 
   @Bean
