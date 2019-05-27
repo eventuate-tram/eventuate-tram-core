@@ -74,7 +74,7 @@ public class MessageConsumerActiveMQImpl implements MessageConsumerImplementatio
         ChannelType mode = messageModes.getOrDefault(channel, ChannelType.TOPIC);
 
         String destinationName = mode == ChannelType.TOPIC ?
-                String.format("Consumer.%s.VirtualTopic.%s", subscriberId, channel) :
+                String.format("Consumer.%s.VirtualTopic.%s", formatSubscriberId(subscriberId), channel) :
                 channel;
 
         Destination destination = session.createQueue(destinationName);
@@ -100,6 +100,10 @@ public class MessageConsumerActiveMQImpl implements MessageConsumerImplementatio
       logger.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
+  }
+
+  private String formatSubscriberId(String subscriberId) {
+    return subscriberId.replace(".", "::");
   }
 
   private ActiveMQConnectionFactory createActiveMQConnectionFactory(String url, Optional<String> user, Optional<String> password) {
