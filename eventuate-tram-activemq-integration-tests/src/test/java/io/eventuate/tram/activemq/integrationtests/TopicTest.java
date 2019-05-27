@@ -110,4 +110,27 @@ public class TopicTest {
 
     Eventually.eventually(() -> Assert.assertEquals(messages * consumers, concurrentLinkedQueue.size()));
   }
+
+  @Test
+  public void testSubscriberWithPeriods() {
+
+    ConcurrentLinkedQueue<String> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
+
+    String topic = "io.eventuate.SomeClass" + uniquePostfix;
+    String key = "some.key" + uniquePostfix;
+    String payload = JSonMapper.toJson(new MessageImpl(uniquePostfix,
+            Collections.singletonMap("ID", UUID.randomUUID().toString())));
+    String subscriberId = "io.eventuate.Subscriber" + uniquePostfix;
+
+    messageConsumerActiveMQ.subscribe(subscriberId,
+            ImmutableSet.of(topic),
+            message ->
+                    concurrentLinkedQueue.add(message.getPayload()));
+
+    eventuateActiveMQProducer.send(topic,
+            key,
+            payload);
+
+    Eventually.eventually(() -> Assert.assertEquals(1, concurrentLinkedQueue.size()));
+  }
 }
