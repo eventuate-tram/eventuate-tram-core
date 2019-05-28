@@ -1,9 +1,8 @@
-package io.eventuate.tram.messaging.producer;
+package io.eventuate.tram.messaging.producer.common;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 

@@ -1,6 +1,7 @@
 package io.eventuate.tram.events.subscriber;
 
 import io.eventuate.tram.events.common.DomainEvent;
+import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -13,6 +14,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DomainEventDispatcherTest {
 
@@ -21,6 +23,7 @@ public class DomainEventDispatcherTest {
 
   private String aggregateId = "xyz";
   private String messageId = "message-" + System.currentTimeMillis();
+  private String externalEventType = "event-type-" + System.currentTimeMillis();
 
   class MyTarget {
 
@@ -48,8 +51,13 @@ public class DomainEventDispatcherTest {
 
     MessageConsumer messageConsumer = mock(MessageConsumer.class);
 
+    DomainEventNameMapping domainEventNameMapping = mock(DomainEventNameMapping.class);
+
+    when(domainEventNameMapping.externalEventTypeToEventClassName(aggregateType, externalEventType))
+            .thenReturn(MyDomainEvent.class.getName());
+
     DomainEventDispatcher dispatcher =
-            new DomainEventDispatcher(eventDispatcherId, target.domainEventHandlers(), messageConsumer);
+            new DomainEventDispatcher(eventDispatcherId, target.domainEventHandlers(), messageConsumer, domainEventNameMapping);
 
     dispatcher.initialize();
 
@@ -57,7 +65,7 @@ public class DomainEventDispatcherTest {
     dispatcher.messageHandler(DomainEventPublisherImpl.makeMessageForDomainEvent(aggregateType,
             aggregateId,
             Collections.singletonMap(Message.ID, messageId),
-            new MyDomainEvent()));
+            new MyDomainEvent(), externalEventType));
 
     DomainEventEnvelope<?> dee = target.queue.peek();
 

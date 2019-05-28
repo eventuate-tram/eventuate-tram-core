@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 @Configuration
@@ -30,18 +31,26 @@ public class CommonQueueTopicTestConfiguration {
   }
 
   @Bean
-  public MessageConsumerActiveMQImpl messageConsumerKafka(@Value("${activemq.url}") String activeMQURL,
+  public MessageConsumerActiveMQImpl messageConsumerActiveMQ(@Value("${activemq.url}") String activeMQURL,
+                                                          @Value("${activemq.user:#{null}}") String activeMQUser,
+                                                          @Value("${activemq.password:#{null}}") String activeMQPassword,
                                                           @Qualifier("uniquePostfix") String uniquePostfix,
                                                           @Qualifier("testChannelType") ChannelType channelType) {
     return new MessageConsumerActiveMQImpl(activeMQURL,
-            Collections.singletonMap("destination" + uniquePostfix, channelType));
+            Collections.singletonMap("destination" + uniquePostfix, channelType),
+            Optional.ofNullable(activeMQUser),
+            Optional.ofNullable(activeMQPassword));
   }
 
   @Bean
   public EventuateActiveMQProducer activeMQMessageProducer(@Value("${activemq.url}") String activeMQURL,
+                                                           @Value("${activemq.user:#{null}}") String activeMQUser,
+                                                           @Value("${activemq.password:#{null}}") String activeMQPassword,
                                                            @Qualifier("uniquePostfix") String uniquePostfix,
                                                            @Qualifier("testChannelType") ChannelType channelType) {
     return new EventuateActiveMQProducer(activeMQURL,
-            Collections.singletonMap("destination" + uniquePostfix, channelType));
+            Collections.singletonMap("destination" + uniquePostfix, channelType),
+            Optional.ofNullable(activeMQUser),
+            Optional.ofNullable(activeMQPassword));
   }
 }

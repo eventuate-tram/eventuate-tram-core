@@ -1,5 +1,6 @@
 package io.eventuate.tram.inmemory;
 
+import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -21,11 +21,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = InMemoryMessagingTest.InMemoryMessagingTestConfiguration.class)
-public class InMemoryMessagingTest {
+@SpringBootTest(classes = InMemoryMessageProducerTest.InMemoryMessagingTestConfiguration.class)
+public class InMemoryMessageProducerTest {
 
   private String subscriberId;
   private String destination;
@@ -34,13 +35,16 @@ public class InMemoryMessagingTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import(TramInMemoryConfiguration.class)
+  @Import({TramInMemoryConfiguration.class})
   public static class InMemoryMessagingTestConfiguration {
 
   }
 
   @Autowired
-  private InMemoryMessaging inMemoryMessaging;
+  private InMemoryMessageProducer inMemoryMessageProducer;
+
+  @Autowired
+  private InMemoryMessageConsumer inMemoryMessageConsumer;
 
   @Autowired
   private TransactionTemplate transactionTemplate;
@@ -84,10 +88,10 @@ public class InMemoryMessagingTest {
   @Test
   public void shouldDeliverToMatchingSubscribers() {
 
-    inMemoryMessaging.subscribe(subscriberId, Collections.singleton(destination), mh);
+    inMemoryMessageConsumer.subscribe(subscriberId, Collections.singleton(destination), mh);
 
-    Message m = MessageBuilder.withPayload(payload).build();
-    inMemoryMessaging.send(destination, m);
+    Message m = makeMessage();
+    inMemoryMessageProducer.send(m);
     assertNotNull(m.getId());
     mh.shouldReceiveMessage(payload);
 
@@ -95,9 +99,9 @@ public class InMemoryMessagingTest {
 
   @Test
   public void shouldSetIdWithinTransaction() {
-    Message m = MessageBuilder.withPayload(payload).build();
+    Message m = makeMessage();
     transactionTemplate.execute((TransactionCallback<Void>) status -> {
-      inMemoryMessaging.send(destination, m);
+      inMemoryMessageProducer.send(m);
       assertNotNull(m.getId());
       return null;
     });
@@ -106,12 +110,18 @@ public class InMemoryMessagingTest {
   @Test
   public void shouldDeliverToWildcardSubscribers() {
 
-    inMemoryMessaging.subscribe(subscriberId, Collections.singleton("*"), mh);
+    inMemoryMessageConsumer.subscribe(subscriberId, Collections.singleton("*"), mh);
 
-    inMemoryMessaging.send(destination, MessageBuilder.withPayload(payload).build());
+    Message m = makeMessage();
+
+    inMemoryMessageProducer.send(m);
 
     mh.shouldReceiveMessage(payload);
 
+  }
+
+  private Message makeMessage() {
+    return MessageBuilder.withPayload(payload).withHeader(Message.DESTINATION, destination).withHeader(Message.ID, "message-id").build();
   }
 
 }

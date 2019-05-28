@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.common.coordinator.*;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -18,9 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class TramConsumerRedisConfiguration {
 
   @Bean
-  public MessageConsumer messageConsumer(RedisTemplate<String, String> redisTemplate,
-                                         CoordinatorFactory coordinatorFactory,
-                                         RedisConfigurationProperties redisConfigurationProperties) {
+  public MessageConsumerImplementation messageConsumerImplementation(RedisTemplate<String, String> redisTemplate,
+                                                       CoordinatorFactory coordinatorFactory,
+                                                       RedisConfigurationProperties redisConfigurationProperties) {
 
     return new MessageConsumerRedisImpl(redisTemplate,
             coordinatorFactory,

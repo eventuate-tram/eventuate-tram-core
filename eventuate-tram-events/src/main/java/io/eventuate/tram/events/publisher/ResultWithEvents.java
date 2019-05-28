@@ -1,4 +1,4 @@
-package io.eventuate.tram.events;
+package io.eventuate.tram.events.publisher;
 
 
 import io.eventuate.tram.events.common.DomainEvent;

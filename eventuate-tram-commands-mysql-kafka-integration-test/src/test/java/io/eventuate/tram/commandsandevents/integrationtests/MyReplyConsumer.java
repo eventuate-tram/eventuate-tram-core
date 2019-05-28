@@ -1,6 +1,6 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
-import io.eventuate.tram.commands.common.ChannelMapping;
+import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.springframework.beans.factory.annotation.Autowired;

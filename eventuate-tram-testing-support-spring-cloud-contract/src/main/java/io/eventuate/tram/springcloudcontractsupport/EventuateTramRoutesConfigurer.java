@@ -18,11 +18,7 @@ import org.springframework.cloud.contract.spec.internal.BodyMatchers;
 import org.springframework.cloud.contract.spec.internal.Header;
 import org.springframework.cloud.contract.stubrunner.BatchStubRunner;
 import org.springframework.cloud.contract.stubrunner.StubConfiguration;
-import org.springframework.cloud.contract.verifier.util.BodyExtractor;
-import org.springframework.cloud.contract.verifier.util.JsonPaths;
-import org.springframework.cloud.contract.verifier.util.JsonToJsonPathsConverter;
-import org.springframework.cloud.contract.verifier.util.MapConverter;
-import org.springframework.cloud.contract.verifier.util.MethodBufferingJsonVerifiable;
+import org.springframework.cloud.contract.verifier.util.*;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;

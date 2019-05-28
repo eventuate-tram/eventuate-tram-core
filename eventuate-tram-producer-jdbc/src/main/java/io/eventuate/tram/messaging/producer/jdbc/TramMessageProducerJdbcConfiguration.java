@@ -9,6 +9,8 @@ import io.eventuate.sql.dialect.SqlDialectSelector;
 import io.eventuate.tram.jdbc.CommonJdbcMessagingConfiguration;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.MessageProducer;
+import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
+import io.eventuate.tram.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,20 +19,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
-@Import({SqlDialectConfiguration.class, CommonJdbcMessagingConfiguration.class})
+@Import({SqlDialectConfiguration.class, CommonJdbcMessagingConfiguration.class, TramMessagingCommonProducerConfiguration.class})
 public class TramMessageProducerJdbcConfiguration {
-
-  @Autowired(required = false)
-  private MessageInterceptor[] messageInterceptors = new MessageInterceptor[0];
 
   @Value("${spring.datasource.driver-class-name}")
   private String driver;
 
   @Bean
-  public MessageProducer messageProducer(EventuateSchema eventuateSchema,
-                                         SqlDialectSelector sqlDialectSelector) {
+  public MessageProducerImplementation messageProducerImplementation(EventuateSchema eventuateSchema,
+                                                       SqlDialectSelector sqlDialectSelector) {
     return new MessageProducerJdbcImpl(eventuateSchema,
-            sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(), messageInterceptors);
+            sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression()
+    );
   }
 
   @Bean

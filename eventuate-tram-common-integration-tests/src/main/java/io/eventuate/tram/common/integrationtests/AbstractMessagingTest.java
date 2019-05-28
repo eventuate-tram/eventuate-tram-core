@@ -1,6 +1,7 @@
-package io.eventuate.tram.redis.integrationtests;
+package io.eventuate.tram.common.integrationtests;
 
 import com.google.common.collect.ImmutableList;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -32,17 +33,17 @@ public abstract class AbstractMessagingTest {
   }
 
   protected static class TestSubscription {
-    private MessageConsumer messageConsumer;
+    private MessageConsumerImplementation messageConsumer;
     private ConcurrentLinkedQueue<Integer> messageQueue;
     private Set<Integer> currentPartitions;
     private boolean leader;
 
-    public TestSubscription(MessageConsumer messageConsumer, ConcurrentLinkedQueue<Integer> messageQueue) {
+    public TestSubscription(MessageConsumerImplementation messageConsumer, ConcurrentLinkedQueue<Integer> messageQueue) {
       this.messageConsumer = messageConsumer;
       this.messageQueue = messageQueue;
     }
 
-    public MessageConsumer getConsumer() {
+    public MessageConsumerImplementation getConsumer() {
       return messageConsumer;
     }
 

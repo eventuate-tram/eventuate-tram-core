@@ -4,6 +4,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.consumer.common.coordinator.CoordinatorFactory;
 import io.eventuate.tram.consumer.common.coordinator.SubscriptionLeaderHook;
@@ -16,12 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MessageConsumerRabbitMQImpl implements MessageConsumer {
+public class MessageConsumerRabbitMQImpl implements MessageConsumerImplementation {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -54,7 +58,6 @@ public class MessageConsumerRabbitMQImpl implements MessageConsumer {
                                      CoordinatorFactory coordinatorFactory,
                                      String rabbitMQUrl,
                                      int partitionCount) {
-
     this.subscriptionIdSupplier = subscriptionIdSupplier;
     this.consumerId = consumerId;
     this.coordinatorFactory = coordinatorFactory;

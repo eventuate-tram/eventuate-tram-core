@@ -2,7 +2,6 @@ package io.eventuate.tram.mysqlkafka.integrationtests;
 
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
-import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.junit.Test;

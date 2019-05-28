@@ -2,7 +2,6 @@ package io.eventuate.tram.testing.commands;
 
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.commands.common.Command;
-import io.eventuate.tram.commands.common.DefaultChannelMapping;
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
@@ -35,7 +34,6 @@ public class CommandMessageHandlerUnitTestSupport {
   public CommandMessageHandlerUnitTestSupport commandHandlers(CommandHandlers commandHandlers) {
     this.dispatcher = new CommandDispatcher("mockCommandDispatcher-" + System.currentTimeMillis(),
             commandHandlers,
-            DefaultChannelMapping.builder().build(),
             new MessageConsumer() {
               @Override
               public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
@@ -63,7 +61,7 @@ public class CommandMessageHandlerUnitTestSupport {
       String id = idGenerator.generateId().toString();
       message.getHeaders().put(Message.ID, id);
       handler.accept(message);
-    }, DefaultChannelMapping.builder().build());
+    });
 
     return this;
   }

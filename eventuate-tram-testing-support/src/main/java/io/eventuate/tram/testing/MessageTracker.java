@@ -51,10 +51,13 @@ public class MessageTracker {
     validateChannel(channel);
     Eventually.eventually(() -> {
       List<Message> messages = getMessages();
-      if (messages.stream()
-              .noneMatch(m -> m.getHeader(CommandMessageHeaders.COMMAND_TYPE).map(ct -> ct.equals(expectedCommandClass.getName())).orElse(false)))
+      if (messages.stream().noneMatch(m -> isCommandMessageOfType(m, expectedCommandClass)))
         fail(String.format("Cannot find command message of type %s in %s", expectedCommandClass.getName(), messages));
     });
+  }
+
+  private <C extends Command> boolean isCommandMessageOfType(Message m, Class<C> expectedCommandClass) {
+    return hasHeaderWithValue(m, CommandMessageHeaders.COMMAND_TYPE, expectedCommandClass.getName());
   }
 
 
@@ -72,9 +75,16 @@ public class MessageTracker {
     validateChannel(channel);
     Eventually.eventually(() -> {
       List<Message> messages = getMessages();
-      if (messages.stream()
-              .noneMatch(m -> m.getHeader(EventMessageHeaders.EVENT_TYPE).map(ct -> ct.equals(expectedDomainEventClass.getName())).orElse(false)))
+      if (messages.stream().noneMatch(m -> isEventMessageOfType(m, expectedDomainEventClass)))
         fail(String.format("Cannot find domain eventmessage of type %s in %s", expectedDomainEventClass.getName(), messages));
     });
+  }
+
+  private <C extends DomainEvent> Boolean isEventMessageOfType(Message m, Class<C> expectedDomainEventClass) {
+    return hasHeaderWithValue(m, EventMessageHeaders.EVENT_TYPE, expectedDomainEventClass.getName());
+  }
+
+  private Boolean hasHeaderWithValue(Message m, String headerName, String expectedValue) {
+    return m.getHeader(headerName).map(ct -> ct.equals(expectedValue)).orElse(false);
   }
 }

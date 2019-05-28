@@ -1,4 +1,4 @@
-package io.eventuate.tram.messaging.producer;
+package io.eventuate.tram.messaging.producer.common;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

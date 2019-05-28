@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertFalse;
@@ -21,7 +20,6 @@ public class SqlTableBasedDuplicateMessageDetectorTest {
   private DuplicateMessageDetector duplicateMessageDetector;
 
   @Configuration
-  @Import(TramConsumerJdbcConfiguration.class)
   @EnableAutoConfiguration
   static public class DuplicateMessageDetectorTestConfiguration {
   }

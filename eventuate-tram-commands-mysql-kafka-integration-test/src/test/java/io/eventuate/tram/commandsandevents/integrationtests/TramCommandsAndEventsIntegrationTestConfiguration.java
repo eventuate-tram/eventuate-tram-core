@@ -1,11 +1,13 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
-import io.eventuate.tram.commands.common.ChannelMapping;
-import io.eventuate.tram.commands.common.DefaultChannelMapping;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
+import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
+import io.eventuate.tram.commands.consumer.TramCommandConsumerConfiguration;
 import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
 import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.consumer.kafka.TramConsumerKafkaConfiguration;
+import io.eventuate.tram.messaging.common.ChannelMapping;
+import io.eventuate.tram.messaging.common.DefaultChannelMapping;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -19,7 +21,7 @@ import static org.mockito.Mockito.spy;
 @EnableAutoConfiguration
 @Import({TramConsumerKafkaConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
-        TramCommandProducerConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class
+        TramCommandProducerConfiguration.class, TramNoopDuplicateMessageDetectorConfiguration.class, TramCommandConsumerConfiguration.class
 })
 public class TramCommandsAndEventsIntegrationTestConfiguration {
 
@@ -39,9 +41,9 @@ public class TramCommandsAndEventsIntegrationTestConfiguration {
   }
 
   @Bean
-  public CommandDispatcher consumerCommandDispatcher(MyTestCommandHandler target) {
+  public CommandDispatcher consumerCommandDispatcher(MyTestCommandHandler target, CommandDispatcherFactory commandDispatcherFactory) {
 
-    return new CommandDispatcher("customerCommandDispatcher", target.defineCommandHandlers());
+    return commandDispatcherFactory.make("customerCommandDispatcher", target.defineCommandHandlers());
   }
 
 

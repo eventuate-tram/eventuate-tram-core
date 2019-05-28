@@ -2,11 +2,13 @@ package io.eventuate.tram.events.subscriber;
 
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.events.common.DomainEvent;
+import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.common.EventMessageHeaders;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.Optional;
@@ -19,10 +21,14 @@ public class DomainEventDispatcher {
   private DomainEventHandlers domainEventHandlers;
   private MessageConsumer messageConsumer;
 
-  public DomainEventDispatcher(String eventDispatcherId, DomainEventHandlers domainEventHandlers, MessageConsumer messageConsumer) {
+  @Autowired
+  private DomainEventNameMapping domainEventNameMapping;
+
+  public DomainEventDispatcher(String eventDispatcherId, DomainEventHandlers domainEventHandlers, MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
     this.eventDispatcherId = eventDispatcherId;
     this.domainEventHandlers = domainEventHandlers;
     this.messageConsumer = messageConsumer;
+    this.domainEventNameMapping = domainEventNameMapping;
   }
 
   @PostConstruct
@@ -32,6 +38,9 @@ public class DomainEventDispatcher {
 
   public void messageHandler(Message message) {
     String aggregateType = message.getRequiredHeader(EventMessageHeaders.AGGREGATE_TYPE);
+
+    message.setHeader(EventMessageHeaders.EVENT_TYPE,
+            domainEventNameMapping.externalEventTypeToEventClassName(aggregateType, message.getRequiredHeader(EventMessageHeaders.EVENT_TYPE)));
 
     Optional<DomainEventHandler> handler = domainEventHandlers.findTargetMethod(message);
 

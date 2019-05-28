@@ -1,4 +1,4 @@
-package io.eventuate.tram.commands.common;
+package io.eventuate.tram.messaging.common;
 
 public interface ChannelMapping {
 

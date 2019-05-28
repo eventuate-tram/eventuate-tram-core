@@ -7,6 +7,7 @@ import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationPro
 import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerMessageHandler;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.consumer.common.DecoratedMessageHandlerFactory;
+import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -24,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class MessageConsumerKafkaImpl implements MessageConsumer {
+public class MessageConsumerKafkaImpl implements MessageConsumerImplementation {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -32,6 +33,7 @@ public class MessageConsumerKafkaImpl implements MessageConsumer {
 
   private String bootstrapServers;
   private List<EventuateKafkaConsumer> consumers = new ArrayList<>();
+
   public MessageConsumerKafkaImpl(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
   }

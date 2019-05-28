@@ -1,4 +1,4 @@
-package io.eventuate.tram.commands.common;
+package io.eventuate.tram.messaging.common;
 
 import java.util.HashMap;
 import java.util.Map;

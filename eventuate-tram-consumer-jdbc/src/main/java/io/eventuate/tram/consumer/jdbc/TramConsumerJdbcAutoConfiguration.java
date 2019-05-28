@@ -14,13 +14,13 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @Import({SqlDialectConfiguration.class, CommonJdbcMessagingConfiguration.class})
-public class TramConsumerJdbcConfiguration {
+@ConditionalOnMissingBean(DuplicateMessageDetector.class)
+public class TramConsumerJdbcAutoConfiguration {
 
   @Value("${spring.datasource.driver-class-name}")
   private String driver;
 
   @Bean
-  @ConditionalOnMissingBean(DuplicateMessageDetector.class)
   public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema,
                                                            SqlDialectSelector sqlDialectSelector, TransactionTemplate transactionTemplate) {
     return new SqlTableBasedDuplicateMessageDetector(eventuateSchema,
