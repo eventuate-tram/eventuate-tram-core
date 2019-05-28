@@ -1,8 +1,9 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
+    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-consumer:$eventuateMessagingRedisVersion"
 
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-consumer-jdbc")
-    compile project(":eventuate-tram-consumer-redis")
+    compile project(":eventuate-tram-consumer-wrappers")
 }

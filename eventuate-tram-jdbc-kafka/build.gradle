@@ -1,9 +1,9 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
+
     compile project(":eventuate-tram-producer-jdbc")
-    compile project(":eventuate-tram-consumer-kafka")
-
     compile project(":eventuate-tram-consumer-jdbc")
-
+    compile project(":eventuate-tram-consumer-wrappers")
 }

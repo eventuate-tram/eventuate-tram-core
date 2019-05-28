@@ -1,7 +1,5 @@
 package io.eventuate.tram.messaging.common;
 
-import io.eventuate.tram.messaging.common.Message;
-
 public interface MessageInterceptor {
 
   default void preSend(Message message) {}

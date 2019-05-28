@@ -6,7 +6,6 @@ import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;

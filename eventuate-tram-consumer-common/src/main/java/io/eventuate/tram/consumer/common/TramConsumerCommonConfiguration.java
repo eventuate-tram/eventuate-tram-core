@@ -11,7 +11,9 @@ import org.springframework.context.annotation.Import;
 public class TramConsumerCommonConfiguration {
 
   @Bean
-  public MessageConsumer messageConsumer(MessageConsumerImplementation messageConsumerImplementation, ChannelMapping channelMapping) {
-    return new MessageConsumerImpl(channelMapping, messageConsumerImplementation);
+  public MessageConsumer messageConsumer(MessageConsumerImplementation messageConsumerImplementation,
+                                         ChannelMapping channelMapping,
+                                         DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
+    return new MessageConsumerImpl(channelMapping, messageConsumerImplementation, decoratedMessageHandlerFactory);
   }
 }

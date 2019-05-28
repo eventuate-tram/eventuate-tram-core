@@ -1,12 +1,12 @@
 package io.eventuate.tram.testing;
 
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.events.common.DefaultDomainEventNameMapping;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;

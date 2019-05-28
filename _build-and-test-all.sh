@@ -12,6 +12,6 @@ docker-compose -f docker-compose-${DATABASE}-${MODE}.yml up --build -d
 
 ./wait-for-${DATABASE}.sh
 
-./gradlew -x eventuate-tram-redis-integration-tests:test -x eventuate-tram-consumer-redis:test -x eventuate-tram-rabbitmq-integration-tests:test -x eventuate-tram-activemq-integration-tests:test build
+./gradlew cleanTest build
 
 docker-compose -f docker-compose-${DATABASE}-${MODE}.yml down -v --remove-orphans

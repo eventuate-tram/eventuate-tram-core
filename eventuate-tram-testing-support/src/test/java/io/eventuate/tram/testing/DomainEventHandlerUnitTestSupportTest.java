@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static io.eventuate.tram.testing.DomainEventHandlerUnitTestSupport.given;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

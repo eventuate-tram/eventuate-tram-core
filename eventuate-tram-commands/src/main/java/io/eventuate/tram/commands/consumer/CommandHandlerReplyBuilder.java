@@ -1,11 +1,11 @@
 package io.eventuate.tram.commands.consumer;
 
-import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.tram.commands.common.CommandReplyOutcome;
 import io.eventuate.tram.commands.common.Failure;
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.common.Success;
+import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 
 public class CommandHandlerReplyBuilder {

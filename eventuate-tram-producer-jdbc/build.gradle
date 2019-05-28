@@ -6,7 +6,6 @@ dependencies {
     compile project(":eventuate-tram-messaging-producer-common")
 
 
-    compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.3"

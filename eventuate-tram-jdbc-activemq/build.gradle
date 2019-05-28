@@ -4,5 +4,7 @@ dependencies {
 
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-consumer-jdbc")
-    compile project(":eventuate-tram-consumer-activemq")
+    compile project(":eventuate-tram-consumer-wrappers")
+
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-consumer:$eventuateMessagingActiveMQVersion"
 }

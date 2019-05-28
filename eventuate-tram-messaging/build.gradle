@@ -1,7 +1,6 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
     compile "commons-lang:commons-lang:2.6"
 
     // TODO - is Spring needed?

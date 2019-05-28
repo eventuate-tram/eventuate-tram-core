@@ -2,9 +2,7 @@ package io.eventuate.tram.inmemory;
 
 
 import io.eventuate.javaclient.spring.jdbc.IdGenerator;
-import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

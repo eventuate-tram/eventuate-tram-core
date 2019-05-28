@@ -2,11 +2,10 @@ apply plugin: PrivateModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-producer-jdbc")
-
     compile project(":eventuate-tram-consumer-jdbc")
+    compile project(":eventuate-tram-jdbc-kafka")
 
-    compile project(":eventuate-tram-consumer-kafka")
-    compile project(":eventuate-tram-consumer-activemq")
+    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
     compile project(":eventuate-tram-commands")
 
     testCompile "io.eventuate.cdc:eventuate-cdc-connector-autoconfigure:$eventuateCdcVersion"
