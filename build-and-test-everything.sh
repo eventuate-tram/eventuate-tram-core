@@ -7,9 +7,6 @@ SCRIPTS="
 ./build-and-test-all-postgres-polling.sh
 ./build-and-test-all-mssql-polling.sh
 ./build-and-test-all-postgres-wal.sh
-./build-and-test-all-activemq.sh
-./build-and-test-all-rabbitmq.sh
-./build-and-test-all-redis.sh
 "
 
 

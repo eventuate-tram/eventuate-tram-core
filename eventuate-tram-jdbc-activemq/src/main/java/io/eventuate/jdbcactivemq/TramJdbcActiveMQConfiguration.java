@@ -1,7 +1,7 @@
 package io.eventuate.jdbcactivemq;
 
+import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQConfiguration;
 import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQImpl;
-import io.eventuate.messaging.activemq.consumer.TramConsumerActiveMQConfiguration;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.wrappers.EventuateActiveMQMessageConsumerWrapper;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({TramConsumerActiveMQConfiguration.class,
+@Import({MessageConsumerActiveMQConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
         TramConsumerCommonConfiguration.class})
 public class TramJdbcActiveMQConfiguration {

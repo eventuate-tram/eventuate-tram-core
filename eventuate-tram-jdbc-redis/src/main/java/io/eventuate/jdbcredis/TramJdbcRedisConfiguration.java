@@ -1,7 +1,7 @@
 package io.eventuate.jdbcredis;
 
+import io.eventuate.messaging.redis.consumer.MessageConsumerRedisConfiguration;
 import io.eventuate.messaging.redis.consumer.MessageConsumerRedisImpl;
-import io.eventuate.messaging.redis.consumer.TramConsumerRedisConfiguration;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.wrappers.EventuateRedisMessageConsumerWrapper;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({TramConsumerRedisConfiguration.class,
+@Import({MessageConsumerRedisConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
         TramConsumerCommonConfiguration.class})
 public class TramJdbcRedisConfiguration {
