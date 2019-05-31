@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.wrappers;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.redis.consumer.MessageConsumerRedisImpl;
 import io.eventuate.messaging.redis.consumer.Subscription;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;

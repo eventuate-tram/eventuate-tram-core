@@ -1,9 +1,9 @@
 package io.eventuate.tram.messaging.producer.jdbc;
 
+import io.eventuate.common.id.generator.IdGenerator;
+import io.eventuate.common.id.generator.IdGeneratorImpl;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.javaclient.spring.jdbc.IdGenerator;
-import io.eventuate.javaclient.spring.jdbc.IdGeneratorImpl;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import io.eventuate.sql.dialect.SqlDialectSelector;
 import io.eventuate.tram.jdbc.CommonJdbcMessagingConfiguration;

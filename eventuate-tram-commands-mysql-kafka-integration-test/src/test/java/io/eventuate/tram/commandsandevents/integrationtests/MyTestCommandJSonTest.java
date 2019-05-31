@@ -1,6 +1,6 @@
 package io.eventuate.tram.commandsandevents.integrationtests;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import org.junit.Test;
 
 public class MyTestCommandJSonTest {

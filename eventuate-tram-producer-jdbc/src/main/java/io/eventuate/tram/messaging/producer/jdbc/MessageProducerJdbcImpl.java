@@ -1,8 +1,8 @@
 package io.eventuate.tram.messaging.producer.jdbc;
 
+import io.eventuate.common.id.generator.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.javaclient.spring.jdbc.IdGenerator;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.springframework.beans.factory.annotation.Autowired;

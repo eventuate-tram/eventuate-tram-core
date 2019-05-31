@@ -6,9 +6,7 @@ dependencies {
 
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
 
-    compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
     testCompile 'com.google.guava:guava:19.0'
-    // compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
 }
 
 

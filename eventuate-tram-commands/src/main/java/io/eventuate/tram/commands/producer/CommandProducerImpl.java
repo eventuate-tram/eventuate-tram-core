@@ -1,6 +1,6 @@
 package io.eventuate.tram.commands.producer;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.CommandMessageHeaders;
 import io.eventuate.tram.messaging.common.Message;

@@ -1,7 +1,7 @@
 package io.eventuate.tram.inmemory;
 
-import io.eventuate.javaclient.spring.jdbc.IdGenerator;
-import io.eventuate.javaclient.spring.jdbc.IdGeneratorImpl;
+import io.eventuate.common.id.generator.IdGenerator;
+import io.eventuate.common.id.generator.IdGeneratorImpl;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.consumer.jdbc.TransactionalNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.messaging.producer.common.TramMessagingCommonProducerConfiguration;

@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.wrappers;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQImpl;
 import io.eventuate.messaging.activemq.consumer.Subscription;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
