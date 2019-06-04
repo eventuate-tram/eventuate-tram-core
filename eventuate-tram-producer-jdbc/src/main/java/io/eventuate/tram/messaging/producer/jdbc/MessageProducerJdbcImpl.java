@@ -1,6 +1,6 @@
 package io.eventuate.tram.messaging.producer.jdbc;
 
-import io.eventuate.common.id.generator.IdGenerator;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.tram.messaging.common.Message;
