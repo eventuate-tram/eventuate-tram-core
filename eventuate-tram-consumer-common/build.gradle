@@ -5,6 +5,7 @@ dependencies {
     compile project(":eventuate-tram-messaging")
 
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 
     testCompile 'com.google.guava:guava:19.0'
 }
