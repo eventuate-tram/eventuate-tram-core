@@ -4,10 +4,7 @@ dependencies {
     compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-consumer-common")
 
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-consumer:$eventuateMessagingActiveMQVersion"
     compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-consumer:$eventuateMessagingRabbitMQVersion"
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-consumer:$eventuateMessagingRedisVersion"
 }
 
 
