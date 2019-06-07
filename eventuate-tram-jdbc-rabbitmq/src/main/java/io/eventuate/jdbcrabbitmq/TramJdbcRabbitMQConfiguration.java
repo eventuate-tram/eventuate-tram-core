@@ -1,22 +1,16 @@
 package io.eventuate.jdbcrabbitmq;
 
 import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQConfiguration;
-import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQImpl;
-import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
-import io.eventuate.tram.consumer.wrappers.EventuateRabbitMQMessageConsumerWrapper;
+import io.eventuate.tram.consumer.rabbitmq.EventuateTramRabbitMQMessageConsumerConfiguration;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({MessageConsumerRabbitMQConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
-        TramConsumerCommonConfiguration.class})
+        TramConsumerCommonConfiguration.class,
+        EventuateTramRabbitMQMessageConsumerConfiguration.class})
 public class TramJdbcRabbitMQConfiguration {
-  @Bean
-  public MessageConsumerImplementation messageConsumerImplementation(MessageConsumerRabbitMQImpl messageConsumerRabbitMQ) {
-    return new EventuateRabbitMQMessageConsumerWrapper(messageConsumerRabbitMQ);
-  }
 }

@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.wrappers;
+package io.eventuate.tram.consumer.activemq;
 
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQImpl;
@@ -10,11 +10,11 @@ import io.eventuate.tram.messaging.consumer.MessageSubscription;
 
 import java.util.Set;
 
-public class EventuateActiveMQMessageConsumerWrapper implements MessageConsumerImplementation {
+public class EventuateTramActiveMQMessageConsumer implements MessageConsumerImplementation {
 
   private MessageConsumerActiveMQImpl messageConsumerActiveMQ;
 
-  public EventuateActiveMQMessageConsumerWrapper(MessageConsumerActiveMQImpl messageConsumerActiveMQ) {
+  public EventuateTramActiveMQMessageConsumer(MessageConsumerActiveMQImpl messageConsumerActiveMQ) {
     this.messageConsumerActiveMQ = messageConsumerActiveMQ;
   }
 

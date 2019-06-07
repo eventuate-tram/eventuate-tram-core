@@ -1,8 +1,8 @@
-package io.eventuate.tram.consumer.wrappers;
+package io.eventuate.tram.consumer.kafka;
 
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.messaging.redis.consumer.MessageConsumerRedisImpl;
-import io.eventuate.messaging.redis.consumer.Subscription;
+import io.eventuate.messaging.kafka.consumer.KafkaSubscription;
+import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaImpl;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -10,17 +10,17 @@ import io.eventuate.tram.messaging.consumer.MessageSubscription;
 
 import java.util.Set;
 
-public class EventuateRedisMessageConsumerWrapper implements MessageConsumerImplementation {
+public class EventuateTramKafkaMessageConsumer implements MessageConsumerImplementation {
 
-  private MessageConsumerRedisImpl messageConsumerRedis;
+  private MessageConsumerKafkaImpl messageConsumerKafka;
 
-  public EventuateRedisMessageConsumerWrapper(MessageConsumerRedisImpl messageConsumerRedis) {
-    this.messageConsumerRedis = messageConsumerRedis;
+  public EventuateTramKafkaMessageConsumer(MessageConsumerKafkaImpl messageConsumerKafka) {
+    this.messageConsumerKafka = messageConsumerKafka;
   }
 
   @Override
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, MessageHandler handler) {
-    Subscription subscription = messageConsumerRedis.subscribe(subscriberId,
+    KafkaSubscription subscription = messageConsumerKafka.subscribe(subscriberId,
             channels, message -> handler.accept(JSonMapper.fromJson(message.getPayload(), MessageImpl.class)));
 
     return subscription::close;
@@ -28,11 +28,11 @@ public class EventuateRedisMessageConsumerWrapper implements MessageConsumerImpl
 
   @Override
   public String getId() {
-    return messageConsumerRedis.getId();
+    return messageConsumerKafka.getId();
   }
 
   @Override
   public void close() {
-    messageConsumerRedis.close();
+    messageConsumerKafka.close();
   }
 }

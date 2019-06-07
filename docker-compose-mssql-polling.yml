@@ -1,13 +1,11 @@
 zookeeper:
-  image: test-eventuate-zookeeper
+  image: eventuateio/eventuate-zookeeper:0.4.0.RELEASE
   ports:
     - 2181:2181
-    - 2888:2888
-    - 3888:3888
 
 
 kafka:
-  image: test-eventuate-kafka
+  image: eventuateio/eventuate-kafka:0.3.0.RELEASE
   ports:
     - 9092:9092
   links:
@@ -18,7 +16,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 mssql:
-  image: test-eventuate-mssql
+  image: eventuateio/eventuate-mssql:0.4.0.RELEASE
   ports:
     - 1433:1433
   environment:

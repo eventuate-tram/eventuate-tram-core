@@ -18,4 +18,7 @@ include "eventuate-tram-testing-support"
 include "eventuate-tram-testing-support-spring-cloud-contract"
 include "eventuate-tram-aggregate-domain-events"
 include "eventuate-tram-spring-cloud-sleuth-integration"
-include 'eventuate-tram-consumer-wrappers'
+include 'eventuate-tram-consumer-kafka'
+include 'eventuate-tram-consumer-activemq'
+include 'eventuate-tram-consumer-rabbitmq'
+include 'eventuate-tram-consumer-redis'

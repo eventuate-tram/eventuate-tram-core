@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.wrappers;
+package io.eventuate.tram.consumer.rabbitmq;
 
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQImpl;
@@ -10,11 +10,11 @@ import io.eventuate.tram.messaging.consumer.MessageSubscription;
 
 import java.util.Set;
 
-public class EventuateRabbitMQMessageConsumerWrapper implements MessageConsumerImplementation {
+public class EventuateTramRabbitMQMessageConsumer implements MessageConsumerImplementation {
 
   private MessageConsumerRabbitMQImpl messageConsumerRabbitMQ;
 
-  public EventuateRabbitMQMessageConsumerWrapper(MessageConsumerRabbitMQImpl messageConsumerRabbitMQ) {
+  public EventuateTramRabbitMQMessageConsumer(MessageConsumerRabbitMQImpl messageConsumerRabbitMQ) {
     this.messageConsumerRabbitMQ = messageConsumerRabbitMQ;
   }
 
