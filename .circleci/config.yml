@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key:
+          keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
       - run: TERM=dumb ./gradlew testClasses
