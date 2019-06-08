@@ -1,4 +1,0 @@
-apply plugin: PublicModulePlugin
-
-dependencies {
-}

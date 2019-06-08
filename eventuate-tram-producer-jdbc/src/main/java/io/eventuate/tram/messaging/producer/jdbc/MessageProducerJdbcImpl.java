@@ -1,17 +1,16 @@
 package io.eventuate.tram.messaging.producer.jdbc;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
-import io.eventuate.javaclient.spring.jdbc.IdGenerator;
+import io.eventuate.common.id.IdGenerator;
+import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 public class MessageProducerJdbcImpl implements MessageProducerImplementation {
 
   @Autowired
-  private JdbcTemplate jdbcTemplate;
+  private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   @Autowired
   private IdGenerator idGenerator;
@@ -30,15 +29,14 @@ public class MessageProducerJdbcImpl implements MessageProducerImplementation {
     return idGenerator.genId().asString();
   }
 
+
   @Override
   public void send(Message message) {
-    String table = eventuateSchema.qualifyTable("message");
-    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload, creation_time) values(?, ?, ?, ?, %s)",
-            table,
-            currentTimeInMillisecondsSql),
-            message.getId(),
+    eventuateCommonJdbcOperations.insertIntoMessageTable(message.getId(),
+            message.getPayload(),
             message.getRequiredHeader(Message.DESTINATION),
-            JSonMapper.toJson(message.getHeaders()),
-            message.getPayload());
+            currentTimeInMillisecondsSql,
+            message.getHeaders(),
+            eventuateSchema);
   }
 }

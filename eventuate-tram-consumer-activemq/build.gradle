@@ -1,8 +1,10 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
+    compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-consumer-common")
-    compile "org.apache.activemq:activemq-core:5.7.0"
+
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-consumer:$eventuateMessagingActiveMQVersion"
 }
 
 

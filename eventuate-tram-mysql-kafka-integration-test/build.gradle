@@ -2,13 +2,9 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-jdbc-kafka")
-
-    if (!project.hasProperty("excludeCdcLibs") ||  !excludeCdcLibs.toBoolean()) {
-        testCompile project(":eventuate-tram-cdc-mysql-connector-autoconfigure")
-    }
-
+    testCompile "io.eventuate.cdc:eventuate-cdc-connector-autoconfigure:$eventuateCdcVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
-    testCompile "io.eventuate.local.java:eventuate-local-java-test-util:$eventuateLocalVersion"
+    testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
 }

@@ -1,9 +1,0 @@
-dependencies {
-    compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-commands")
-    compile project(":eventuate-tram-events")
-
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-
-    compile "junit:junit:4.12"
-}

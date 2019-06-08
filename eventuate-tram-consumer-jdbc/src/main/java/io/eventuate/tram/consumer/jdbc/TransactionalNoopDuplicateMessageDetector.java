@@ -2,7 +2,6 @@ package io.eventuate.tram.consumer.jdbc;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public class TransactionalNoopDuplicateMessageDetector implements DuplicateMessageDetector {

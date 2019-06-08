@@ -1,6 +1,6 @@
 package io.eventuate.tram.events.subscriber;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.common.EventMessageHeaders;

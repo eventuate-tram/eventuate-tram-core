@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.jdbc;
 
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import io.eventuate.sql.dialect.SqlDialectSelector;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;

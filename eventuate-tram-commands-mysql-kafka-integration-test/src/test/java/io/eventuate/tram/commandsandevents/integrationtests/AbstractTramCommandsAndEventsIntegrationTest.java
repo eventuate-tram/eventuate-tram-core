@@ -33,7 +33,7 @@ public abstract class AbstractTramCommandsAndEventsIntegrationTest {
             new MyTestCommand(), myReplyConsumer.getReplyChannel(),
             Collections.emptyMap());
 
-    Message m = myReplyConsumer.messages.poll(30, TimeUnit.SECONDS);
+    Message m = myReplyConsumer.messages.poll(60, TimeUnit.SECONDS);
 
     assertNotNull(m);
 
