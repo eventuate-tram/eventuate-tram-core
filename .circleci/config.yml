@@ -116,11 +116,6 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
-      - run:
-          name: Publish artifacts
-          command: |
-            TERM=dumb ./deploy-artifacts.sh
-          when: on_success
   deploy-artifacts:
     machine: true
     working_directory: ~/eventuate-tram-core
