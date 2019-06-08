@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-and-test-all-mysql-binlog:
     machine: true
     working_directory: ~/eventuate-tram-core
     steps:
@@ -15,8 +15,92 @@ jobs:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./build-and-test-all-mysql-binlog.sh
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit ~/container-logs ~/container-logs
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-and-test-all-postgres-wal:
+    machine: true
+    working_directory: ~/eventuate-tram-core
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
+      - run: TERM=dumb ./gradlew testClasses
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./build-and-test-all-postgres-wal.sh
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit ~/container-logs ~/container-logs
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-and-test-all-postgres-polling:
+    machine: true
+    working_directory: ~/eventuate-tram-core
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
+      - run: TERM=dumb ./gradlew testClasses
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit ~/container-logs ~/container-logs
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-and-test-all-mssql-polling:
+    machine: true
+    working_directory: ~/eventuate-tram-core
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
+      - run: TERM=dumb ./gradlew testClasses
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./build-and-test-all-mssql-polling.sh
       - run:
           name: Save test results
@@ -37,3 +121,35 @@ jobs:
           command: |
             TERM=dumb ./deploy-artifacts.sh
           when: on_success
+  deploy-artifacts:
+    machine: true
+    working_directory: ~/eventuate-tram-core
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
+      - run: TERM=dumb ./gradlew testClasses
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
+      - run:
+          name: Publish artifacts
+          command: |
+            TERM=dumb ./deploy-artifacts.sh
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build-and-test-all-mysql-binlog
+      - build-and-test-all-postgres-wal
+      - build-and-test-all-postgres-polling
+      - build-and-test-all-mssql-polling
+      - publish:
+          requires:
+            - build-and-test-all-mysql-binlog
+            - build-and-test-all-postgres-wal
+            - build-and-test-all-postgres-polling
+            - build-and-test-all-mssql-polling
