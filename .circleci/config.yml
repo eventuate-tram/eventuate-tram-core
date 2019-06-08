@@ -6,19 +6,18 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-tram-core-{{ checksum "build.gradle" }}
+          key:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "build.gradle" }}
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./build-and-test-all-mysql-binlog.sh
       - run: TERM=dumb ./build-and-test-all-postgres-wal.sh
       - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
       - run: TERM=dumb ./build-and-test-all-mssql-polling.sh
-      - run: TERM=dumb ./build-and-test-all-rabbitmq.sh
-      - run: TERM=dumb ./build-and-test-all-activemq.sh
-      - run: TERM=dumb ./build-and-test-all-redis.sh
       - run:
           name: Save test results
           command: |
@@ -37,4 +36,4 @@ jobs:
           name: Publish artifacts
           command: |
             TERM=dumb ./deploy-artifacts.sh
-when: on_success
+          when: on_success
