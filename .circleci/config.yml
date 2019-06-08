@@ -147,7 +147,7 @@ workflows:
       - build-and-test-all-postgres-wal
       - build-and-test-all-postgres-polling
       - build-and-test-all-mssql-polling
-      - publish:
+      - deploy-artifacts:
           requires:
             - build-and-test-all-mysql-binlog
             - build-and-test-all-postgres-wal
