@@ -4,11 +4,13 @@ done=false
 
 host=$1
 shift
+health_url=$1
+shift
 ports=$*
 
 while [[ "$done" = false ]]; do
 	for port in $ports; do
-		curl --fail http://${host}:${port}/actuator/health >& /dev/null
+		curl --fail http://${host}:${port}/${health_url} >& /dev/null
 		if [[ "$?" -eq "0" ]]; then
 			done=true
 		else

@@ -1,0 +1,20 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-producer-jdbc")
+    compile project(":eventuate-tram-consumer-jdbc")
+    compile project(":eventuate-tram-integration-test-common")
+    compile project(":eventuate-tram-commands")
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}
+
+test {
+    def testCustomDBVariable = System.env['TEST_CUSTOM_DB']
+    if (testCustomDBVariable != 'true') {
+        exclude '**/TramCommandsDBBrokerIntegrationCustomDBTest**'
+    }
+    forkEvery 1
+}

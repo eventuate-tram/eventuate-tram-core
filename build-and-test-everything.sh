@@ -3,10 +3,10 @@
 set -o pipefail
 
 SCRIPTS="
-./build-and-test-all-mysql-binlog.sh
-./build-and-test-all-postgres-polling.sh
-./build-and-test-all-mssql-polling.sh
-./build-and-test-all-postgres-wal.sh
+./build-and-test-all-mysql-binlog-kafka.sh
+./build-and-test-all-mssql-polling-activemq.sh
+./build-and-test-all-postgres-wal-rabbitmq.sh
+./build-and-test-all-mysql-binlog-redis.sh
 "
 
 
