@@ -1,0 +1,8 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-jdbc-kafka")
+    compile project(":eventuate-tram-jdbc-rabbitmq")
+    compile project(":eventuate-tram-jdbc-activemq")
+    compile project(":eventuate-tram-jdbc-redis")
+}

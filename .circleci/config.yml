@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build-and-test-all-mysql-binlog:
+  build-and-test-all-mysql-binlog-kafka:
     machine: true
     working_directory: ~/eventuate-tram-core
     steps:
@@ -14,7 +14,7 @@ jobs:
           paths:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-mysql-binlog.sh
+      - run: TERM=dumb ./build-and-test-all-mysql-binlog-kafka.sh
       - run:
           name: Save test results
           command: |
@@ -29,7 +29,7 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
-  build-and-test-all-postgres-wal:
+  build-and-test-all-postgres-wal-rabbitmq:
     machine: true
     working_directory: ~/eventuate-tram-core
     steps:
@@ -43,7 +43,7 @@ jobs:
           paths:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-postgres-wal.sh
+      - run: TERM=dumb ./build-and-test-all-postgres-wal-rabbitmq.sh
       - run:
           name: Save test results
           command: |
@@ -58,7 +58,7 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
-  build-and-test-all-postgres-polling:
+  build-and-test-all-mysql-binlog-redis:
     machine: true
     working_directory: ~/eventuate-tram-core
     steps:
@@ -72,7 +72,7 @@ jobs:
           paths:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-postgres-polling.sh
+      - run: TERM=dumb ./build-and-test-all-mysql-binlog-redis.sh
       - run:
           name: Save test results
           command: |
@@ -87,7 +87,7 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
-  build-and-test-all-mssql-polling:
+  build-and-test-all-mssql-polling-activemq:
     machine: true
     working_directory: ~/eventuate-tram-core
     steps:
@@ -101,7 +101,7 @@ jobs:
           paths:
             - ~/.gradle
           key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-mssql-polling.sh
+      - run: TERM=dumb ./build-and-test-all-mssql-polling-activemq.sh
       - run:
           name: Save test results
           command: |
@@ -138,13 +138,13 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build-and-test-all-mysql-binlog
-      - build-and-test-all-postgres-wal
-      - build-and-test-all-postgres-polling
-      - build-and-test-all-mssql-polling
+      - build-and-test-all-mysql-binlog-kafka
+      - build-and-test-all-mysql-binlog-redis
+      - build-and-test-all-postgres-wal-rabbitmq
+      - build-and-test-all-mssql-polling-activemq
       - deploy-artifacts:
           requires:
-            - build-and-test-all-mysql-binlog
-            - build-and-test-all-postgres-wal
-            - build-and-test-all-postgres-polling
-            - build-and-test-all-mssql-polling
+            - build-and-test-all-mysql-binlog-kafka
+            - build-and-test-all-mysql-binlog-redis
+            - build-and-test-all-postgres-wal-rabbitmq
+            - build-and-test-all-mssql-polling-activemq

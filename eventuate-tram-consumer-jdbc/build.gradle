@@ -4,7 +4,7 @@ dependencies {
     compile project(":eventuate-tram-consumer-common")
     compile project(":eventuate-tram-jdbc")
 
-    compile "io.eventuate.cdc:eventuate-local-java-jdbc:$eventuateCdcVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 

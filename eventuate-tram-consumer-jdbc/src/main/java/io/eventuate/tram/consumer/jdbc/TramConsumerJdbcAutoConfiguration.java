@@ -1,8 +1,8 @@
 package io.eventuate.tram.consumer.jdbc;
 
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.sql.dialect.SqlDialectConfiguration;
-import io.eventuate.sql.dialect.SqlDialectSelector;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.jdbc.CommonJdbcMessagingConfiguration;
 import org.springframework.beans.factory.annotation.Value;

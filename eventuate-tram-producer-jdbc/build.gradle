@@ -12,7 +12,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.3"
 
-    compile "io.eventuate.cdc:eventuate-local-java-jdbc:$eventuateCdcVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 

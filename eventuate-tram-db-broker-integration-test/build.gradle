@@ -1,0 +1,17 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-integration-test-common")
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+}
+
+test {
+    def testCustomDBVariable = System.env['TEST_CUSTOM_DB']
+    if (testCustomDBVariable != 'true') {
+        exclude '**/TramIntegrationCustomDBTest**'
+    }
+    forkEvery 1
+}
