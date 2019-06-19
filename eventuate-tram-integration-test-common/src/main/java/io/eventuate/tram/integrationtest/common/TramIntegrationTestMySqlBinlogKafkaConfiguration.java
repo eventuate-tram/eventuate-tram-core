@@ -1,6 +1,6 @@
 package io.eventuate.tram.integrationtest.common;
 
-import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
+import io.eventuate.tram.jdbckafka.TramJdbcKafkaConfiguration;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

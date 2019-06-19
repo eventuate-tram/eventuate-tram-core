@@ -1,4 +1,4 @@
-package io.eventuate.jdbcactivemq;
+package io.eventuate.tram.jdbcactivemq;
 
 import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQConfiguration;
 import io.eventuate.tram.consumer.activemq.EventuateTramActiveMQMessageConsumerConfiguration;

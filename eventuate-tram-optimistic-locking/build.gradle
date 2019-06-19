@@ -1,0 +1,5 @@
+dependencies {
+    compile project (":eventuate-tram-consumer-common")
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    compile 'org.springframework.retry:spring-retry:1.2.4.RELEASE'
+}

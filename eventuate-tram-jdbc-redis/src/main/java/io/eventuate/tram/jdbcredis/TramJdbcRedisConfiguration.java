@@ -1,16 +1,16 @@
-package io.eventuate.jdbckafka;
+package io.eventuate.tram.jdbcredis;
 
-import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaConfiguration;
+import io.eventuate.messaging.redis.consumer.MessageConsumerRedisConfiguration;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
-import io.eventuate.tram.consumer.kafka.EventuateTramKafkaMessageConsumerConfiguration;
+import io.eventuate.tram.consumer.redis.EventuateTramRedisMessageConsumerConfiguration;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({MessageConsumerKafkaConfiguration.class,
+@Import({MessageConsumerRedisConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
         TramConsumerCommonConfiguration.class,
-        EventuateTramKafkaMessageConsumerConfiguration.class})
-public class TramJdbcKafkaConfiguration {
+        EventuateTramRedisMessageConsumerConfiguration.class})
+public class TramJdbcRedisConfiguration {
 }

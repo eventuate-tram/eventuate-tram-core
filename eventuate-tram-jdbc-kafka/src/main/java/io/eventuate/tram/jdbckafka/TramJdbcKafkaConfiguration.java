@@ -1,16 +1,16 @@
-package io.eventuate.jdbcrabbitmq;
+package io.eventuate.tram.jdbckafka;
 
-import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQConfiguration;
+import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaConfiguration;
 import io.eventuate.tram.consumer.common.TramConsumerCommonConfiguration;
-import io.eventuate.tram.consumer.rabbitmq.EventuateTramRabbitMQMessageConsumerConfiguration;
+import io.eventuate.tram.consumer.kafka.EventuateTramKafkaMessageConsumerConfiguration;
 import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({MessageConsumerRabbitMQConfiguration.class,
+@Import({MessageConsumerKafkaConfiguration.class,
         TramMessageProducerJdbcConfiguration.class,
         TramConsumerCommonConfiguration.class,
-        EventuateTramRabbitMQMessageConsumerConfiguration.class})
-public class TramJdbcRabbitMQConfiguration {
+        EventuateTramKafkaMessageConsumerConfiguration.class})
+public class TramJdbcKafkaConfiguration {
 }
