@@ -17,7 +17,7 @@ postgres:
     POSTGRES_PASSWORD: eventuate
 
 cdc-service:
-  image: eventuateio/eventuate-cdc-service:0.2.0.RELEASE
+  image: eventuateio/eventuate-cdc-service:0.4.0.RELEASE
   ports:
     - "8099:8080"
   links:
