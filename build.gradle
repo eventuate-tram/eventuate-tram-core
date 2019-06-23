@@ -1,15 +1,20 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url deployUrl }
+        maven { url "https://dl.bintray.com/eventuateio-oss/eventuate-maven-release" }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'io.eventuate.plugins.gradle:eventuate-plugins-gradle-versions:0.1.0.RELEASE'
     }
 }
 
 allprojects {
     group = "io.eventuate.tram.core"
 }
+
+apply plugin: "io.eventuate.plugins.gradle.UpgradeVersions"
 
 subprojects {
     apply plugin: 'java'
@@ -79,7 +84,3 @@ gradle.projectsEvaluated {
         classpath = files(subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.classpath)
     }
 }
-
-
-
-
