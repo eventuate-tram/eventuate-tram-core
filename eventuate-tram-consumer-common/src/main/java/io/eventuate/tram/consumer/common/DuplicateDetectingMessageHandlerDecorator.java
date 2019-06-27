@@ -1,8 +1,6 @@
 package io.eventuate.tram.consumer.common;
 
-import org.springframework.core.Ordered;
-
-public class DuplicateDetectingMessageHandlerDecorator implements MessageHandlerDecorator, Ordered {
+public class DuplicateDetectingMessageHandlerDecorator implements MessageHandlerDecorator {
 
   private DuplicateMessageDetector duplicateMessageDetector;
 

@@ -4,7 +4,7 @@ import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
 import io.eventuate.tram.commands.consumer.TramCommandConsumerConfiguration;
 import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
-import io.eventuate.tram.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
+import io.eventuate.tram.consumer.common.spring.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.integrationtest.common.TramIntegrationTestMySqlBinlogKafkaConfiguration;
 import io.eventuate.tram.integrationtest.common.TramIntegrationTestMySqlBinlogRedisConfiguration;
 import io.eventuate.tram.integrationtest.common.TramIntegrationTestPollingActiveMQConfiguration;

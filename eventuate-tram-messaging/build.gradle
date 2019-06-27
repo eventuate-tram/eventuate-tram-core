@@ -2,9 +2,4 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile "commons-lang:commons-lang:2.6"
-
-    // TODO - is Spring needed?
-
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

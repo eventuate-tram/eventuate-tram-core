@@ -1,0 +1,8 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    compile project(":eventuate-tram-consumer-kafka")
+}
+
+

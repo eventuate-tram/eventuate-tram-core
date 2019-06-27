@@ -3,7 +3,8 @@ apply plugin: PublicModulePlugin
 dependencies {
     compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-consumer:$eventuateMessagingRabbitMQVersion"
 
-    compile project(":eventuate-tram-producer-jdbc")
+    compile project(":eventuate-tram-consumer-common-spring")
+    compile project(":eventuate-tram-producer-jdbc-spring")
     compile project(":eventuate-tram-consumer-jdbc")
     compile project(":eventuate-tram-consumer-rabbitmq")
 }

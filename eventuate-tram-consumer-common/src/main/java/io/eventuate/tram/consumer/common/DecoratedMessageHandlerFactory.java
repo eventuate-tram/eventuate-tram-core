@@ -4,8 +4,8 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.OrderComparator;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -15,7 +15,7 @@ public class DecoratedMessageHandlerFactory {
   private List<MessageHandlerDecorator> decorators;
 
   public DecoratedMessageHandlerFactory(List<MessageHandlerDecorator> decorators) {
-    decorators.sort(OrderComparator.INSTANCE);
+    decorators.sort(Comparator.comparingInt(MessageHandlerDecorator::getOrder));
     this.decorators = decorators;
   }
 

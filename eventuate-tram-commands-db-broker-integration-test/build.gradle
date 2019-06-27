@@ -6,7 +6,6 @@ dependencies {
     compile project(":eventuate-tram-integration-test-common")
     compile project(":eventuate-tram-commands")
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

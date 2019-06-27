@@ -30,8 +30,9 @@ if [[ "${DATABASE}" == "mysql" ]] && [[ "${BROKER}" == "kafka" ]]; then
     ./wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
 
     export TEST_CUSTOM_DB=true
-    ./gradlew cleanTest :eventuate-tram-db-broker-integration-test:test -Dtest.single=TramIntegrationCustomDBTest
-    ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test -Dtest.single=TramCommandsDBBrokerIntegrationCustomDBTest
+
+    ./gradlew cleanTest :eventuate-tram-db-broker-integration-test:test --tests "io.eventuate.tram.broker.db.integrationtests.TramIntegrationCustomDBTest"
+    ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.borker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
 fi
 
 docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml down -v --remove-orphans

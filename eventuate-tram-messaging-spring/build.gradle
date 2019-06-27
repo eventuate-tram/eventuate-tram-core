@@ -1,0 +1,7 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project (":eventuate-tram-messaging")
+
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+}

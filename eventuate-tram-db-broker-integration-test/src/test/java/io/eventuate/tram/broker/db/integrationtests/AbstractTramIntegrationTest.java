@@ -41,7 +41,7 @@ public abstract class AbstractTramIntegrationTest {
 
     messageProducer.send(destination, MessageBuilder.withPayload("Hello").build());
 
-    assertTrue(String.format("Expected message. Subscriber %s for destination %s: ", subscriberId, destination), latch.await(30, TimeUnit.SECONDS));
+    assertTrue(String.format("Expected message. Subscriber %s for destination %s: ", subscriberId, destination), latch.await(60, TimeUnit.SECONDS));
 
   }
 

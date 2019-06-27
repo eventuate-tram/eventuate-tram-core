@@ -4,11 +4,10 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
 
 import java.util.Arrays;
 
-public class PrePostReceiveMessageHandlerDecorator implements MessageHandlerDecorator, Ordered {
+public class PrePostReceiveMessageHandlerDecorator implements MessageHandlerDecorator {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
   private MessageInterceptor[] messageInterceptors;

@@ -13,7 +13,7 @@ public final class MessageProducerImpl implements MessageProducer {
   private final ChannelMapping channelMapping;
   private final MessageProducerImplementation implementation;
 
-  protected MessageProducerImpl(MessageInterceptor[] messageInterceptors, ChannelMapping channelMapping, MessageProducerImplementation implementation) {
+  public MessageProducerImpl(MessageInterceptor[] messageInterceptors, ChannelMapping channelMapping, MessageProducerImplementation implementation) {
     this.messageInterceptors = messageInterceptors;
     this.channelMapping = channelMapping;
     this.implementation = implementation;

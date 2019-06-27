@@ -17,7 +17,7 @@ public final class MessageConsumerImpl implements MessageConsumer {
   private MessageConsumerImplementation target;
   private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
 
-  protected MessageConsumerImpl(ChannelMapping channelMapping,
+  public MessageConsumerImpl(ChannelMapping channelMapping,
                                 MessageConsumerImplementation target,
                                 DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
     this.channelMapping = channelMapping;
