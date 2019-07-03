@@ -22,6 +22,8 @@ include 'eventuate-tram-db-broker-integration-test'
 include 'eventuate-tram-integration-test-common'
 include 'eventuate-tram-commands-db-broker-integration-test'
 include 'eventuate-tram-events'
+include 'eventuate-tram-events-spring'
+include 'eventuate-tram-events-micronaut'
 include 'eventuate-tram-commands'
 include 'eventuate-tram-test-util'
 include "eventuate-tram-testing-support"

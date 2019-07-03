@@ -8,9 +8,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 public class DomainEventDispatcher {
@@ -21,7 +19,6 @@ public class DomainEventDispatcher {
   private DomainEventHandlers domainEventHandlers;
   private MessageConsumer messageConsumer;
 
-  @Autowired
   private DomainEventNameMapping domainEventNameMapping;
 
   public DomainEventDispatcher(String eventDispatcherId, DomainEventHandlers domainEventHandlers, MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
@@ -31,7 +28,6 @@ public class DomainEventDispatcher {
     this.domainEventNameMapping = domainEventNameMapping;
   }
 
-  @PostConstruct
   public void initialize() {
     messageConsumer.subscribe(eventDispatcherId, domainEventHandlers.getAggregateTypesAndEvents(), this::messageHandler);
   }

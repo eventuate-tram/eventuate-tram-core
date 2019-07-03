@@ -1,14 +1,17 @@
-package io.eventuate.tram.events.publisher;
+package io.eventuate.tram.events.micronaut.publisher;
 
 import io.eventuate.tram.events.common.DomainEventNameMapping;
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
+import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
 import io.eventuate.tram.messaging.producer.MessageProducer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.micronaut.context.annotation.Factory;
 
-@Configuration
-public class TramEventsPublisherConfiguration {
+import javax.inject.Singleton;
 
-  @Bean
+@Factory
+public class TramEventsPublisherFactory {
+
+  @Singleton
   public DomainEventPublisher domainEventPublisher(MessageProducer messageProducer, DomainEventNameMapping domainEventNameMapping) {
     return new DomainEventPublisherImpl(messageProducer, domainEventNameMapping);
   }

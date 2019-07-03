@@ -5,7 +5,7 @@ import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
-import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
+import io.eventuate.tram.events.spring.publisher.TramEventsPublisherConfiguration;
 import io.eventuate.tram.inmemory.TramInMemoryConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.junit.Test;

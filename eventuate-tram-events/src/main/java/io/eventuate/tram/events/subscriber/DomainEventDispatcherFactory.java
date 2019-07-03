@@ -5,8 +5,8 @@ import io.eventuate.tram.messaging.consumer.MessageConsumer;
 
 public class DomainEventDispatcherFactory {
 
-  private MessageConsumer messageConsumer;
-  private DomainEventNameMapping domainEventNameMapping;
+  protected MessageConsumer messageConsumer;
+  protected DomainEventNameMapping domainEventNameMapping;
 
   public DomainEventDispatcherFactory(MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
     this.messageConsumer = messageConsumer;
