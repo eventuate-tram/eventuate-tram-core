@@ -32,7 +32,7 @@ if [[ "${DATABASE}" == "mysql" ]] && [[ "${BROKER}" == "kafka" ]]; then
     export TEST_CUSTOM_DB=true
 
     ./gradlew cleanTest :eventuate-tram-db-broker-integration-test:test --tests "io.eventuate.tram.broker.db.integrationtests.TramIntegrationCustomDBTest"
-    ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.borker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
+    ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.broker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
 fi
 
 docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml down -v --remove-orphans

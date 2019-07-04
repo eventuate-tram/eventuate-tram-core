@@ -1,4 +1,4 @@
-package io.eventuate.tram.commands.db.borker.integrationtests;
+package io.eventuate.tram.commands.db.broker.integrationtests;
 
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package io.eventuate.tram.commands.db.borker.integrationtests;
+package io.eventuate.tram.commands.db.broker.integrationtests;
 
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;

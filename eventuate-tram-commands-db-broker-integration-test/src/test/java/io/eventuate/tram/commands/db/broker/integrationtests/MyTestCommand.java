@@ -1,4 +1,4 @@
-package io.eventuate.tram.commands.db.borker.integrationtests;
+package io.eventuate.tram.commands.db.broker.integrationtests;
 
 import io.eventuate.tram.commands.CommandDestination;
 import io.eventuate.tram.commands.common.Command;
