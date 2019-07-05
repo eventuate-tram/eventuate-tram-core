@@ -14,6 +14,6 @@ public class SpringDomainEventDispatcherFactory extends DomainEventDispatcherFac
 
   @Override
   public DomainEventDispatcher make(String eventDispatcherId, DomainEventHandlers domainEventHandlers) {
-    return new SpringDomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
+    return new DomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
   }
 }

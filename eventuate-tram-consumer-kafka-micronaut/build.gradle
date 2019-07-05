@@ -18,6 +18,8 @@ dependencyManagement {
 
 dependencies {
     compile project(":eventuate-tram-consumer-kafka")
+    compile project (":eventuate-tram-consumer-common-micronaut")
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer-micronaut:$eventuateMessagingKafkaVersion"
 
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
