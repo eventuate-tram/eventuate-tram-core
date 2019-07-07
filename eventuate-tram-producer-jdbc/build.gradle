@@ -1,7 +1,6 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-jdbc")
     compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-messaging-producer-common")
 
@@ -9,6 +8,8 @@ dependencies {
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.3"
 

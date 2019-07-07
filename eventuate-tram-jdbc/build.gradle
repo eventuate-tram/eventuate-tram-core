@@ -1,6 +1,0 @@
-apply plugin: PublicModulePlugin
-
-dependencies {
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-}

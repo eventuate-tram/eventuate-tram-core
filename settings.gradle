@@ -1,5 +1,4 @@
 include 'eventuate-tram-messaging-producer-common'
-include 'eventuate-tram-jdbc'
 include 'eventuate-tram-messaging'
 include 'eventuate-tram-producer-jdbc'
 include 'eventuate-tram-in-memory'
