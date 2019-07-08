@@ -20,7 +20,7 @@ It is described in more detail in my book https://www.manning.com/books/microser
   </div>
   <div class="col-md-4">
     <h4>Communicate using transactional messaging</h4>
-    <p>Reliably send and receive messages and events as part of a database transaction by using either the <a href="https://microservices.io/patterns/data/application-events.html">Transactional Outbox</a> or <a href="https://microservices.io/patterns/data/event-sourcing.html">Event Sourcing</a> patterns </p>
+    <p>Reliably send and receive messages and events as part of a database transaction by using the <a href="https://microservices.io/patterns/data/application-events.html">Transactional Outbox</a> pattern
   </div>
 </div>
 ++++
