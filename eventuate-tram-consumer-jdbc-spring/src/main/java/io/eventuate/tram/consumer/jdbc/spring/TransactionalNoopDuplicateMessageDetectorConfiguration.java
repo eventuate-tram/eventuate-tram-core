@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.jdbc;
+package io.eventuate.tram.consumer.jdbc.spring;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +10,6 @@ public class TransactionalNoopDuplicateMessageDetectorConfiguration {
 
   @Bean
   public DuplicateMessageDetector duplicateMessageDetector(TransactionTemplate transactionTemplate) {
-    return new TransactionalNoopDuplicateMessageDetector(transactionTemplate);
+    return new EventuateSpringTransactionalNoopDuplicateMessageDetector(transactionTemplate);
   }
 }

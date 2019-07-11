@@ -4,6 +4,12 @@ export SPRING_DATASOURCE_URL="jdbc:sqlserver://${DOCKER_HOST_IP}:1433;databaseNa
 export SPRING_DATASOURCE_USERNAME=sa
 export SPRING_DATASOURCE_PASSWORD=Eventuate123!
 export SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+export DATASOURCES_DEFAULT_URL="jdbc:sqlserver://${DOCKER_HOST_IP}:1433;databaseName=eventuate"
+export DATASOURCES_DEFAULT_USERNAME=sa
+export DATASOURCES_DEFAULT_PASSWORD=Eventuate123!
+export DATASOURCES_DEFAULT_DRIVERCLASSNAME=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
 export EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING=$DOCKER_HOST_IP:2181
 export ACTIVEMQ_URL=tcp://${DOCKER_HOST_IP}:61616
 export ACTIVEMQ_USER=eventuateuser

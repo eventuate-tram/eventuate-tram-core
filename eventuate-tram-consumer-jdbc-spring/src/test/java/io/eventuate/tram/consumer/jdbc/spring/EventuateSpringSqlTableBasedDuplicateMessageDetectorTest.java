@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.jdbc;
+package io.eventuate.tram.consumer.jdbc.spring;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import org.junit.Test;
@@ -13,8 +13,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {SqlTableBasedDuplicateMessageDetectorTest.DuplicateMessageDetectorTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class SqlTableBasedDuplicateMessageDetectorTest {
+@SpringBootTest(classes = {EventuateSpringSqlTableBasedDuplicateMessageDetectorTest.DuplicateMessageDetectorTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+public class EventuateSpringSqlTableBasedDuplicateMessageDetectorTest {
 
   @Autowired
   private DuplicateMessageDetector duplicateMessageDetector;

@@ -3,7 +3,7 @@ package io.eventuate.tram.inmemory;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.id.IdGeneratorImpl;
 import io.eventuate.tram.consumer.common.spring.TramConsumerCommonConfiguration;
-import io.eventuate.tram.consumer.jdbc.TransactionalNoopDuplicateMessageDetectorConfiguration;
+import io.eventuate.tram.consumer.jdbc.spring.TransactionalNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
