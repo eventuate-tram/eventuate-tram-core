@@ -4,8 +4,8 @@ dependencies {
     compile project(":eventuate-tram-consumer-common")
     compile project(":eventuate-tram-messaging")
 
-    compile "io.eventuate.local.java:eventuate-local-java-common:$eventuateLocalVersion"
-    compile "io.eventuate.local.java:eventuate-local-java-kafka:$eventuateLocalVersion"
+    compile project(":eventuate-messaging-kafka-consumer")
+
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }

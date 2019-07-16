@@ -1,6 +1,5 @@
-package io.eventuate.tram.consumer.kafka;
+package io.eventuate.messaging.kafka.consumer;
 
-import io.eventuate.tram.messaging.common.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,12 @@ public class SwimlaneBasedDispatcher {
     this.executor = executor;
   }
 
-  public void dispatch(Message message, Integer swimlane, Consumer<Message> target) {
+  public SwimlaneDispatcherBacklog dispatch(KafkaMessage message, Integer swimlane, Consumer<KafkaMessage> target) {
+    SwimlaneDispatcher swimlaneDispatcher = getOrCreate(swimlane);
+    return swimlaneDispatcher.dispatch(message, target);
+  }
+
+  private SwimlaneDispatcher getOrCreate(Integer swimlane) {
     SwimlaneDispatcher swimlaneDispatcher = map.get(swimlane);
     if (swimlaneDispatcher == null) {
       logger.trace("No dispatcher for {} {}. Attempting to create", subscriberId, swimlane);
@@ -34,7 +38,7 @@ public class SwimlaneBasedDispatcher {
         logger.trace("Using newly created SwimlaneDispatcher for {} {}", subscriberId, swimlane);
       }
     }
-    swimlaneDispatcher.dispatch(message, target);
+    return swimlaneDispatcher;
   }
 }
 

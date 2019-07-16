@@ -1,7 +1,5 @@
-package io.eventuate.tram.consumer.kafka;
+package io.eventuate.messaging.kafka.consumer;
 
-import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +13,7 @@ public class SwimlaneDispatcherTest {
 
   private SwimlaneDispatcher swimlaneDispatcher;
   private AtomicInteger numberOfMessagesReceived;
-  private Consumer<Message> handler;
+  private Consumer<KafkaMessage> handler;
 
   @Before
   public void init() {
@@ -61,7 +59,7 @@ public class SwimlaneDispatcherTest {
       if (i > 0) {
         Assert.assertTrue(swimlaneDispatcher.getRunning());
       }
-      swimlaneDispatcher.dispatch(MessageBuilder.withPayload("").build(), handler);
+      swimlaneDispatcher.dispatch(new KafkaMessage(""), handler);
     }
   }
 

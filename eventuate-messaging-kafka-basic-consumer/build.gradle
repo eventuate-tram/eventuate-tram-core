@@ -1,0 +1,10 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile 'org.apache.kafka:kafka-clients:0.10.0.1'
+    compile 'commons-lang:commons-lang:2.6'
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+}
