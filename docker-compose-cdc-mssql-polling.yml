@@ -7,7 +7,7 @@ cdcservice:
     - kafka
     - zookeeper
   environment:
-    SPRING_DATASOURCE_URL: jdbc:sqlserver://172.17.0.1:1433;databaseName=eventuate
+    SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=eventuate
     SPRING_DATASOURCE_USERNAME: sa
     SPRING_DATASOURCE_PASSWORD: Eventuate123!
     SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.microsoft.sqlserver.jdbc.SQLServerDriver
