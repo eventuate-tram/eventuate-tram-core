@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A Kafka consumer that manually commits offsets and supports asynchronous message processing
@@ -72,11 +75,11 @@ public class EventuateKafkaBasicConsumer {
 
       KafkaMessageProcessor processor = new KafkaMessageProcessor(subscriberId, handler);
 
-      BackPressureManager backpressureManager = new BackPressureManager(backPressureConfig);
+      List<PartitionInfo> partitions = topics.stream().flatMap(topic -> verifyTopicExistsBeforeSubscribing(consumer, topic).stream()).collect(toList());
 
-      for (String topic : topics) {
-        verifyTopicExistsBeforeSubscribing(consumer, topic);
-      }
+      Set<TopicPartition> topicPartitions = partitions.stream().map(pi -> new TopicPartition(pi.topic(), pi.partition())).collect(Collectors.toSet());
+
+      BackPressureManager backpressureManager = new BackPressureManager(backPressureConfig, topicPartitions);
 
       logger.debug("Subscribing to {} {}", subscriberId, topics);
 
@@ -145,7 +148,7 @@ public class EventuateKafkaBasicConsumer {
       for (ConsumerRecord<String, String> record : records) {
         topicPartitions.add(new TopicPartition(record.topic(), record.partition()));
       }
-      BackPressureActions actions = backPressureManager.update(topicPartitions, backlog);
+      BackPressureActions actions = backPressureManager.update(backlog);
 
       if (!actions.pause.isEmpty()) {
         logger.info("Subscriber {} pausing {} due to backlog {} > {}", subscriberId, actions.pause, backlog, backPressureConfig.getHigh());

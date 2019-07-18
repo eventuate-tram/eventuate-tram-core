@@ -8,16 +8,16 @@ import java.util.Set;
 public class BackPressureManager {
 
   private final BackPressureConfig backPressureConfig;
-  private Set<TopicPartition> allTopicPartitions = new HashSet<>();
+  private final Set<TopicPartition> allTopicPartitions;
 
   private BackPressureManagerState state = new BackPressureManagerNormalState();
 
-  public BackPressureManager(BackPressureConfig backPressureConfig) {
+  public BackPressureManager(BackPressureConfig backPressureConfig, Set<TopicPartition> allTopicPartitions) {
     this.backPressureConfig = backPressureConfig;
+    this.allTopicPartitions = allTopicPartitions;
   }
 
-  public BackPressureActions update(Set<TopicPartition> topicPartitions, int backlog) {
-    allTopicPartitions.addAll(topicPartitions);
+  public BackPressureActions update(int backlog) {
     BackPressureManagerStateAndActions stateAndActions = state.update(allTopicPartitions, backlog, backPressureConfig);
     this.state = stateAndActions.state;
     return stateAndActions.actions;

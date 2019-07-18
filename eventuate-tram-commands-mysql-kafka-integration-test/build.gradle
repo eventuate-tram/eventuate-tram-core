@@ -13,6 +13,7 @@ dependencies {
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.local.java:eventuate-local-java-test-util:$eventuateLocalVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 
 test {
