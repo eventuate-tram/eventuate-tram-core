@@ -5,3 +5,7 @@ repositories {
     jcenter()
 }
 
+dependencies {
+    compile "com.jayway.restassured:rest-assured:2.9.0"
+}
+

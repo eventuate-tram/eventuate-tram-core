@@ -15,6 +15,7 @@ allprojects {
 }
 
 apply plugin: "io.eventuate.plugins.gradle.UpgradeVersions"
+apply plugin: WaitForCdcPlugin
 
 subprojects {
     apply plugin: 'java'

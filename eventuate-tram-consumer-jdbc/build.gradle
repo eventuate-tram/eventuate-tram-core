@@ -1,4 +1,3 @@
-
 dependencies {
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile project(":eventuate-tram-consumer-common")
