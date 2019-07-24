@@ -17,7 +17,6 @@ public class EventuateMicronautSqlTableBasedDuplicateMessageDetectorTest {
 
   @Test
   public void shouldDetectDuplicate() {
-
     String consumerId = getClass().getName();
     String messageId = Long.toString(System.currentTimeMillis());
 
