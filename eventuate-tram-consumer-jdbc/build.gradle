@@ -1,6 +1,6 @@
 
 dependencies {
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.1.8.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.1.8.RELEASE'
     compile project(":eventuate-tram-consumer-common")
 }
