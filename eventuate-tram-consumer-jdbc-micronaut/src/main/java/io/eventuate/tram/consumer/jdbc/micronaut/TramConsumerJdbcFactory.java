@@ -9,7 +9,6 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Singleton;
@@ -18,7 +17,7 @@ import javax.sql.DataSource;
 @Factory
 public class TramConsumerJdbcFactory {
 
-  @Value("${datasources.default.driverclassname}")
+  @Value("${datasources.default.driver-class-name}")
   private String driver;
 
   @Singleton
@@ -35,11 +34,7 @@ public class TramConsumerJdbcFactory {
   }
 
   @Singleton
-  public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-    return new JdbcTemplate(dataSource);
-  }
-
-  @Singleton
+  @Requires(missingBeans = TransactionTemplate.class)
   public TransactionTemplate transactionTemplate(DataSource dataSource) {
     return new TransactionTemplate(new DataSourceTransactionManager(dataSource));
   }
