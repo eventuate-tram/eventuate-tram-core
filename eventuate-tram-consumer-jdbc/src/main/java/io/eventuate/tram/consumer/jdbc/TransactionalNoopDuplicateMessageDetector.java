@@ -1,14 +1,14 @@
-package io.eventuate.tram.consumer.jdbc.spring;
+package io.eventuate.tram.consumer.jdbc;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import org.springframework.transaction.support.TransactionTemplate;
 
-public class EventuateSpringTransactionalNoopDuplicateMessageDetector implements DuplicateMessageDetector {
+public class TransactionalNoopDuplicateMessageDetector implements DuplicateMessageDetector {
 
   private TransactionTemplate transactionTemplate;
 
-  public EventuateSpringTransactionalNoopDuplicateMessageDetector(TransactionTemplate transactionTemplate) {
+  public TransactionalNoopDuplicateMessageDetector(TransactionTemplate transactionTemplate) {
     this.transactionTemplate = transactionTemplate;
   }
 

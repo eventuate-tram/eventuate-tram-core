@@ -1,9 +1,10 @@
 package io.eventuate.tram.consumer.jdbc.micronaut;
 
-import io.eventuate.common.jdbc.micronaut.EventuateMicronautTransactionManagement;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
+import io.eventuate.tram.consumer.jdbc.TransactionalNoopDuplicateMessageDetector;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Singleton;
 
@@ -12,7 +13,7 @@ public class TransactionalNoopDuplicateMessageDetectorFactory {
 
   @Singleton
   @Requires(property = "transactional.noop.duplicate.message.detector.factory.enabled")
-  public DuplicateMessageDetector duplicateMessageDetector(EventuateMicronautTransactionManagement eventuateMicronautTransactionManagement) {
-    return new EventuateMicronautTransactionalNoopDuplicateMessageDetector(eventuateMicronautTransactionManagement);
+  public DuplicateMessageDetector duplicateMessageDetector(TransactionTemplate transactionTemplate) {
+    return new TransactionalNoopDuplicateMessageDetector(transactionTemplate);
   }
 }

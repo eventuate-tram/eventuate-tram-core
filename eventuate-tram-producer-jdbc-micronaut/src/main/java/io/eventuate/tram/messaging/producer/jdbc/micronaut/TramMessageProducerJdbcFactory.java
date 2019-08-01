@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 @Factory
 public class TramMessageProducerJdbcFactory {
 
-  @Value("${datasources.default.driverclassname}")
+  @Value("${datasources.default.driver-class-name}")
   private String driver;
 
   @Singleton
