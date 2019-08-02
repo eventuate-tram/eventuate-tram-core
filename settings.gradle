@@ -27,6 +27,8 @@ include 'eventuate-tram-events'
 include 'eventuate-tram-events-spring'
 include 'eventuate-tram-events-micronaut'
 include 'eventuate-tram-commands'
+include 'eventuate-tram-commands-spring'
+include 'eventuate-tram-commands-micronaut'
 include 'eventuate-tram-test-util'
 include "eventuate-tram-testing-support"
 include "eventuate-tram-testing-support-spring-cloud-contract"

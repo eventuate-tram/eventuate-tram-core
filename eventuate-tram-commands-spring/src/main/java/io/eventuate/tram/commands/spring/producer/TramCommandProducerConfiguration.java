@@ -1,5 +1,7 @@
-package io.eventuate.tram.commands.producer;
+package io.eventuate.tram.commands.spring.producer;
 
+import io.eventuate.tram.commands.producer.CommandProducer;
+import io.eventuate.tram.commands.producer.CommandProducerImpl;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.context.annotation.Bean;

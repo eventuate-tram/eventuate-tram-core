@@ -1,14 +1,15 @@
-package io.eventuate.tram.commands.consumer;
+package io.eventuate.tram.commands.micronaut.consumer;
 
+import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.micronaut.context.annotation.Factory;
 
-@Configuration
-public class TramCommandConsumerConfiguration {
+import javax.inject.Singleton;
 
-  @Bean
+@Factory
+public class TramCommandConsumerFactory {
+  @Singleton
   public CommandDispatcherFactory commandDispatcherFactory(MessageConsumer messageConsumer, MessageProducer messageProducer) {
     return new CommandDispatcherFactory(messageConsumer, messageProducer);
   }
