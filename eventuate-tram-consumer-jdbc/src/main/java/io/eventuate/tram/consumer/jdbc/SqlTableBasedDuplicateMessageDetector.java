@@ -3,41 +3,36 @@ package io.eventuate.tram.consumer.jdbc;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDetector {
-
-  private Logger logger = LoggerFactory.getLogger(getClass());
-
-  @Autowired
-  private JdbcTemplate jdbcTemplate;
-
   private EventuateSchema eventuateSchema;
   private String currentTimeInMillisecondsSql;
-  private final TransactionTemplate transactionTemplate;
+  private JdbcTemplate jdbcTemplate;
+  private TransactionTemplate transactionTemplate;
 
-
-  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema, String currentTimeInMillisecondsSql, TransactionTemplate transactionTemplate) {
-    this.transactionTemplate = transactionTemplate;
+  public SqlTableBasedDuplicateMessageDetector(EventuateSchema eventuateSchema,
+                                               String currentTimeInMillisecondsSql,
+                                               JdbcTemplate jdbcTemplate,
+                                               TransactionTemplate transactionTemplate) {
     this.eventuateSchema = eventuateSchema;
     this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;
+    this.jdbcTemplate = jdbcTemplate;
+    this.transactionTemplate = transactionTemplate;
   }
 
   @Override
   public boolean isDuplicate(String consumerId, String messageId) {
     try {
-
       String table = eventuateSchema.qualifyTable("received_messages");
 
       jdbcTemplate.update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)",
               table,
               currentTimeInMillisecondsSql),
-              consumerId, messageId);
+              consumerId,
+              messageId);
 
       return false;
     } catch (DuplicateKeyException e) {

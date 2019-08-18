@@ -1,0 +1,8 @@
+dependencies {
+    compile project(":eventuate-tram-consumer-jdbc")
+    compile project(":eventuate-tram-jdbc-spring")
+
+    compile "io.eventuate.common:eventuate-common-jdbc-spring:$eventuateCommonVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}

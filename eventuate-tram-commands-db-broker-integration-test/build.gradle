@@ -2,7 +2,7 @@ apply plugin: PrivateModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-producer-jdbc")
-    compile project(":eventuate-tram-consumer-jdbc")
+    compile project(":eventuate-tram-consumer-jdbc-spring")
     compile project(":eventuate-tram-integration-test-common")
     compile project(":eventuate-tram-commands")
 

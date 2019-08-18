@@ -5,7 +5,7 @@ dependencies {
     compile project(":eventuate-tram-consumer-common-spring")
     compile project(":eventuate-tram-messaging-producer-common-spring")
 
-    compile project(":eventuate-tram-consumer-jdbc")
+    compile project(":eventuate-tram-consumer-jdbc-spring")
 
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
