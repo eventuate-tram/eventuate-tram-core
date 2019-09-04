@@ -1,0 +1,13 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-in-memory")
+
+    compile project(":eventuate-tram-messaging-spring")
+    compile project(":eventuate-tram-consumer-common-spring")
+    compile project(":eventuate-tram-messaging-producer-common-spring")
+    compile project(":eventuate-tram-consumer-jdbc-spring")
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+
+}

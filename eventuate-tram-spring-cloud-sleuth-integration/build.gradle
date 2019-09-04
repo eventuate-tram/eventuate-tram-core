@@ -41,7 +41,7 @@ dependencies {
     testCompile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
-    testCompile project(":eventuate-tram-in-memory")
+    testCompile project(":eventuate-tram-in-memory-spring")
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
 

@@ -1,5 +1,7 @@
-package io.eventuate.tram.inmemory;
+package io.eventuate.tram.inmemory.spring;
 
+import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
+import io.eventuate.tram.inmemory.InMemoryMessageProducer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.producer.MessageBuilder;

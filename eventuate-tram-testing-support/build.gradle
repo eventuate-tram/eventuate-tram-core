@@ -9,5 +9,5 @@ dependencies {
     compile "junit:junit:4.12"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
-    testCompile project(":eventuate-tram-in-memory")
+    testCompile project(":eventuate-tram-in-memory-spring")
 }
