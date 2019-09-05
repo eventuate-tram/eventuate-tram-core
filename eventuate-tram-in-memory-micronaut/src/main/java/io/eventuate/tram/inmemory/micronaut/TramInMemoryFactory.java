@@ -14,11 +14,19 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import java.util.Collection;
 
 @Factory
 public class TramInMemoryFactory {
+
+  @Singleton
+  @Named("tramEmbeddedSchema")
+  public EmbeddedSchema tramEmbeddedSchema() {
+    return new EmbeddedSchema("eventuate-tram-embedded-schema.sql");
+  }
 
   @Singleton
   public InMemoryMessageConsumer inMemoryMessageConsumer() {
@@ -44,9 +52,11 @@ public class TramInMemoryFactory {
 
   @Singleton
   @Primary
-  public DataSource dataSource() {
+  public DataSource dataSource(Collection<EmbeddedSchema> schemas) {
     EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-    return builder.setType(EmbeddedDatabaseType.H2).addScript("eventuate-tram-embedded-schema.sql").build();
+    builder.setType(EmbeddedDatabaseType.H2);
+    schemas.forEach(schema -> builder.addScript(schema.getResourcePath()));
+    return builder.build();
   }
 
   @Singleton
