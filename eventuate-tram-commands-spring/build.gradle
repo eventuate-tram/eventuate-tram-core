@@ -1,0 +1,7 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-commands")
+
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+}

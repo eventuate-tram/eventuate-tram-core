@@ -4,6 +4,4 @@ dependencies {
     compile project(":eventuate-tram-messaging")
 
     compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
-
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 }

@@ -1,6 +1,6 @@
 package io.eventuate.tram.springcloudsleuthintegration.test;
 
-import io.eventuate.tram.inmemory.TramInMemoryConfiguration;
+import io.eventuate.tram.inmemory.spring.TramInMemoryConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Test;
 import org.junit.runner.RunWith;

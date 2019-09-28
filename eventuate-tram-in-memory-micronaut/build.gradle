@@ -1,0 +1,46 @@
+plugins {
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.micronaut:micronaut-bom:1.2.0'
+    }
+}
+
+dependencies {
+    compile project(":eventuate-tram-in-memory")
+
+    compile project(":eventuate-tram-messaging-micronaut")
+    compile project(":eventuate-tram-consumer-common-micronaut")
+    compile project(":eventuate-tram-messaging-producer-common-micronaut")
+    compile project(":eventuate-tram-consumer-jdbc-micronaut")
+
+    compile "io.micronaut:micronaut-spring"
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    compile "io.micronaut:micronaut-inject"
+    compile "io.micronaut:micronaut-validation"
+    compile "io.micronaut:micronaut-runtime"
+    compile  'org.springframework:spring-jdbc'
+    compile "io.micronaut.configuration:micronaut-hibernate-jpa"
+    annotationProcessor "javax.persistence:javax.persistence-api:2.2"
+    compile 'io.micronaut.configuration:micronaut-jdbc-hikari'
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testCompile "org.junit.jupiter:junit-jupiter-api"
+    testCompile "io.micronaut.test:micronaut-test-junit5"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine"
+}
+
+// use JUnit 5 platform
+test {
+    useJUnitPlatform()
+}
+
+

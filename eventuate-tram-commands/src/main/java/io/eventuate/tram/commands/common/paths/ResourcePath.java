@@ -1,7 +1,5 @@
 package io.eventuate.tram.commands.common.paths;
 
-import org.springframework.util.Assert;
-
 import java.util.Arrays;
 
 import static java.util.stream.Collectors.joining;
@@ -15,7 +13,10 @@ public class ResourcePath {
   }
 
   public ResourcePath(String resource) {
-    Assert.isTrue( resource.startsWith("/"), "Should start with / " + resource );
+    if (!resource.startsWith("/")) {
+      throw new IllegalArgumentException("Should start with / " + resource );
+    }
+
     this.splits = splitPath(resource);
   }
 

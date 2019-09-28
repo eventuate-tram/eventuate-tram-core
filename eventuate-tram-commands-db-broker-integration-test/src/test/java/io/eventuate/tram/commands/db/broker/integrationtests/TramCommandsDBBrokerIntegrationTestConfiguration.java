@@ -2,8 +2,8 @@ package io.eventuate.tram.commands.db.broker.integrationtests;
 
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
-import io.eventuate.tram.commands.consumer.TramCommandConsumerConfiguration;
-import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
+import io.eventuate.tram.commands.spring.consumer.TramCommandConsumerConfiguration;
+import io.eventuate.tram.commands.spring.producer.TramCommandProducerConfiguration;
 import io.eventuate.tram.consumer.common.spring.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.integrationtest.common.TramIntegrationTestMySqlBinlogKafkaConfiguration;
 import io.eventuate.tram.integrationtest.common.TramIntegrationTestMySqlBinlogRedisConfiguration;

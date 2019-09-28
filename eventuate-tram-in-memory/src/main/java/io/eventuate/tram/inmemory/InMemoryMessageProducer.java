@@ -6,7 +6,6 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -15,11 +14,11 @@ public class InMemoryMessageProducer implements MessageProducerImplementation {
   private final InMemoryMessageConsumer messageConsumer;
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired
   private IdGenerator idGenerator;
 
-  protected InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
+  public InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
     this.messageConsumer = messageConsumer;
+    this.idGenerator = idGenerator;
   }
 
   @Override

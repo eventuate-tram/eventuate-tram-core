@@ -1,7 +1,5 @@
 package io.eventuate.tram.commands.common.paths;
 
-import org.springframework.util.Assert;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +12,10 @@ public class ResourcePathPattern {
   private final String[] splits;
 
   public ResourcePathPattern(String pathPattern) {
-    Assert.isTrue( pathPattern.startsWith("/"), "Should start with / " + pathPattern );
+    if (!pathPattern.startsWith("/")) {
+      throw new IllegalArgumentException("Should start with / " + pathPattern);
+    }
+
     this.splits = splitPath(pathPattern);
 
   }

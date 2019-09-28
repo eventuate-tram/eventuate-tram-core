@@ -8,11 +8,10 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Singleton;
-import javax.sql.DataSource;
 
 @Factory
 public class TramConsumerJdbcFactory {
@@ -34,8 +33,7 @@ public class TramConsumerJdbcFactory {
   }
 
   @Singleton
-  @Requires(missingBeans = TransactionTemplate.class)
-  public TransactionTemplate transactionTemplate(DataSource dataSource) {
-    return new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+  public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
+    return new TransactionTemplate(transactionManager);
   }
 }
