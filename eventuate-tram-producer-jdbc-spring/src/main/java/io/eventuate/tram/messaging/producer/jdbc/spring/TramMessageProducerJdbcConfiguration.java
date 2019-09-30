@@ -5,9 +5,9 @@ import io.eventuate.common.id.IdGeneratorImpl;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.spring.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.jdbc.spring.EventuateSchemaConfiguration;
 import io.eventuate.common.jdbc.spring.sqldialect.SqlDialectConfiguration;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.tram.jdbc.spring.CommonJdbcMessagingConfiguration;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import io.eventuate.tram.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import io.eventuate.tram.messaging.producer.jdbc.MessageProducerJdbcImpl;
@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({SqlDialectConfiguration.class,
-        CommonJdbcMessagingConfiguration.class,
-        TramMessagingCommonProducerConfiguration.class,
-        EventuateCommonJdbcOperationsConfiguration.class})
+    EventuateSchemaConfiguration.class,
+    TramMessagingCommonProducerConfiguration.class,
+    EventuateCommonJdbcOperationsConfiguration.class})
 public class TramMessageProducerJdbcConfiguration {
 
   @Value("${spring.datasource.driver-class-name}")
