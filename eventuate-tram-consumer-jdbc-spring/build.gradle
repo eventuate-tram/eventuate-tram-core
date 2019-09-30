@@ -1,6 +1,5 @@
 dependencies {
     compile project(":eventuate-tram-consumer-jdbc")
-    compile project(":eventuate-tram-jdbc-spring")
 
     compile "io.eventuate.common:eventuate-common-jdbc-spring:$eventuateCommonVersion"
 

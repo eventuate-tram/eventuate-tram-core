@@ -1,8 +1,6 @@
 include 'eventuate-tram-messaging-producer-common'
 include 'eventuate-tram-messaging-producer-common-spring'
 include 'eventuate-tram-messaging-producer-common-micronaut'
-include 'eventuate-tram-jdbc-spring'
-include 'eventuate-tram-jdbc-micronaut'
 include 'eventuate-tram-messaging'
 include 'eventuate-tram-messaging-spring'
 include 'eventuate-tram-messaging-micronaut'

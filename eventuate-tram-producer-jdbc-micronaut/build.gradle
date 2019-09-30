@@ -18,7 +18,6 @@ dependencyManagement {
 
 dependencies {
     compile project(":eventuate-tram-messaging-micronaut")
-    compile project(":eventuate-tram-jdbc-micronaut")
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-messaging-producer-common-micronaut")
 

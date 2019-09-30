@@ -1,11 +1,11 @@
 package io.eventuate.tram.consumer.jdbc.spring;
 
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.spring.EventuateSchemaConfiguration;
 import io.eventuate.common.jdbc.spring.sqldialect.SqlDialectConfiguration;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.jdbc.SqlTableBasedDuplicateMessageDetector;
-import io.eventuate.tram.jdbc.spring.CommonJdbcMessagingConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @Import({SqlDialectConfiguration.class,
-        CommonJdbcMessagingConfiguration.class})
+    EventuateSchemaConfiguration.class})
 @ConditionalOnMissingBean(DuplicateMessageDetector.class)
 public class TramConsumerJdbcAutoConfiguration {
 

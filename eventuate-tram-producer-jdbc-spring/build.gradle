@@ -1,7 +1,6 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-jdbc-spring")
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-messaging-producer-common-spring")
 
