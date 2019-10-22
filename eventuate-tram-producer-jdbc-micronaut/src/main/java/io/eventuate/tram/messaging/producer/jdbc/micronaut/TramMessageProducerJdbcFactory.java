@@ -15,11 +15,9 @@ import javax.inject.Singleton;
 @Factory
 public class TramMessageProducerJdbcFactory {
 
-  @Value("${datasources.default.driver-class-name}")
-  private String driver;
-
   @Singleton
-  public MessageProducerImplementation messageProducerImplementation(EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
+  public MessageProducerImplementation messageProducerImplementation(@Value("${datasources.default.driver-class-name}") String driver,
+                                                                     EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
                                                                      IdGenerator idGenerator,
                                                                      EventuateSchema eventuateSchema,
                                                                      SqlDialectSelector sqlDialectSelector) {

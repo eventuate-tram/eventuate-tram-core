@@ -4,15 +4,11 @@ import io.eventuate.tram.consumer.common.*;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.micronaut.context.annotation.Factory;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
 @Factory
 public class TramConsumerBaseCommonFactory {
-
-  @Inject
-  private MessageInterceptor[] messageInterceptors;
 
   @Singleton
   public DecoratedMessageHandlerFactory subscribedMessageHandlerChainFactory(List<MessageHandlerDecorator> decorators) {
@@ -20,7 +16,7 @@ public class TramConsumerBaseCommonFactory {
   }
 
   @Singleton
-  public PrePostReceiveMessageHandlerDecorator prePostReceiveMessageHandlerDecoratorDecorator() {
+  public PrePostReceiveMessageHandlerDecorator prePostReceiveMessageHandlerDecoratorDecorator(MessageInterceptor[] messageInterceptors) {
     return new PrePostReceiveMessageHandlerDecorator(messageInterceptors);
   }
 
@@ -30,7 +26,7 @@ public class TramConsumerBaseCommonFactory {
   }
 
   @Singleton
-  public PrePostHandlerMessageHandlerDecorator prePostHandlerMessageHandlerDecorator() {
+  public PrePostHandlerMessageHandlerDecorator prePostHandlerMessageHandlerDecorator(MessageInterceptor[] messageInterceptors) {
     return new PrePostHandlerMessageHandlerDecorator(messageInterceptors);
   }
 }

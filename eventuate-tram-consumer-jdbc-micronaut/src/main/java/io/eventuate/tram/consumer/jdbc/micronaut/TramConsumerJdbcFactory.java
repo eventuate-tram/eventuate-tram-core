@@ -16,12 +16,10 @@ import javax.inject.Singleton;
 @Factory
 public class TramConsumerJdbcFactory {
 
-  @Value("${datasources.default.driver-class-name}")
-  private String driver;
-
   @Singleton
   @Requires(missingProperty = "transactional.noop.duplicate.message.detector.factory.enabled")
-  public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema,
+  public DuplicateMessageDetector duplicateMessageDetector(@Value("${datasources.default.driver-class-name}") String driver,
+                                                           EventuateSchema eventuateSchema,
                                                            SqlDialectSelector sqlDialectSelector,
                                                            JdbcTemplate jdbcTemplate,
                                                            TransactionTemplate transactionTemplate) {
