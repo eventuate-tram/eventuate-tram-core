@@ -16,7 +16,7 @@ dependencyManagement {
 dependencies {
     compile project(":eventuate-tram-consumer-jdbc")
     compile "io.micronaut:micronaut-spring"
-    compile "io.eventuate.common:eventuate-common-jdbc-micronaut:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc-micronaut-spring:$eventuateCommonVersion"
 
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
