@@ -53,6 +53,7 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
           callback.run();
         return null;
       } catch (Throwable e) {
+        logger.trace("Got exception - marking for rollback only", e);
         ts.setRollbackOnly();
         throw e;
       }
