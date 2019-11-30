@@ -1,11 +1,11 @@
 package io.eventuate.tram.consumer.jdbc;
 
+import io.eventuate.common.jdbc.EventuateDuplicateKeyException;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
-import org.springframework.dao.DuplicateKeyException;
 
 public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDetector {
   private EventuateSchema eventuateSchema;
@@ -35,7 +35,7 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
               messageId);
 
       return false;
-    } catch (DuplicateKeyException e) {
+    } catch (EventuateDuplicateKeyException e) {
       return true;
     }
   }
