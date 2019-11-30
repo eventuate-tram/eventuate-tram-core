@@ -1,6 +1,8 @@
 package io.eventuate.tram.consumer.jdbc.spring;
 
+import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.common.jdbc.spring.EventuateSchemaConfiguration;
 import io.eventuate.common.jdbc.spring.sqldialect.SqlDialectConfiguration;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
@@ -26,12 +28,12 @@ public class TramConsumerJdbcAutoConfiguration {
   @Bean
   public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema,
                                                            SqlDialectSelector sqlDialectSelector,
-                                                           TransactionTemplate transactionTemplate,
-                                                           JdbcTemplate jdbcTemplate) {
+                                                           EventuateJdbcStatementExecutor eventuateJdbcStatementExecutor,
+                                                           EventuateTransactionTemplate eventuateTransactionTemplate) {
     return new SqlTableBasedDuplicateMessageDetector(eventuateSchema,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(),
-            jdbcTemplate,
-            transactionTemplate);
+            eventuateJdbcStatementExecutor,
+            eventuateTransactionTemplate);
   }
 
 }

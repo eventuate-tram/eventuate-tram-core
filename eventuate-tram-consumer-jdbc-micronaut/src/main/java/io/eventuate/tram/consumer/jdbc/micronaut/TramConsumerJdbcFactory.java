@@ -1,6 +1,8 @@
 package io.eventuate.tram.consumer.jdbc.micronaut;
 
+import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.jdbc.SqlTableBasedDuplicateMessageDetector;
@@ -16,20 +18,18 @@ import javax.inject.Singleton;
 @Factory
 public class TramConsumerJdbcFactory {
 
-  @Value("${datasources.default.driver-class-name}")
-  private String driver;
-
   @Singleton
   @Requires(missingProperty = "transactional.noop.duplicate.message.detector.factory.enabled")
-  public DuplicateMessageDetector duplicateMessageDetector(EventuateSchema eventuateSchema,
+  public DuplicateMessageDetector duplicateMessageDetector(@Value("${datasources.default.driver-class-name}") String driver,
+                                                           EventuateSchema eventuateSchema,
                                                            SqlDialectSelector sqlDialectSelector,
-                                                           JdbcTemplate jdbcTemplate,
-                                                           TransactionTemplate transactionTemplate) {
+                                                           EventuateJdbcStatementExecutor eventuateJdbcStatementExecutor,
+                                                           EventuateTransactionTemplate eventuateTransactionTemplate) {
 
     return new SqlTableBasedDuplicateMessageDetector(eventuateSchema,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(),
-            jdbcTemplate,
-            transactionTemplate);
+            eventuateJdbcStatementExecutor,
+            eventuateTransactionTemplate);
   }
 
   @Singleton

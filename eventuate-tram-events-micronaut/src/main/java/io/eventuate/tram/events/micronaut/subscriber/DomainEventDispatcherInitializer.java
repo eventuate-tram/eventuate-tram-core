@@ -10,8 +10,11 @@ import java.util.Arrays;
 @Context
 public class DomainEventDispatcherInitializer {
 
-  @Inject
   private DomainEventDispatcher[] domainEventDispatchers;
+
+  public DomainEventDispatcherInitializer(DomainEventDispatcher[] domainEventDispatchers) {
+    this.domainEventDispatchers = domainEventDispatchers;
+  }
 
   @PostConstruct
   public void init() {
