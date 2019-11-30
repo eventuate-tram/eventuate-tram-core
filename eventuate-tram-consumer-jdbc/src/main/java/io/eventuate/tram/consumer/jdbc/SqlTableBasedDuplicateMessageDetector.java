@@ -43,12 +43,9 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
   @Override
   public void doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Runnable callback) {
     eventuateTransactionTemplate.executeInTransaction(() -> {
-      try {
-        if (!isDuplicate(subscriberIdAndMessage.getSubscriberId(), subscriberIdAndMessage.getMessage().getId()))
-          callback.run();
-      } catch (Throwable e) {
-        throw e;
-      }
+      if (!isDuplicate(subscriberIdAndMessage.getSubscriberId(), subscriberIdAndMessage.getMessage().getId()))
+        callback.run();
+      return null;
     });
   }
 }
