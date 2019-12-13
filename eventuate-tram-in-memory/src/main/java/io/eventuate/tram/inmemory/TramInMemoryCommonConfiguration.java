@@ -18,6 +18,17 @@ import java.util.Collections;
         EventuateCommonInMemoryDatabaseConfiguration.class})
 public class TramInMemoryCommonConfiguration {
 
+
+  @Bean
+  public InMemoryMessageConsumer inMemoryMessageConsumer() {
+    return new InMemoryMessageConsumer();
+  }
+
+  @Bean
+  public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
+    return new InMemoryMessageProducer(messageConsumer, idGenerator);
+  }
+
   @Bean
   public EventuateDatabaseScriptSupplier eventuateCommonInMemoryScriptSupplierForTram() {
     return () -> Collections.singletonList("eventuate-tram-embedded-schema.sql");
