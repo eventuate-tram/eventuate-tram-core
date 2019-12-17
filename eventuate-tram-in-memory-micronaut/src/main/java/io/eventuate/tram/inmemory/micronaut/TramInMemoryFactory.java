@@ -2,6 +2,7 @@ package io.eventuate.tram.inmemory.micronaut;
 
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.id.IdGeneratorImpl;
+import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
 import io.eventuate.tram.inmemory.InMemoryMessageProducer;
@@ -10,23 +11,15 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Requires;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
-import java.util.Collection;
+import java.util.Collections;
 
 @Factory
 public class TramInMemoryFactory {
-
-  @Singleton
-  @Named("tramEmbeddedSchema")
-  public EmbeddedSchema tramEmbeddedSchema() {
-    return new EmbeddedSchema("eventuate-tram-embedded-schema.sql");
-  }
 
   @Singleton
   public InMemoryMessageConsumer inMemoryMessageConsumer() {
@@ -51,12 +44,9 @@ public class TramInMemoryFactory {
   }
 
   @Singleton
-  @Primary
-  public DataSource dataSource(Collection<EmbeddedSchema> schemas) {
-    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-    builder.setType(EmbeddedDatabaseType.H2);
-    schemas.forEach(schema -> builder.addScript(schema.getResourcePath()));
-    return builder.build();
+  @Named("TramEventuateDatabaseScriptSupplier")
+  public EventuateDatabaseScriptSupplier eventuateCommonInMemoryScriptSupplierForTram() {
+    return () -> Collections.singletonList("eventuate-tram-embedded-schema.sql");
   }
 
   @Singleton

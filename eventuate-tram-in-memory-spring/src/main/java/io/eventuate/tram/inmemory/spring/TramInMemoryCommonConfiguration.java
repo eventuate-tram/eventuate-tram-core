@@ -1,10 +1,12 @@
-package io.eventuate.tram.inmemory;
+package io.eventuate.tram.inmemory.spring;
 
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.id.IdGeneratorImpl;
 import io.eventuate.common.inmemorydatabase.EventuateCommonInMemoryDatabaseConfiguration;
 import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
 import io.eventuate.tram.consumer.common.spring.TramConsumerCommonConfiguration;
+import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
+import io.eventuate.tram.inmemory.InMemoryMessageProducer;
 import io.eventuate.tram.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({SqlDialectConfiguration.class,
-    EventuateSchemaConfiguration.class,
     TramMessagingCommonProducerConfiguration.class,
     EventuateCommonJdbcOperationsConfiguration.class})
 public class TramMessageProducerJdbcConfiguration {
