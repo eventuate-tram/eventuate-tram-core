@@ -6,8 +6,12 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDetector {
+  private Logger logger = LoggerFactory.getLogger(getClass());
+
   private EventuateSchema eventuateSchema;
   private String currentTimeInMillisecondsSql;
   private EventuateJdbcStatementExecutor eventuateJdbcStatementExecutor;
@@ -36,6 +40,7 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
 
       return false;
     } catch (EventuateDuplicateKeyException e) {
+      logger.info("Message duplicate: consumerId = {}, messageId = {}", consumerId, messageId);
       return true;
     }
   }

@@ -25,6 +25,7 @@ public class PrePostHandlerMessageHandlerDecorator implements MessageHandlerDeco
       messageHandlerDecoratorChain.invokeNext(subscriberIdAndMessage);
       postHandle(subscriberId, message, null);
     } catch (Throwable t) {
+      logger.error("decoration failed", t);
       postHandle(subscriberId, message, t);
       throw t;
     }

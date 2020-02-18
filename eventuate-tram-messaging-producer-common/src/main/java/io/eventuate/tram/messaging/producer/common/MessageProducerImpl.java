@@ -4,10 +4,13 @@ import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.MessageProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public final class MessageProducerImpl implements MessageProducer {
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private final MessageInterceptor[] messageInterceptors;
   private final ChannelMapping channelMapping;
@@ -53,6 +56,7 @@ public final class MessageProducerImpl implements MessageProducer {
       implementation.send(message);
       postSend(message, null);
     } catch (RuntimeException e) {
+      logger.error("Sending failed", e);
       postSend(message, e);
       throw e;
     }
