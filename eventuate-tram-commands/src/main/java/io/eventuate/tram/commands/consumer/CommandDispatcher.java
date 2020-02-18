@@ -76,7 +76,8 @@ public class CommandDispatcher {
       replies = invoke(m, cm, pathVars);
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
-      logger.trace("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
+      logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
+      logger.error("Generated error", e);
       handleException(message, param, m, e, pathVars, defaultReplyChannel);
       return;
     }

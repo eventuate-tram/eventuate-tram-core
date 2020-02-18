@@ -58,10 +58,12 @@ public class InMemoryMessageConsumer implements MessageConsumerImplementation {
       }
     }
     return () -> {
+      logger.info("Closing in-memory consumer");
       wildcardSubscriptions.remove(handler);
       for (String channel : channels) {
         subscriptions.get(channel).remove(handler);
       }
+      logger.info("Closed in-memory consumer");
     };
   }
 

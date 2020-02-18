@@ -31,7 +31,9 @@ public class DomainEventDispatcher {
 
   @PostConstruct
   public void initialize() {
+    logger.info("Initializing domain event dispatcher");
     messageConsumer.subscribe(eventDispatcherId, domainEventHandlers.getAggregateTypesAndEvents(), this::messageHandler);
+    logger.info("Initialized domain event dispatcher");
   }
 
   public void messageHandler(Message message) {

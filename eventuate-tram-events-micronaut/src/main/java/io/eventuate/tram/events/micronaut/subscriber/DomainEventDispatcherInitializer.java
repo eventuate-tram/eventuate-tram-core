@@ -2,6 +2,8 @@ package io.eventuate.tram.events.micronaut.subscriber;
 
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
 import io.micronaut.context.annotation.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -9,6 +11,7 @@ import java.util.Arrays;
 
 @Context
 public class DomainEventDispatcherInitializer {
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private DomainEventDispatcher[] domainEventDispatchers;
 
@@ -18,6 +21,8 @@ public class DomainEventDispatcherInitializer {
 
   @PostConstruct
   public void init() {
+    logger.info("Initializing domain event dispatchers");
     Arrays.stream(domainEventDispatchers).forEach(DomainEventDispatcher::initialize);
+    logger.info("Initialized domain event dispatchers");
   }
 }

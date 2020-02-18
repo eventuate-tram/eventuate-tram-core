@@ -33,8 +33,8 @@ public class DecoratedMessageHandlerFactory {
         mh.accept(smh.getMessage());
         logger.trace("handled message {} {}", subscriberId, message.getId());
       } catch (Exception e) {
-        logger.trace("Got exception {} {}", subscriberId, message.getId());
-        logger.trace("Got exception ", e);
+        logger.error("Got exception {} {}", subscriberId, message.getId());
+        logger.error("Got exception ", e);
         throw e;
       }
     });
