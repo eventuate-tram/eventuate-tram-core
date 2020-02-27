@@ -2,7 +2,7 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-consumer-common-spring")
+    compile project(":eventuate-tram-spring-consumer-common")
 
     compile "io.eventuate.messaging.redis:eventuate-messaging-redis-consumer:$eventuateMessagingRedisVersion"
 }
