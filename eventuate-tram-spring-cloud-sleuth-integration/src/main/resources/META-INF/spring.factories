@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.eventuate.tram.springcloudsleuthintegration.TramSpringCloudSleuthIntegrationConfiguration
+io.eventuate.tram.spring.cloudsleuthintegration.TramSpringCloudSleuthIntegrationConfiguration
