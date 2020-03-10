@@ -1,9 +1,7 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-messaging-producer-common")
-
 
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
