@@ -4,10 +4,7 @@ plugins {
 
 apply plugin: PrivateModulePlugin
 
-repositories {
-    mavenCentral()
-    maven { url "https://jcenter.bintray.com" }
-}
+
 
 dependencyManagement {
     imports {

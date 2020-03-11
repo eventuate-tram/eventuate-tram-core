@@ -5,10 +5,7 @@ plugins {
 apply plugin: PublicModulePlugin
 
 
-repositories {
-    mavenCentral()
-    maven { url "https://jcenter.bintray.com" }
-}
+
 
 dependencyManagement {
     imports {
