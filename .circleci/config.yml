@@ -9,7 +9,7 @@ jobs:
           keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -38,7 +38,7 @@ jobs:
           keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -67,7 +67,7 @@ jobs:
           keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -96,7 +96,7 @@ jobs:
           keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -125,7 +125,7 @@ jobs:
           keys:
             - eventuate-tram-core-{{ checksum "gradle.properties" }}
             - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
