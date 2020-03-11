@@ -6,6 +6,8 @@ buildscript {
             url 'https://repo.spring.io/libs-milestone'
         }
     }
+apply plugin: PublicModulePlugin
+
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementPluginVersion"
         classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
@@ -28,6 +30,8 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-sleuth:$springCloudSleuthVersion"
     }
 }
+
+apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging")

@@ -1,3 +1,5 @@
+apply plugin: PublicModulePlugin
+
 dependencies {
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile 'org.springframework:spring-jdbc:5.1.8.RELEASE'
