@@ -17,7 +17,7 @@ allprojects {
 apply plugin: "io.eventuate.plugins.gradle.UpgradeVersions"
 apply plugin: WaitForCdcPlugin
 
-subprojects {
+allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'com.jfrog.bintray'
@@ -80,4 +80,14 @@ gradle.projectsEvaluated {
         destinationDir file("$buildDir/docs/javadoc")
         classpath = files(subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.classpath)
     }
+
+    task("aggregateJavaDocsJar", type: org.gradle.api.tasks.bundling.Jar, dependsOn: project.aggregateJavaDocs) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    artifacts {
+        archives project.aggregateJavaDocsJar
+    }
+
 }
