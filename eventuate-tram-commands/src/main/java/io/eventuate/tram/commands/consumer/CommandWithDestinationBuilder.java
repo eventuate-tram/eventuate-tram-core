@@ -3,10 +3,14 @@ package io.eventuate.tram.commands.consumer;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.paths.ResourcePathPattern;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class CommandWithDestinationBuilder {
   private Command command;
   private String destinationChannel;
   private String resource;
+  private Map<String, String> extraHeaders = Collections.emptyMap();
 
   public CommandWithDestinationBuilder(Command command) {
     this.command = command;
@@ -26,7 +30,12 @@ public class CommandWithDestinationBuilder {
     return this;
   }
 
+  public CommandWithDestinationBuilder withExtraHeaders(Map<String, String> headers) {
+    this.extraHeaders = headers;
+    return this;
+
+  }
   public CommandWithDestination build() {
-    return new CommandWithDestination(destinationChannel, resource, command);
+    return new CommandWithDestination(destinationChannel, resource, command, extraHeaders);
   }
 }
