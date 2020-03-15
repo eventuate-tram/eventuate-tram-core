@@ -2,6 +2,12 @@
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
+if [  $BRANCH == "master" ] && [ ! -z "$S3_REPO_DEPLOY_URL" ] ; then
+  echo master: publishing SNAPSHOT
+  ./gradlew -P deployUrl=${S3_REPO_DEPLOY_URL} uploadArchives
+  exit 0
+fi
+
 if ! [[  $BRANCH =~ ^[0-9]+ ]] ; then
   echo Not release $BRANCH - no PUSH
   exit 0

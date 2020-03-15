@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url deployUrl }
+        //maven { url deployUrl }
         maven { url "https://dl.bintray.com/eventuateio-oss/eventuate-maven-release" }
     }
     dependencies {
@@ -51,10 +51,22 @@ allprojects {
         testCompile "org.mockito:mockito-core:2.23.4"
     }
 
+    configurations {
+        deployerJars
+    }
+
+    dependencies {
+        deployerJars 'org.springframework.build:aws-maven:5.0.0.RELEASE'
+    }
+
+
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: deployUrl)
+                configuration = configurations.deployerJars
+                repository(url: deployUrl) {
+                  authentication(userName: System.getenv('S3_REPO_AWS_ACCESS_KEY'), password: System.getenv('S3_REPO_AWS_SECRET_ACCESS_KEY'))
+                }
                 pom.project {
                     licenses {
                         license {
