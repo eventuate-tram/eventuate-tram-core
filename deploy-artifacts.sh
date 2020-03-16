@@ -2,9 +2,10 @@
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-if [  $BRANCH == "master" ] && [ ! -z "$S3_REPO_DEPLOY_URL" ] ; then
-  echo master: publishing SNAPSHOT
-  ./gradlew -P deployUrl=${S3_REPO_DEPLOY_URL} uploadArchives
+if [  $BRANCH == "master" ] ; then
+  BUILD_SNAPSHOT=$(sed -e '/^version=/!d' -e 's/^version=\(.*\)-SNAPSHOT$/\1.BUILD-SNAPSHOT/' < gradle.properties)
+  echo master: publishing $BUILD_SNAPSHOT
+  ./gradlew -P version=$BUILD_SNAPSHOT -P deployUrl=${S3_REPO_DEPLOY_URL} uploadArchives
   exit 0
 fi
 
