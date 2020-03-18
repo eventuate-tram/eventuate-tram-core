@@ -226,3 +226,8 @@ It reads events inserted into the database and publishes them to the message bro
 It is written using Spring Boot.
 The easiest way to run this service during development is to use Docker Compose.
 The https://github.com/eventuate-tram/eventuate-tram-core-examples-basic[Eventuate Tram Code Basic examples] project has an example docker-compose.yml file.
+
+== Contributing
+
+Contributions are welcome.
+Please sign a https://chrisrichardson.net/legal/[contributor license agreement].
