@@ -5,8 +5,8 @@ dependencies {
     compile project(":eventuate-tram-spring-messaging")
     compile project(":eventuate-tram-consumer-kafka")
 
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 }
 
 
