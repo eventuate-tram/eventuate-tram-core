@@ -1,0 +1,10 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-micronaut-consumer:$eventuateMessagingKafkaVersion"
+
+    compile project(":eventuate-tram-micronaut-producer-jdbc")
+    compile project(":eventuate-tram-micronaut-consumer-common")
+    compile project(":eventuate-tram-micronaut-consumer-jdbc")
+    compile project(":eventuate-tram-micronaut-consumer-kafka")
+}
