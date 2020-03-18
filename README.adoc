@@ -1,6 +1,11 @@
 = Eventuate Tram (Transactional Messaging) platform
 
-image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+[cols="5%,20%a"]
+|===
+| RC | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-rc/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-rc/eventuate-tram/_latestVersion"]
+| Release | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+|===
+
 
 Eventuate Tram is a platform that solves the distributed data management problems inherent in a http://microservices.io/patterns/microservices.html[microservice architecture].
 
@@ -203,7 +208,13 @@ See this example of https://github.com/eventuate-tram/eventuate-tram-core-exampl
 The artifacts are in https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram[JCenter].
 The latest version is:
 
-image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+[cols="5%,20%a"]
+|===
+| RC | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-rc/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-rc/eventuate-tram/_latestVersion"]
+| Release | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+|===
+
+
 
 There are the following API artifacts:
 
