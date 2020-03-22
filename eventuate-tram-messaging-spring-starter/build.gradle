@@ -1,0 +1,9 @@
+dependencies {
+
+    compileOnly project(":eventuate-tram-spring-producer-jdbc")
+    compileOnly project(":eventuate-tram-spring-consumer-kafka")
+    compileOnly project(":eventuate-tram-consumer-activemq")
+    compileOnly project(":eventuate-tram-consumer-rabbitmq")
+    compileOnly project(":eventuate-tram-consumer-redis")
+
+}

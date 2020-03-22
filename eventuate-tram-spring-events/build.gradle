@@ -1,8 +1,6 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
-    compile project(":eventuate-tram-events")
-    compile project(":eventuate-tram-spring-messaging")
-
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    compile project(":eventuate-tram-spring-events-publisher")
+    compile project(":eventuate-tram-spring-events-subscriber")
 }
