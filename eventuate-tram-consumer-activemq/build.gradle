@@ -4,7 +4,7 @@ dependencies {
     compile project(":eventuate-tram-messaging")
     compile project(":eventuate-tram-spring-consumer-common")
 
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-consumer:$eventuateMessagingActiveMQVersion"
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
 }
 
 

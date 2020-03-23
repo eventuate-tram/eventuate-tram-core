@@ -1,8 +1,8 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQImpl;
-import io.eventuate.messaging.rabbitmq.consumer.Subscription;
+import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQImpl;
+import io.eventuate.messaging.rabbitmq.spring.consumer.Subscription;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
