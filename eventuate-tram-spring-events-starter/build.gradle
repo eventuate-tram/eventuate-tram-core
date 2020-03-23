@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":eventuate-tram-spring-events-publisher-starter")
+    compile project(":eventuate-tram-spring-events-subscriber-starter")
+}
