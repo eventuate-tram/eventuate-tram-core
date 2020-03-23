@@ -1,7 +1,7 @@
 package io.eventuate.tram.consumer.rabbitmq;
 
-import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQConfiguration;
-import io.eventuate.messaging.rabbitmq.consumer.MessageConsumerRabbitMQImpl;
+import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQConfiguration;
+import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQImpl;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.spring.consumer.common.TramConsumerCommonConfiguration;
 import org.springframework.context.annotation.Bean;

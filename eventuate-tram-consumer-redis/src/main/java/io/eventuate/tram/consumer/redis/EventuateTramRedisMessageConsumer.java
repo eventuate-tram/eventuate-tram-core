@@ -1,8 +1,8 @@
 package io.eventuate.tram.consumer.redis;
 
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.messaging.redis.consumer.MessageConsumerRedisImpl;
-import io.eventuate.messaging.redis.consumer.Subscription;
+import io.eventuate.messaging.redis.spring.consumer.MessageConsumerRedisImpl;
+import io.eventuate.messaging.redis.spring.consumer.Subscription;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
