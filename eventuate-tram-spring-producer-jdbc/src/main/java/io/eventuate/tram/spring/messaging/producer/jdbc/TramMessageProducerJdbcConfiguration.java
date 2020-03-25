@@ -11,6 +11,7 @@ import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation
 import io.eventuate.tram.messaging.producer.jdbc.MessageProducerJdbcImpl;
 import io.eventuate.tram.spring.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -25,6 +26,7 @@ public class TramMessageProducerJdbcConfiguration {
   private String driver;
 
   @Bean
+  @ConditionalOnMissingBean(MessageProducerImplementation.class)
   public MessageProducerImplementation messageProducerImplementation(EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
                                                                      IdGenerator idGenerator,
                                                                      EventuateSchema eventuateSchema,
