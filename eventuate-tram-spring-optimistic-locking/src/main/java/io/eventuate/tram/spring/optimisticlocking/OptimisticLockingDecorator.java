@@ -1,4 +1,4 @@
-package io.eventuate.tram.optimisticlocking;
+package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
 import io.eventuate.tram.consumer.common.MessageHandlerDecoratorChain;
