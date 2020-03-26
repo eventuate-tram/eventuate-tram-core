@@ -20,6 +20,7 @@ dependencies {
     compile project(":eventuate-tram-micronaut-messaging-producer-common")
     compile project(":eventuate-tram-micronaut-consumer-jdbc")
 
+    compile "io.eventuate.common:eventuate-common-micronaut-id:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-micronaut-in-memory-database:$eventuateCommonVersion"
 
     compile "io.micronaut:micronaut-spring"

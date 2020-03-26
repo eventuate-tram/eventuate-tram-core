@@ -1,7 +1,6 @@
 package io.eventuate.tram.micronaut.inmemory;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.id.IdGeneratorImpl;
 import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
@@ -47,12 +46,6 @@ public class TramInMemoryFactory {
   @Named("TramEventuateDatabaseScriptSupplier")
   public EventuateDatabaseScriptSupplier eventuateCommonInMemoryScriptSupplierForTram() {
     return () -> Collections.singletonList("eventuate-tram-embedded-schema.sql");
-  }
-
-  @Singleton
-  @Primary
-  public IdGenerator idGenerator() {
-    return new IdGeneratorImpl();
   }
 
   @Singleton
