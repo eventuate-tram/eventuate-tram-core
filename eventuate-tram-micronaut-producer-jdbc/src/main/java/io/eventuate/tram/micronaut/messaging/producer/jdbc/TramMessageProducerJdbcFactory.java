@@ -1,7 +1,6 @@
 package io.eventuate.tram.micronaut.messaging.producer.jdbc;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.id.IdGeneratorImpl;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
@@ -26,10 +25,5 @@ public class TramMessageProducerJdbcFactory {
             eventuateSchema,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression()
     );
-  }
-
-  @Singleton
-  public IdGenerator idGenerator() {
-    return new IdGeneratorImpl();
   }
 }

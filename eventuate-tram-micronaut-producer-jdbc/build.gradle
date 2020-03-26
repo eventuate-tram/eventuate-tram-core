@@ -18,6 +18,7 @@ dependencies {
     compile project(":eventuate-tram-producer-jdbc")
     compile project(":eventuate-tram-micronaut-messaging-producer-common")
 
+    compile "io.eventuate.common:eventuate-common-micronaut-id:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-micronaut-jdbc:$eventuateCommonVersion"
 
     annotationProcessor "io.micronaut:micronaut-inject-java"

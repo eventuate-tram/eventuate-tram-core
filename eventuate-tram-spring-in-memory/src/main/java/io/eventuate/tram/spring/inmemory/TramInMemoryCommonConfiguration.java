@@ -1,7 +1,7 @@
 package io.eventuate.tram.spring.inmemory;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.id.IdGeneratorImpl;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.inmemorydatabase.EventuateCommonInMemoryDatabaseConfiguration;
 import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
 import io.eventuate.tram.spring.consumer.common.TramConsumerCommonConfiguration;
@@ -17,7 +17,8 @@ import java.util.Collections;
 @Configuration
 @Import({TramConsumerCommonConfiguration.class,
         TramMessagingCommonProducerConfiguration.class,
-        EventuateCommonInMemoryDatabaseConfiguration.class})
+        EventuateCommonInMemoryDatabaseConfiguration.class,
+        IdGeneratorConfiguration.class})
 public class TramInMemoryCommonConfiguration {
 
 
@@ -35,10 +36,4 @@ public class TramInMemoryCommonConfiguration {
   public EventuateDatabaseScriptSupplier eventuateCommonInMemoryScriptSupplierForTram() {
     return () -> Collections.singletonList("eventuate-tram-embedded-schema.sql");
   }
-
-  @Bean
-  public IdGenerator idGenerator() {
-    return new IdGeneratorImpl();
-  }
-
 }
