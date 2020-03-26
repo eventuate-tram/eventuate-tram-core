@@ -1,0 +1,15 @@
+datasources:
+  default:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+    driverClassName: ${DATASOURCE_DRIVERCLASSNAME}
+jpa:
+  default:
+    packages-to-scan:
+      - 'io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: true

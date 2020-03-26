@@ -45,6 +45,7 @@ include 'eventuate-tram-consumer-activemq'
 include 'eventuate-tram-consumer-rabbitmq'
 include 'eventuate-tram-consumer-redis'
 include 'eventuate-tram-spring-optimistic-locking'
+include 'eventuate-tram-micronaut-spring-jdbc-optimistic-locking'
 
 include 'eventuate-tram-spring-messaging-starter'
 include 'eventuate-tram-spring-events-publisher-starter'
