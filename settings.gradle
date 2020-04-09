@@ -52,3 +52,4 @@ include 'eventuate-tram-spring-events-publisher-starter'
 include 'eventuate-tram-spring-events-subscriber-starter'
 include 'eventuate-tram-spring-events-starter'
 include 'eventuate-tram-spring-commands-starter'
+

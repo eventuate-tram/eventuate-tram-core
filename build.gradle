@@ -47,6 +47,7 @@ allprojects {
     }
 
     dependencies {
+        compile "javax.annotation:javax.annotation-api:1.3.2"
         testCompile "junit:junit:4.12"
         testCompile "org.mockito:mockito-core:2.23.4"
     }

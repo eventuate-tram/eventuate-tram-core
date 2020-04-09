@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TramMessagingCommonProducerConfiguration {
+  public class TramMessagingCommonProducerConfiguration {
 
   @Autowired(required=false)
   private MessageInterceptor[] messageInterceptors = new MessageInterceptor[0];
