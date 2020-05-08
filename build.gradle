@@ -46,11 +46,6 @@ allprojects {
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
 
-    dependencies {
-        testCompile "junit:junit:4.12"
-        testCompile "org.mockito:mockito-core:2.23.4"
-    }
-
     configurations {
         deployerJars
     }
@@ -59,25 +54,32 @@ allprojects {
         deployerJars 'org.springframework.build:aws-maven:5.0.0.RELEASE'
     }
 
+    if (!project.name.endsWith("-bom")) {
 
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                configuration = configurations.deployerJars
-                repository(url: deployUrl) {
-                  authentication(userName: System.getenv('S3_REPO_AWS_ACCESS_KEY'), password: System.getenv('S3_REPO_AWS_SECRET_ACCESS_KEY'))
-                }
-                pom.project {
-                    licenses {
-                        license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution 'repo'
-                        }
-                    }
-                }
-            }
-        }
+      dependencies {
+          testCompile "junit:junit:4.12"
+          testCompile "org.mockito:mockito-core:2.23.4"
+      }
+
+      uploadArchives {
+          repositories {
+              mavenDeployer {
+                  configuration = configurations.deployerJars
+                  repository(url: deployUrl) {
+                    authentication(userName: System.getenv('S3_REPO_AWS_ACCESS_KEY'), password: System.getenv('S3_REPO_AWS_SECRET_ACCESS_KEY'))
+                  }
+                  pom.project {
+                      licenses {
+                          license {
+                              name 'The Apache Software License, Version 2.0'
+                              url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                              distribution 'repo'
+                          }
+                      }
+                  }
+              }
+          }
+      }
     }
 }
 
