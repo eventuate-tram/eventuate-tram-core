@@ -5,11 +5,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class HttpDateHeaderFormatUtil {
-  static String nowAsHttpDateString() {
+  public static String nowAsHttpDateString() {
     return timeAsHttpDateString(ZonedDateTime.now(ZoneId.of("GMT")));
   }
 
-  static String timeAsHttpDateString(ZonedDateTime gmtTime) {
+  public static String timeAsHttpDateString(ZonedDateTime gmtTime) {
     return gmtTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
   }
 }
