@@ -64,7 +64,7 @@ public class MessageTracker {
   public void assertDomainEventPublished(String channel, String expectedDomainEventClassName) {
     Class<DomainEvent> eventClass;
     try {
-      eventClass = (Class<DomainEvent>) Class.forName(expectedDomainEventClassName);
+      eventClass = (Class<DomainEvent>) Class.forName(expectedDomainEventClassName, true, Thread.currentThread().getContextClassLoader());
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
