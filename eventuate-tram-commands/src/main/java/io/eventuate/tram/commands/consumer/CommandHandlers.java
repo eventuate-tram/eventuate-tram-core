@@ -23,9 +23,11 @@ public class CommandHandlers {
     return handlers.stream().filter(h -> h.handles(message)).findFirst();
   }
 
-  public Optional<CommandExceptionHandler> findExceptionHandler(Throwable cause) {
-    cause.printStackTrace();
-    throw new UnsupportedOperationException("implement me", cause);
+  public Optional<CommandExceptionHandler> findExceptionHandler(CommandHandler commandHandler, Throwable cause) {
+    throw new UnsupportedOperationException(String.format("A command handler for command of type %s on channel %s threw an exception",
+            commandHandler.getCommandClass().getName(),
+            commandHandler.getChannel()),
+            cause);
   }
 
   public List<CommandHandler> getHandlers() {

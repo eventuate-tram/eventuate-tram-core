@@ -138,7 +138,7 @@ public class CommandDispatcher {
                                Throwable cause,
                                Map<String, String> pathVars,
                                Optional<String> defaultReplyChannel) {
-    Optional<CommandExceptionHandler> m = commandHandlers.findExceptionHandler(cause);
+    Optional<CommandExceptionHandler> m = commandHandlers.findExceptionHandler(commandHandler, cause);
 
     logger.info("Handler for {} is {}", cause.getClass(), m);
 

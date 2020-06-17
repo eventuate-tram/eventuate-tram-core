@@ -13,7 +13,8 @@ public interface CommandProducer {
    * @param replyTo
    * @param headers additional headers  @return the id of the sent command
    */
-  String send(String channel, Command command, String replyTo, Map<String, String> headers);
+  String send(String channel, Command command, String replyTo,
+              Map<String, String> headers);
 
   /**
    * Sends a command
