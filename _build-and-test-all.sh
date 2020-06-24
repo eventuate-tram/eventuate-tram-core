@@ -6,30 +6,21 @@ set -e
 
 ./gradlew $* testClasses
 
-docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml down -v --remove-orphans
+docker="./gradlew ${DATABASE}${MODE}${BROKER}Compose"
 
-docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml up --build -d ${DATABASE} ${BROKER} ${COORDINATOR}
-
-./wait-for-${DATABASE}.sh
-
-docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml up --build -d
-
-./wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
+${docker}Down -P removeContainers=true
+${docker}Up
 
 ./gradlew cleanTest build
 
 
 if [[ "${DATABASE}" == "mysql" ]] && [[ "${BROKER}" == "kafka" ]]; then
-    docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml stop cdc-service
-    docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml rm -f cdc-service
+    ${docker}Down -P removeContainers=true
+    ${docker}Up
 
     export EVENTUATE_DATABASE_SCHEMA=custom
 
-    docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml up --build -d cdc-service
-
-    ./wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
-
-    ./gradlew waitForCdc
+    ${docker}Up
 
     export TEST_CUSTOM_DB=true
 
@@ -37,4 +28,4 @@ if [[ "${DATABASE}" == "mysql" ]] && [[ "${BROKER}" == "kafka" ]]; then
     ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.broker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
 fi
 
-docker-compose -f docker-compose-${DATABASE}-${MODE}-${BROKER}.yml down -v --remove-orphans
+${docker}Down  -P removeContainers=true
