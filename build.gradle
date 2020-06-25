@@ -7,8 +7,11 @@ buildscript {
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'io.eventuate.plugins.gradle:eventuate-plugins-gradle-versions:0.1.0.RELEASE'
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
     }
 }
+
+apply plugin: 'docker-compose'
 
 allprojects {
     group = "io.eventuate.tram.core"
@@ -104,4 +107,31 @@ gradle.projectsEvaluated {
         archives project.aggregateJavaDocsJar
     }
 
+}
+
+dockerCompose {
+    environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
+    environment.put "EVENTUATE_CDC_VERSION", eventuateCdcImageVersion
+
+    removeOrphans = true
+
+    mysqlbinlogkafka {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql-binlog-kafka.yml"]
+    }
+
+    mysqlbinlogredis {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql-binlog-redis.yml"]
+    }
+
+    mssqlpollingactivemq {
+        projectName = null
+        useComposeFiles = ["docker-compose-mssql-polling-activemq.yml"]
+    }
+
+    postgreswalrabbitmq {
+        projectName = null
+        useComposeFiles = ["docker-compose-postgres-wal-rabbitmq.yml"]
+    }
 }

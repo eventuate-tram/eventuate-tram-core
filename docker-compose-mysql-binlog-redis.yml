@@ -1,37 +1,37 @@
-mysql:
-  image: eventuateio/eventuate-mysql:0.4.0.RELEASE
-  ports:
-    - 3306:3306
-  environment:
-    - MYSQL_ROOT_PASSWORD=rootpassword
-    - MYSQL_USER=mysqluser
-    - MYSQL_PASSWORD=mysqlpw
+version: '3'
+services:
+  mysql:
+    image: eventuateio/eventuate-mysql:$EVENTUATE_COMMON_VERSION
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
 
-redis:
-  image: redis:5.0.3
-  ports:
-    - 6379:6379
+  redis:
+    image: redis:5.0.3
+    ports:
+      - 6379:6379
 
 
-cdc-service:
-  image: eventuateio/eventuate-cdc-service:0.4.0.RELEASE
-  ports:
-    - "8099:8080"
-  links:
-    - mysql
-    - redis
-  environment:
-    SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-    SPRING_DATASOURCE_USERNAME: mysqluser
-    SPRING_DATASOURCE_PASSWORD: mysqlpw
-    SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.jdbc.Driver
-    EVENTUATELOCAL_CDC_DB_USER_NAME: root
-    EVENTUATELOCAL_CDC_DB_PASSWORD: rootpassword
-    EVENTUATELOCAL_CDC_READER_NAME: ${EVENTUATELOCAL_CDC_READER_NAME}
-    EVENTUATELOCAL_CDC_OFFSET_STORE_KEY: ${EVENTUATELOCAL_CDC_OFFSET_STORE_KEY}
-    EVENTUATELOCAL_CDC_MYSQL_BINLOG_CLIENT_UNIQUE_ID: ${EVENTUATELOCAL_CDC_MYSQL_BINLOG_CLIENT_UNIQUE_ID}
-    EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC: ${EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC}
-    EVENTUATE_REDIS_SERVERS: redis:6379
-    EVENTUATE_REDIS_PARTITIONS: 1
-    EVENTUATE_DATABASE_SCHEMA: ${EVENTUATE_DATABASE_SCHEMA}
-    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+  cdc-service:
+    image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
+    ports:
+      - "8099:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+      SPRING_DATASOURCE_USERNAME: mysqluser
+      SPRING_DATASOURCE_PASSWORD: mysqlpw
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.jdbc.Driver
+      EVENTUATELOCAL_CDC_DB_USER_NAME: root
+      EVENTUATELOCAL_CDC_DB_PASSWORD: rootpassword
+      EVENTUATELOCAL_CDC_READER_NAME: MySqlReader
+      EVENTUATELOCAL_CDC_MYSQL_BINLOG_CLIENT_UNIQUE_ID: 1234567890
+      EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC: "false"
+      EVENTUATE_REDIS_SERVERS: redis:6379
+      EVENTUATE_REDIS_PARTITIONS: 1
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
