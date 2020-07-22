@@ -63,8 +63,8 @@ public class TramMessageHandlerExceptionHandlingIntegrationTest  {
 
     doThrow(new RuntimeException("x")).when(handler).accept(any());
 
-    Message m1 = MessageBuilder.withPayload("Hello").withHeader(Message.PARTITION_ID, "1").build();
-    Message m2 = MessageBuilder.withPayload("Hi").withHeader(Message.PARTITION_ID, "1").build();
+    Message m1 = MessageBuilder.withPayload("\"Hello\"").withHeader(Message.PARTITION_ID, "1").build();
+    Message m2 = MessageBuilder.withPayload("\"Hi\"").withHeader(Message.PARTITION_ID, "1").build();
 
     MessageSubscription subscription = messageConsumer.subscribe(subscriberId, Collections.singleton(destination), handler);
 
