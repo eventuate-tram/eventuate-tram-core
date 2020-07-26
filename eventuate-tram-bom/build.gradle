@@ -1,1 +1,1 @@
-apply plugin: EventuatePublishBomPlugin
+apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublishBom"

@@ -1,12 +1,13 @@
 buildscript {
     repositories {
         jcenter()
-        //maven { url deployUrl }
         maven { url "https://dl.bintray.com/eventuateio-oss/eventuate-maven-release" }
+        maven { url "https://snapshots.repositories.eventuate.io/repository" }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'io.eventuate.plugins.gradle:eventuate-plugins-gradle-versions:0.1.0.RELEASE'
+        classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-versions:$eventuatePluginsGradleVersion"
+        classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-publish:$eventuatePluginsGradleVersion"
         classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
     }
 }
@@ -19,7 +20,7 @@ allprojects {
 
 apply plugin: "io.eventuate.plugins.gradle.UpgradeVersions"
 apply plugin: WaitForCdcPlugin
-apply plugin: EventuatePublishPlugin
+apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
 
 allprojects {
 
