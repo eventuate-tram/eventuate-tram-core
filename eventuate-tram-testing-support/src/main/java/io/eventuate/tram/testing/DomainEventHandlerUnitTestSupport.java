@@ -5,15 +5,22 @@ import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
+import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.util.SimpleIdGenerator;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Provides a DSL for writing unit tests for domain event handlers
@@ -28,6 +35,7 @@ public class DomainEventHandlerUnitTestSupport {
   public static DomainEventHandlerUnitTestSupport given() {
     return new DomainEventHandlerUnitTestSupport();
   }
+
 
   public DomainEventHandlerUnitTestSupport eventHandlers(DomainEventHandlers domainEventHandlers) {
 
@@ -83,4 +91,12 @@ public class DomainEventHandlerUnitTestSupport {
     r.run();
     return this;
   }
+
+  public <EH, EV extends DomainEvent> DomainEventHandlerUnitTestSupport expectEventHandlerInvoked(EH eventHandlers, BiConsumer<EH, DomainEventEnvelope<EV>> c, Consumer<DomainEventEnvelope<EV>> consumer) {
+    ArgumentCaptor<DomainEventEnvelope<EV>> arg = ArgumentCaptor.forClass(DomainEventEnvelope.class);
+    c.accept(Mockito.verify(eventHandlers), arg.capture());
+    consumer.accept(arg.getValue());
+    return this;
+  }
+
 }
