@@ -3,6 +3,7 @@ buildscript {
         jcenter()
         maven { url "https://dl.bintray.com/eventuateio-oss/eventuate-maven-release" }
         maven { url "https://snapshots.repositories.eventuate.io/repository" }
+        maven { url "file:///Users/cer/.m2/testdeploy" }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
@@ -18,7 +19,6 @@ allprojects {
     group = "io.eventuate.tram.core"
 }
 
-apply plugin: "io.eventuate.plugins.gradle.UpgradeVersions"
 apply plugin: WaitForCdcPlugin
 apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
 
