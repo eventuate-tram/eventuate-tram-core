@@ -1,9 +1,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url "https://dl.bintray.com/eventuateio-oss/eventuate-maven-release" }
-        maven { url "https://snapshots.repositories.eventuate.io/repository" }
-        maven { url "file:///Users/cer/.m2/testdeploy" }
+        eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
