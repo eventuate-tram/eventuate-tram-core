@@ -2,8 +2,6 @@
 
 set -e
 
-. ./set-env-${DATABASE}-${MODE}-${BROKER}.sh
-
 ./gradlew $* testClasses
 
 docker="./gradlew ${DATABASE}${MODE}${BROKER}Compose"
