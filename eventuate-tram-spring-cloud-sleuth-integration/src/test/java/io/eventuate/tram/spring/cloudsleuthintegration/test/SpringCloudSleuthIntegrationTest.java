@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -16,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -43,6 +43,9 @@ public class SpringCloudSleuthIntegrationTest {
 
   }
 
+  @Value("${spring.zipkin.baseUrl}")
+  private String zipkinBaseUrl;
+
   @LocalServerPort
   private int port;
 
@@ -65,8 +68,8 @@ public class SpringCloudSleuthIntegrationTest {
   private void assertTracesSendToZipkin(String id)  {
 
     String url = String.format
-            ("http://%s:%s/api/v2/traces?annotationQuery=http.path=/foo/%s",
-                    getDockerHostIp(), 9411, id);
+            ("%sapi/v2/traces?annotationQuery=http.path=/foo/%s",
+                    zipkinBaseUrl, id);
 
     logger.info("Retrieving traces {}", url);
 
@@ -95,11 +98,5 @@ public class SpringCloudSleuthIntegrationTest {
       fail(String.format("Expected the parent of %s to be %s but is %s", span, parent.getId(), span
               .getParentId()));
     }
-  }
-
-  private String getDockerHostIp() {
-    String ipAddress = System.getenv("DOCKER_HOST_IP");
-    Assert.notNull(ipAddress, "Please set DOCKER_HOST_IP");
-    return ipAddress;
   }
 }
