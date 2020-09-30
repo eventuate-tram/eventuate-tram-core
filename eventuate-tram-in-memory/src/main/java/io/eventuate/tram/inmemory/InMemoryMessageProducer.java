@@ -1,31 +1,25 @@
 package io.eventuate.tram.inmemory;
 
 
-import io.eventuate.common.id.IdGenerator;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.SimpleIdGenerator;
 
 public class InMemoryMessageProducer implements MessageProducerImplementation {
 
-  private final InMemoryMessageConsumer messageConsumer;
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private IdGenerator idGenerator;
+  private final InMemoryMessageConsumer messageConsumer;
 
-  public InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
+  private SimpleIdGenerator simpleIdGenerator = new SimpleIdGenerator();
+
+  public InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
     this.messageConsumer = messageConsumer;
-    this.idGenerator = idGenerator;
   }
-
-  @Override
-  public String generateMessageId() {
-    return idGenerator.genId().asString();
-  }
-
 
   @Override
   public void withContext(Runnable runnable) {
@@ -41,12 +35,12 @@ public class InMemoryMessageProducer implements MessageProducerImplementation {
       logger.info("No transaction active");
       runnable.run();
     }
-
   }
 
   @Override
-  public void send(Message message) {
+  public String send(Message message) {
     messageConsumer.dispatchMessage(message);
-  }
 
+    return simpleIdGenerator.generateId().toString();
+  }
 }

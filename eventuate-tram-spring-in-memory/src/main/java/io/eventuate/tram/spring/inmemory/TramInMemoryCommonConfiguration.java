@@ -29,7 +29,7 @@ public class TramInMemoryCommonConfiguration {
 
   @Bean
   public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
-    return new InMemoryMessageProducer(messageConsumer, idGenerator);
+    return new InMemoryMessageProducer(messageConsumer);
   }
 
   @Bean

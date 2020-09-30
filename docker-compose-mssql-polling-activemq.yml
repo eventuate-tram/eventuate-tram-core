@@ -17,15 +17,16 @@ services:
       - 61614:61614
 
   mssql:
-    image: eventuateio/eventuate-mssql:$EVENTUATE_COMMON_VERSION
+    image: eventuateio/eventuate-mssql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - 1433:1433
     environment:
       SA_PASSWORD: Eventuate123!
       ACCEPT_EULA: Y
+      USE_DB_ID: ${USE_DB_ID}
 
   cdc-service:
-    image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
+    image: eventuateio/eventuate-cdc-service:0.10.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - "8099:8080"
     depends_on:
@@ -42,4 +43,5 @@ services:
       ACTIVEMQ_USER: eventuateuser
       ACTIVEMQ_PASSWORD: eventuatepassword
       EVENTUATELOCAL_CDC_READER_NAME: MssqlPollingReader
+      EVENTUATE_OUTBOX_ID: 1
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}

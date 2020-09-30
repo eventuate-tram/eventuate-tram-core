@@ -32,8 +32,8 @@ public class TramInMemoryFactory {
   }
 
   @Singleton
-  public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
-    return new InMemoryMessageProducer(messageConsumer, idGenerator);
+  public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
+    return new InMemoryMessageProducer(messageConsumer);
   }
 
   @Singleton

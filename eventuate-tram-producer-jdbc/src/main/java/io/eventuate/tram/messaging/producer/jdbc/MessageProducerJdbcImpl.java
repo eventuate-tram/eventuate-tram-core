@@ -27,14 +27,8 @@ public class MessageProducerJdbcImpl implements MessageProducerImplementation {
   }
 
   @Override
-  public String generateMessageId() {
-    return idGenerator.genId().asString();
-  }
-
-
-  @Override
-  public void send(Message message) {
-      eventuateCommonJdbcOperations.insertIntoMessageTable(message.getId(),
+  public String send(Message message) {
+    return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator,
               message.getPayload(),
               message.getRequiredHeader(Message.DESTINATION),
               currentTimeInMillisecondsSql,

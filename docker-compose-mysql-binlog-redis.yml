@@ -1,13 +1,14 @@
 version: '3'
 services:
   mysql:
-    image: eventuateio/eventuate-mysql:$EVENTUATE_COMMON_VERSION
+    image: eventuateio/eventuate-mysql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
 
   redis:
     image: redis:5.0.3
@@ -16,7 +17,7 @@ services:
 
 
   cdc-service:
-    image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
+    image: eventuateio/eventuate-cdc-service:0.10.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - "8099:8080"
     depends_on:
@@ -34,4 +35,5 @@ services:
       EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC: "false"
       EVENTUATE_REDIS_SERVERS: redis:6379
       EVENTUATE_REDIS_PARTITIONS: 1
+      EVENTUATE_OUTBOX_ID: 1
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
