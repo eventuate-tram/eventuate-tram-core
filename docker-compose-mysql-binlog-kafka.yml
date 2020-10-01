@@ -23,7 +23,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   mysql:
-    image: eventuateio/eventuate-mysql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-mysql:$EVENTUATE_COMMON_VERSION
     ports:
       - 3306:3306
     environment:
@@ -33,7 +33,7 @@ services:
       - USE_DB_ID=${USE_DB_ID}
 
   cdc-service:
-    image: eventuateio/eventuate-cdc-service:0.10.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
     ports:
       - "8099:8080"
     depends_on:

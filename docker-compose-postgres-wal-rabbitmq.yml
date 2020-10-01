@@ -13,7 +13,7 @@ services:
       - 5672:5672
 
   postgres:
-    image: eventuateio/eventuate-postgres:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-postgres:$EVENTUATE_COMMON_VERSION
     ports:
       - 5432:5432
     environment:
@@ -22,7 +22,7 @@ services:
       USE_DB_ID: ${USE_DB_ID}
 
   cdc-service:
-    image: eventuateio/eventuate-cdc-service:0.10.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
     ports:
       - "8099:8080"
     depends_on:

@@ -4,7 +4,11 @@ import io.eventuate.tram.messaging.common.Message;
 
 public interface MessageProducerImplementation {
 
-  String send(Message message);
+  void send(Message message);
+
+  default void setMessageIdIfNecessary(Message message) {
+    //do nothing by default
+  }
 
   default void withContext(Runnable runnable) {
     runnable.run();

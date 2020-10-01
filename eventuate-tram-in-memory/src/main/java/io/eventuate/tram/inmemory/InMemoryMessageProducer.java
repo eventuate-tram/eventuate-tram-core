@@ -1,13 +1,13 @@
 package io.eventuate.tram.inmemory;
 
 
+import io.eventuate.common.id.ApplicationIdGenerator;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.SimpleIdGenerator;
 
 public class InMemoryMessageProducer implements MessageProducerImplementation {
 
@@ -15,7 +15,7 @@ public class InMemoryMessageProducer implements MessageProducerImplementation {
 
   private final InMemoryMessageConsumer messageConsumer;
 
-  private SimpleIdGenerator simpleIdGenerator = new SimpleIdGenerator();
+  private ApplicationIdGenerator applicationIdGenerator = new ApplicationIdGenerator();
 
   public InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
     this.messageConsumer = messageConsumer;
@@ -38,9 +38,12 @@ public class InMemoryMessageProducer implements MessageProducerImplementation {
   }
 
   @Override
-  public String send(Message message) {
-    messageConsumer.dispatchMessage(message);
+  public void setMessageIdIfNecessary(Message message) {
+    message.setHeader(Message.ID, applicationIdGenerator.genId(null).asString());
+  }
 
-    return simpleIdGenerator.generateId().toString();
+  @Override
+  public void send(Message message) {
+    messageConsumer.dispatchMessage(message);
   }
 }

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.concurrent.Future;
 
 public final class MessageProducerImpl implements MessageProducer {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,6 +37,7 @@ public final class MessageProducerImpl implements MessageProducer {
   }
 
   protected void prepareMessageHeaders(String destination, Message message) {
+    implementation.setMessageIdIfNecessary(message);
     message.getHeaders().put(Message.DESTINATION, channelMapping.transform(destination));
     message.getHeaders().put(Message.DATE, HttpDateHeaderFormatUtil.nowAsHttpDateString());
   }
@@ -45,8 +45,7 @@ public final class MessageProducerImpl implements MessageProducer {
   protected void send(Message message) {
     preSend(message);
     try {
-      String id = implementation.send(message);
-      message.setHeader(Message.ID, id);
+      implementation.send(message);
       postSend(message, null);
     } catch (RuntimeException e) {
       logger.error("Sending failed", e);
