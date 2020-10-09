@@ -12,18 +12,15 @@ public class MessageProducerJdbcImpl implements MessageProducerImplementation {
   private IdGenerator idGenerator;
 
   private EventuateSchema eventuateSchema;
-  private String currentTimeInMillisecondsSql;
 
 
   public MessageProducerJdbcImpl(EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
                                  IdGenerator idGenerator,
-                                 EventuateSchema eventuateSchema,
-                                 String currentTimeInMillisecondsSql) {
+                                 EventuateSchema eventuateSchema) {
 
     this.eventuateCommonJdbcOperations = eventuateCommonJdbcOperations;
     this.idGenerator = idGenerator;
     this.eventuateSchema = eventuateSchema;
-    this.currentTimeInMillisecondsSql = currentTimeInMillisecondsSql;
   }
 
   @Override
@@ -31,7 +28,6 @@ public class MessageProducerJdbcImpl implements MessageProducerImplementation {
     String id =  eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator,
               message.getPayload(),
               message.getRequiredHeader(Message.DESTINATION),
-              currentTimeInMillisecondsSql,
               message.getHeaders(),
               eventuateSchema);
 
