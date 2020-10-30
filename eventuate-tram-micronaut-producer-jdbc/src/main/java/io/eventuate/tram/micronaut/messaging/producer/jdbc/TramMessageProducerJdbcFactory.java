@@ -15,15 +15,11 @@ import javax.inject.Singleton;
 public class TramMessageProducerJdbcFactory {
 
   @Singleton
-  public MessageProducerImplementation messageProducerImplementation(@Value("${datasources.default.driver-class-name}") String driver,
-                                                                     EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
+  public MessageProducerImplementation messageProducerImplementation(EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
                                                                      IdGenerator idGenerator,
-                                                                     EventuateSchema eventuateSchema,
-                                                                     SqlDialectSelector sqlDialectSelector) {
+                                                                     EventuateSchema eventuateSchema) {
     return new MessageProducerJdbcImpl(eventuateCommonJdbcOperations,
             idGenerator,
-            eventuateSchema,
-            sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression()
-    );
+            eventuateSchema);
   }
 }

@@ -37,16 +37,8 @@ public final class MessageProducerImpl implements MessageProducer {
   }
 
   protected void prepareMessageHeaders(String destination, Message message) {
-    String id = implementation.generateMessageId();
-    if (id == null) {
-      if (!message.getHeader(Message.ID).isPresent())
-        throw new IllegalArgumentException("message needs an id");
-    } else {
-      message.getHeaders().put(Message.ID, id);
-    }
-
+    implementation.setMessageIdIfNecessary(message);
     message.getHeaders().put(Message.DESTINATION, channelMapping.transform(destination));
-
     message.getHeaders().put(Message.DATE, HttpDateHeaderFormatUtil.nowAsHttpDateString());
   }
 
@@ -61,7 +53,4 @@ public final class MessageProducerImpl implements MessageProducer {
       throw e;
     }
   }
-
-
-
 }

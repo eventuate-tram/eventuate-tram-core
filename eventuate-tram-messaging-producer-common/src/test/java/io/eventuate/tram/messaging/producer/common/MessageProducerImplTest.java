@@ -26,13 +26,16 @@ public class MessageProducerImplTest {
     String messageID = "1";
 
     doAnswer((Answer<Void>) invocation -> {
+      ((Message)invocation.getArgument(0)).setHeader(Message.ID, messageID);
+      return null;
+    }).when(implementation).setMessageIdIfNecessary(any(Message.class));
+
+    doAnswer((Answer<Void>) invocation -> {
       ((Runnable)invocation.getArgument(0)).run();
       return null;
     }).when(implementation).withContext(any(Runnable.class));
 
     when(channelMapping.transform("Destination")).thenReturn(transformedDestination);
-
-    when(implementation.generateMessageId()).thenReturn(messageID);
 
     mp.send("Destination", MessageBuilder.withPayload("x").build());
 

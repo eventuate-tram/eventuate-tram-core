@@ -30,6 +30,7 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
 
   cdc-service:
     image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
@@ -52,3 +53,4 @@ services:
       EVENTUATELOCAL_CDC_MYSQL_BINLOG_CLIENT_UNIQUE_ID: 1234567890
       EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC: "false"
       EVENTUATE_DATABASE_SCHEMA: ${EVENTUATE_DATABASE_SCHEMA}
+      EVENTUATE_OUTBOX_ID: 1

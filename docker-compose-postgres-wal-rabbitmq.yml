@@ -19,6 +19,7 @@ services:
     environment:
       POSTGRES_USER: eventuate
       POSTGRES_PASSWORD: eventuate
+      USE_DB_ID: ${USE_DB_ID}
 
   cdc-service:
     image: eventuateio/eventuate-cdc-service:$EVENTUATE_CDC_VERSION
@@ -38,4 +39,5 @@ services:
       EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
       RABBITMQ_BROKER_ADDRESSES: rabbitmq
       EVENTUATELOCAL_CDC_READER_NAME: PostgresWalReader
+      EVENTUATE_OUTBOX_ID: 1
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
