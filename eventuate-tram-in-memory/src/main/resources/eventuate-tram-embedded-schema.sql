@@ -1,19 +1,20 @@
 CREATE SCHEMA IF NOT EXISTS eventuate AUTHORIZATION SA;
-SET SCHEMA eventuate;
 
-drop table if exists message;
+drop table if exists eventuate.message;
 
-CREATE TABLE message (
+CREATE TABLE eventuate.message (
   ID VARCHAR(1000) PRIMARY KEY,
   DESTINATION VARCHAR(1000) NOT NULL,
   HEADERS VARCHAR(1000) NOT NULL,
-  PAYLOAD VARCHAR(1000) NOT NULL
+  PAYLOAD VARCHAR(1000) NOT NULL,
+  CREATION_TIME BIGINT
 );
 
-drop table if exists received_messages;
+drop table if exists eventuate.received_messages;
 
-CREATE TABLE received_messages (
+CREATE TABLE eventuate.received_messages (
   CONSUMER_ID VARCHAR(1000),
   MESSAGE_ID VARCHAR(1000),
+  CREATION_TIME BIGINT,
   PRIMARY KEY(CONSUMER_ID, MESSAGE_ID)
 );
