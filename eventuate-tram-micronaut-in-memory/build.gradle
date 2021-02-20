@@ -14,6 +14,8 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-in-memory")
+    compile project(":eventuate-tram-common-spring-in-memory")
+    testCompile project(":eventuate-tram-in-memory-test")
 
     compile project(":eventuate-tram-micronaut-messaging")
     compile project(":eventuate-tram-micronaut-consumer-common")

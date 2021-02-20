@@ -1,7 +1,7 @@
 package io.eventuate.tram.micronaut.inmemory;
 
-import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
+import io.eventuate.tram.common.spring.inmemory.EventuateSpringTransactionSynchronizationManager;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
 import io.eventuate.tram.inmemory.InMemoryMessageProducer;
@@ -33,7 +33,7 @@ public class TramInMemoryFactory {
 
   @Singleton
   public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
-    return new InMemoryMessageProducer(messageConsumer);
+    return new InMemoryMessageProducer(messageConsumer, new EventuateSpringTransactionSynchronizationManager());
   }
 
   @Singleton

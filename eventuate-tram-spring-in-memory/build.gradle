@@ -2,6 +2,7 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-in-memory")
+    compile project(":eventuate-tram-common-spring-in-memory")
 
     compile project(":eventuate-tram-spring-messaging")
     compile project(":eventuate-tram-spring-consumer-common")
@@ -11,6 +12,8 @@ dependencies {
     compile "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-spring-in-memory-database:$eventuateCommonVersion"
 
+
+    testCompile project(":eventuate-tram-in-memory-test")
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
