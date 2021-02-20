@@ -1,12 +1,12 @@
 package io.eventuate.tram.spring.inmemory;
 
-import io.eventuate.common.id.IdGenerator;
+import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.inmemorydatabase.EventuateCommonInMemoryDatabaseConfiguration;
-import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
-import io.eventuate.tram.spring.consumer.common.TramConsumerCommonConfiguration;
+import io.eventuate.tram.common.spring.inmemory.EventuateSpringTransactionSynchronizationManager;
 import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
 import io.eventuate.tram.inmemory.InMemoryMessageProducer;
+import io.eventuate.tram.spring.consumer.common.TramConsumerCommonConfiguration;
 import io.eventuate.tram.spring.messaging.producer.common.TramMessagingCommonProducerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,8 @@ public class TramInMemoryCommonConfiguration {
   }
 
   @Bean
-  public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer, IdGenerator idGenerator) {
-    return new InMemoryMessageProducer(messageConsumer);
+  public InMemoryMessageProducer inMemoryMessageProducer(InMemoryMessageConsumer messageConsumer) {
+    return new InMemoryMessageProducer(messageConsumer, new EventuateSpringTransactionSynchronizationManager());
   }
 
   @Bean

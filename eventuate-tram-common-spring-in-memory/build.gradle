@@ -1,0 +1,6 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-in-memory")
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
+}

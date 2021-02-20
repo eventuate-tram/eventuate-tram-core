@@ -1,0 +1,7 @@
+apply plugin: PublicModulePlugin
+
+dependencies {
+    compile project(":eventuate-tram-in-memory")
+
+    compile "junit:junit:4.12"
+}

@@ -1,7 +1,8 @@
-datasources:
-  default:
-    url: ${DATASOURCE_URL}
-    username: ${DATASOURCE_USERNAME}
-    password: ${DATASOURCE_PASSWORD}
-    driverClassName: ${DATASOURCE_DRIVERCLASSNAME}
+transactional:
+  noop:
+    duplicate:
+      message:
+        detector:
+          factory:
+            enabled: false
 
