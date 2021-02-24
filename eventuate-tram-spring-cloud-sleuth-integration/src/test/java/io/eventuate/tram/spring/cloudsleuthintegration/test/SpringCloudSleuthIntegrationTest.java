@@ -1,5 +1,7 @@
 package io.eventuate.tram.spring.cloudsleuthintegration.test;
 
+import io.eventuate.common.common.spring.jdbc.EventuateSpringTransactionTemplate;
+import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.spring.inmemory.TramInMemoryConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -39,6 +42,11 @@ public class SpringCloudSleuthIntegrationTest {
       @Bean
       public RestTemplate restTemplate() {
         return new RestTemplate();
+      }
+
+      @Bean
+      public EventuateTransactionTemplate eventuateTransactionTemplate(TransactionTemplate transactionTemplate) {
+        return new EventuateSpringTransactionTemplate(transactionTemplate);
       }
 
   }

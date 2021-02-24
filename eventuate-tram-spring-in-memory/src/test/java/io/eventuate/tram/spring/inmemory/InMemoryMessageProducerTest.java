@@ -1,5 +1,7 @@
 package io.eventuate.tram.spring.inmemory;
 
+import io.eventuate.common.common.spring.jdbc.EventuateSpringTransactionTemplate;
+import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.inmemory.test.AbstractInMemoryMessageProducerTest;
@@ -9,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,6 +26,10 @@ public class InMemoryMessageProducerTest extends AbstractInMemoryMessageProducer
   @EnableAutoConfiguration
   @Import({TramInMemoryConfiguration.class})
   public static class InMemoryMessagingTestConfiguration {
+    @Bean
+    public EventuateTransactionTemplate eventuateTransactionTemplate(TransactionTemplate transactionTemplate) {
+      return new EventuateSpringTransactionTemplate(transactionTemplate);
+    }
   }
 
   @Autowired
