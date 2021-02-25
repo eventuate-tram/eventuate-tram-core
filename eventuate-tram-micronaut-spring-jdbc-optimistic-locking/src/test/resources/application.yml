@@ -7,7 +7,7 @@ datasources:
 jpa:
   default:
     packages-to-scan:
-      - 'io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking'
+      - 'io.eventuate.tram.jdbc.optimistic.locking.common.test'
     properties:
       hibernate:
         hbm2ddl:

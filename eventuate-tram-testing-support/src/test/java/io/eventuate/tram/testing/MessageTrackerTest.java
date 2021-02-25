@@ -1,7 +1,6 @@
 package io.eventuate.tram.testing;
 
-import io.eventuate.common.common.spring.jdbc.EventuateSpringTransactionTemplate;
-import io.eventuate.common.jdbc.EventuateTransactionTemplate;
+import io.eventuate.common.spring.jdbc.EventuateTransactionTemplateConfiguration;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.spring.commands.producer.TramCommandProducerConfiguration;
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
 import java.util.Set;
@@ -35,17 +33,15 @@ public class MessageTrackerTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({TramInMemoryConfiguration.class, TramCommandProducerConfiguration.class, TramEventsPublisherConfiguration.class})
+  @Import({TramInMemoryConfiguration.class,
+          TramCommandProducerConfiguration.class,
+          TramEventsPublisherConfiguration.class,
+          EventuateTransactionTemplateConfiguration.class})
   public static  class MessageTrackerTestConfiguration {
 
     @Bean
     public MessageTracker messageTracker(MessageConsumer messageConsumer) {
       return new MessageTracker(channels, messageConsumer);
-    }
-
-    @Bean
-    public EventuateTransactionTemplate eventuateTransactionTemplate(TransactionTemplate transactionTemplate) {
-      return new EventuateSpringTransactionTemplate(transactionTemplate);
     }
   }
 
