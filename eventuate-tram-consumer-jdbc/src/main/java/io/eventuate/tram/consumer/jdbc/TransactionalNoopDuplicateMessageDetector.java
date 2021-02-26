@@ -1,18 +1,18 @@
 package io.eventuate.tram.consumer.jdbc;
 
+import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.support.TransactionTemplate;
 
 public class TransactionalNoopDuplicateMessageDetector implements DuplicateMessageDetector {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private TransactionTemplate transactionTemplate;
+  private EventuateTransactionTemplate transactionTemplate;
 
-  public TransactionalNoopDuplicateMessageDetector(TransactionTemplate transactionTemplate) {
+  public TransactionalNoopDuplicateMessageDetector(EventuateTransactionTemplate transactionTemplate) {
     this.transactionTemplate = transactionTemplate;
   }
 
@@ -23,16 +23,14 @@ public class TransactionalNoopDuplicateMessageDetector implements DuplicateMessa
 
   @Override
   public void doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Runnable callback) {
-    transactionTemplate.execute(ts -> {
+    transactionTemplate.executeInTransaction(() -> {
       try {
         callback.run();
         return null;
       } catch (Throwable e) {
         logger.error("Got exception - marking for rollback only", e);
-        ts.setRollbackOnly();
         throw e;
       }
     });
-
   }
 }

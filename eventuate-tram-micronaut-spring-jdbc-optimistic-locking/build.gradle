@@ -14,6 +14,7 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-optimistic-locking-common-test")
     compile "io.eventuate.common:eventuate-common-micronaut-spring-jdbc:$eventuateCommonVersion"
 
     compile "io.micronaut.configuration:micronaut-hibernate-jpa"

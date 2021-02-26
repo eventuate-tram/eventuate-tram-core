@@ -1,18 +1,13 @@
-package io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking;
+package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityService;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
-import io.micronaut.spring.tx.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
-@Singleton
 public class TestEntityServiceTransactionAnnotation extends AbstractTestEntityService {
 
-  @Inject
+  @Autowired
   private TestEntityRepository testEntityRepository;
 
   @Transactional

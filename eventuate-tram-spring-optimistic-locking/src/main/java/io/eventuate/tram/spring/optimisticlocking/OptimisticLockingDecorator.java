@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OptimisticLockingDecorator implements MessageHandlerDecorator, Ordered {
 
   @Override
-  @Retryable(value = OptimisticLockingFailureException.class,
+  @Retryable(value = {OptimisticLockingFailureException.class},
           maxAttempts = 10,
           backoff = @Backoff(delay = 100))
   public void accept(SubscriberIdAndMessage subscriberIdAndMessage, MessageHandlerDecoratorChain messageHandlerDecoratorChain) {

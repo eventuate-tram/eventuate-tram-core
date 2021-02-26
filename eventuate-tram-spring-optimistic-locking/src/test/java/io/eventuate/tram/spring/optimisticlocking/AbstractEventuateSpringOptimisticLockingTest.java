@@ -1,13 +1,12 @@
-package io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking;
+package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractEventuateOptimisticLockingTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
+abstract public class AbstractEventuateSpringOptimisticLockingTest extends AbstractEventuateOptimisticLockingTest {
 
-abstract public class AbstractEventuateMicronautOptimisticLockingTest extends AbstractEventuateOptimisticLockingTest {
-
-  @Inject
+  @Autowired
   private OptimisticLockingDecorator optimisticLockingDecorator;
 
   @Override

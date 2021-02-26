@@ -2,6 +2,11 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project (":eventuate-tram-consumer-common")
+    compile project(":eventuate-tram-optimistic-locking-common-test")
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile 'org.springframework.retry:spring-retry:1.2.4.RELEASE'
+    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootCdcVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

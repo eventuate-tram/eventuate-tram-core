@@ -1,19 +1,16 @@
-package io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking;
+package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityServiceTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
 public class TestEntityServiceTransactionTemplate extends AbstractTestEntityServiceTransactionTemplate {
 
-  @Inject
+  @Autowired
   private TestEntityRepository testEntityRepository;
 
-  @Inject
+  @Autowired
   private EventuateTransactionTemplate eventuateTransactionalTemplate;
 
   @Override

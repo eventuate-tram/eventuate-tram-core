@@ -1,5 +1,6 @@
 package io.eventuate.tram.spring.cloudsleuthintegration.test;
 
+import io.eventuate.common.spring.jdbc.EventuateTransactionTemplateConfiguration;
 import io.eventuate.tram.spring.inmemory.TramInMemoryConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Test;
@@ -33,14 +34,13 @@ public class SpringCloudSleuthIntegrationTest {
 
   @Configuration
   @SpringBootApplication
-  @Import({TramInMemoryConfiguration.class})
+  @Import({TramInMemoryConfiguration.class, EventuateTransactionTemplateConfiguration.class})
   static class TestConfiguration {
 
       @Bean
       public RestTemplate restTemplate() {
         return new RestTemplate();
       }
-
   }
 
   @Value("${spring.zipkin.baseUrl}")
