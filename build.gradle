@@ -4,7 +4,6 @@ buildscript {
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-versions:$eventuatePluginsGradleVersion"
         classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-publish:$eventuatePluginsGradleVersion"
         classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
@@ -48,11 +47,8 @@ gradle.projectsEvaluated {
     task aggregateJavaDocs(type: Javadoc) {
         description = 'Aggregated Javadoc API documentation of all subprojects.'
         group = JavaBasePlugin.DOCUMENTATION_GROUP
-        dependsOn subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc
 
-        source subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.source
         destinationDir file("$buildDir/docs/javadoc")
-        classpath = files(subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.classpath)
     }
 
     task("aggregateJavaDocsJar", type: org.gradle.api.tasks.bundling.Jar, dependsOn: project.aggregateJavaDocs) {

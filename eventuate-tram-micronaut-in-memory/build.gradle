@@ -10,7 +10,6 @@ dependencyManagement {
     }
 }
 
-apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-in-memory")

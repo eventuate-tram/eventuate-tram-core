@@ -6,7 +6,6 @@ buildscript {
             url 'https://repo.spring.io/libs-milestone'
         }
     }
-apply plugin: PublicModulePlugin
 
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementPluginVersion"
@@ -31,7 +30,6 @@ dependencyManagement {
     }
 }
 
-apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging")

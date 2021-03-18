@@ -1,4 +1,3 @@
-apply plugin: PrivateModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-producer-jdbc")

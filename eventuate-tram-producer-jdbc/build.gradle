@@ -1,4 +1,3 @@
-apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-tram-messaging-producer-common")

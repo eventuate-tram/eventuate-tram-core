@@ -1,4 +1,3 @@
-apply plugin: PublicModulePlugin
 
 buildscript {
     repositories {
