@@ -143,6 +143,8 @@ workflows:
       - build-and-test-all-postgres-wal-rabbitmq
       - build-and-test-all-mssql-polling-activemq
       - deploy-artifacts:
+          context:
+            - publish
           requires:
             - build-and-test-all-mysql-binlog-kafka
             - build-and-test-all-mysql-binlog-redis
