@@ -4,14 +4,16 @@ import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
 import io.eventuate.tram.consumer.common.MessageHandlerDecoratorChain;
 import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
 import io.micronaut.retry.annotation.Retryable;
-import io.micronaut.spring.tx.annotation.Transactional;
-import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
+import io.micronaut.transaction.annotation.TransactionalAdvice;
 
-@Transactional
+import javax.persistence.OptimisticLockException;
+
+@TransactionalAdvice
 public class OptimisticLockingDecorator implements MessageHandlerDecorator {
 
   @Override
-  @Retryable(value = HibernateOptimisticLockingFailureException.class, attempts = "10", delay = "100ms")
+  @Retryable(value = OptimisticLockException.class, attempts = "10", delay = "100ms")
+  @TransactionalAdvice
   public void accept(SubscriberIdAndMessage subscriberIdAndMessage, MessageHandlerDecoratorChain messageHandlerDecoratorChain) {
     messageHandlerDecoratorChain.invokeNext(subscriberIdAndMessage);
   }

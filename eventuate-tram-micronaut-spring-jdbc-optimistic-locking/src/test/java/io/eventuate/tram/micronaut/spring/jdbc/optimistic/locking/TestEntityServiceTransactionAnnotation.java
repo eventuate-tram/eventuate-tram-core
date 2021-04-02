@@ -2,12 +2,10 @@ package io.eventuate.tram.micronaut.spring.jdbc.optimistic.locking;
 
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityService;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
-import io.micronaut.spring.tx.annotation.Transactional;
+import io.micronaut.transaction.annotation.TransactionalAdvice;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 @Singleton
 public class TestEntityServiceTransactionAnnotation extends AbstractTestEntityService {
@@ -15,19 +13,19 @@ public class TestEntityServiceTransactionAnnotation extends AbstractTestEntitySe
   @Inject
   private TestEntityRepository testEntityRepository;
 
-  @Transactional
+  @TransactionalAdvice
   @Override
   public Long createTestEntityInTransaction() {
     return createTestEntity();
   }
 
-  @Transactional
+  @TransactionalAdvice
   @Override
   public void incDataInTransaction(Long entityId) {
     incData(entityId);
   }
 
-  @Transactional
+  @TransactionalAdvice
   @Override
   public long getDataInTransaction(Long entityId) {
       return getData(entityId);
