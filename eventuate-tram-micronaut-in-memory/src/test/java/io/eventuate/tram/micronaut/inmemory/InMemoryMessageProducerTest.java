@@ -4,11 +4,12 @@ import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.inmemory.test.AbstractInMemoryMessageProducerTest;
 import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.transaction.SynchronousTransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.util.function.Consumer;
 
 @MicronautTest(transactional = false)
@@ -21,7 +22,7 @@ public class InMemoryMessageProducerTest extends AbstractInMemoryMessageProducer
   private MessageConsumer messageConsumer;
 
   @Inject
-  private TransactionTemplate transactionTemplate;
+  private SynchronousTransactionManager<Connection> transactionManager;
 
   @Override
   protected MessageProducer getMessageProducer() {
@@ -35,7 +36,7 @@ public class InMemoryMessageProducerTest extends AbstractInMemoryMessageProducer
 
   @Override
   protected void executeInTransaction(Consumer<Runnable> callbackWithRollback) {
-    transactionTemplate.execute(status -> {
+    transactionManager.executeWrite(status -> {
       callbackWithRollback.accept(status::setRollbackOnly);
       return null;
     });

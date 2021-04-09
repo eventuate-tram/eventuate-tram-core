@@ -1,8 +1,6 @@
-transactional:
-  noop:
-    duplicate:
-      message:
-        detector:
-          factory:
-            enabled: false
-
+datasources:
+  default:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: test
+    driverClassName: org.h2.Driver
