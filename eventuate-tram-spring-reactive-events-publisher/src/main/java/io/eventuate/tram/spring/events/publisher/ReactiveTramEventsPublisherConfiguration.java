@@ -1,9 +1,7 @@
 package io.eventuate.tram.spring.events.publisher;
 
 import io.eventuate.tram.events.common.DomainEventNameMapping;
-import io.eventuate.tram.events.publisher.DomainEventPublisher;
-import io.eventuate.tram.events.publisher.DomainEventPublisherImpl;
-import io.eventuate.tram.messaging.producer.MessageProducer;
+import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.SpringReactiveMessageProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +9,8 @@ import org.springframework.context.annotation.Configuration;
 public class ReactiveTramEventsPublisherConfiguration {
 
   @Bean
-  public DomainEventPublisher domainEventPublisher(MessageProducer messageProducer, DomainEventNameMapping domainEventNameMapping) {
-    return new DomainEventPublisherImpl(messageProducer, domainEventNameMapping);
+  public ReactiveDomainEventPublisher reactiveDomainEventPublisher(SpringReactiveMessageProducer reactiveMessageProducer,
+                                                                   DomainEventNameMapping domainEventNameMapping) {
+    return new ReactiveDomainEventPublisher(reactiveMessageProducer, domainEventNameMapping);
   }
 }
