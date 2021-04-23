@@ -1,11 +1,8 @@
 package io.eventuate.tram.events.publisher;
 
-import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.DomainEventNameMapping;
-import io.eventuate.tram.events.common.EventMessageHeaders;
-import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.messaging.producer.MessageBuilder;
+import io.eventuate.tram.events.common.EventUtil;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 
 import java.util.Collections;
@@ -29,25 +26,16 @@ public class DomainEventPublisherImpl implements DomainEventPublisher {
   }
 
   @Override
-  public void publish(String aggregateType, Object aggregateId, Map<String, String> headers, List<DomainEvent> domainEvents) {
+  public void publish(String aggregateType,
+                      Object aggregateId,
+                      Map<String, String> headers,
+                      List<DomainEvent> domainEvents) {
+
     for (DomainEvent event : domainEvents) {
       messageProducer.send(aggregateType,
-              makeMessageForDomainEvent(aggregateType, aggregateId, headers, event,
+              EventUtil.makeMessageForDomainEvent(aggregateType, aggregateId, headers, event,
                       domainEventNameMapping.eventToExternalEventType(aggregateType, event)));
 
     }
   }
-
-  public static Message makeMessageForDomainEvent(String aggregateType, Object aggregateId, Map<String, String> headers, DomainEvent event, String eventType) {
-    String aggregateIdAsString = aggregateId.toString();
-    return MessageBuilder
-            .withPayload(JSonMapper.toJson(event))
-            .withExtraHeaders("", headers)
-            .withHeader(Message.PARTITION_ID, aggregateIdAsString)
-            .withHeader(EventMessageHeaders.AGGREGATE_ID, aggregateIdAsString)
-            .withHeader(EventMessageHeaders.AGGREGATE_TYPE, aggregateType)
-            .withHeader(EventMessageHeaders.EVENT_TYPE, eventType)
-            .build();
-  }
-
 }

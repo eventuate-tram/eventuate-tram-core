@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static io.eventuate.tram.events.common.EventUtil.makeMessageForDomainEvent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -62,7 +63,7 @@ public class DomainEventDispatcherTest {
     dispatcher.initialize();
 
 
-    dispatcher.messageHandler(DomainEventPublisherImpl.makeMessageForDomainEvent(aggregateType,
+    dispatcher.messageHandler(makeMessageForDomainEvent(aggregateType,
             aggregateId,
             Collections.singletonMap(Message.ID, messageId),
             new MyDomainEvent(), externalEventType));
