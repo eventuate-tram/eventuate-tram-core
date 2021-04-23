@@ -1,0 +1,9 @@
+
+dependencies {
+    compile project(":eventuate-tram-events")
+    compile project(":eventuate-tram-spring-messaging")
+    compile project(":eventuate-tram-spring-reactive-producer-jdbc")
+    compile project(":eventuate-tram-spring-events-common")
+
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+}
