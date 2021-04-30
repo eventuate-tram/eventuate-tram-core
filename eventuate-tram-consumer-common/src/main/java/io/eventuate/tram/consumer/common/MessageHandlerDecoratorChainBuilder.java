@@ -1,5 +1,7 @@
 package io.eventuate.tram.consumer.common;
 
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;

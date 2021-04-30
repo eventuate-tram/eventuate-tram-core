@@ -1,0 +1,6 @@
+
+dependencies {
+    compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
+    compile project(":eventuate-tram-reactive-consumer-jdbc")
+    compile project(":eventuate-tram-reactive-consumer-common")
+}

@@ -1,5 +1,8 @@
 package io.eventuate.tram.consumer.common;
 
+import io.eventuate.tram.messaging.consumer.BuiltInMessageHandlerDecoratorOrder;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+
 public class DuplicateDetectingMessageHandlerDecorator implements MessageHandlerDecorator {
 
   private DuplicateMessageDetector duplicateMessageDetector;

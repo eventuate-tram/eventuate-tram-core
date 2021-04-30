@@ -2,7 +2,7 @@ package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
 import io.eventuate.tram.consumer.common.MessageHandlerDecoratorChain;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import org.springframework.core.Ordered;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;

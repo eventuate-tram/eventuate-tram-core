@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.common;
+package io.eventuate.tram.messaging.common;
 
 import io.eventuate.tram.messaging.common.Message;
 

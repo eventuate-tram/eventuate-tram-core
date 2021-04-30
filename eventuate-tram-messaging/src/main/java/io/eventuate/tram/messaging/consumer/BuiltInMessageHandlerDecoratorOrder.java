@@ -1,4 +1,4 @@
-package io.eventuate.tram.consumer.common;
+package io.eventuate.tram.messaging.consumer;
 
 public class BuiltInMessageHandlerDecoratorOrder {
   public static int PRE_POST_RECEIVE_MESSAGE_HANDLER_DECORATOR = 100;

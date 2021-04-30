@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.common;
 
 import io.eventuate.tram.messaging.common.ChannelMapping;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
