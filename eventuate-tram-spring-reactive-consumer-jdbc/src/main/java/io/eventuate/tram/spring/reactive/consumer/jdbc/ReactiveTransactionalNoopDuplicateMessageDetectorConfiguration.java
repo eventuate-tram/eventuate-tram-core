@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Configuration
-public class TransactionalNoopDuplicateMessageDetectorConfiguration {
+public class ReactiveTransactionalNoopDuplicateMessageDetectorConfiguration {
 
   @Bean
   public ReactiveDuplicateMessageDetector duplicateMessageDetector(TransactionalOperator transactionalOperator) {

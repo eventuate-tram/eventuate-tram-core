@@ -28,7 +28,7 @@ public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsume
 
   @Override
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, ReactiveMessageHandler handler) {
-    logger.info("Subscribing: subscriberId = {}, channels = {}", subscriberId, channels);
+    logger.info("Subscribing (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 
     Function<SubscriberIdAndMessage, Mono<SubscriberIdAndMessage>> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
 
@@ -39,7 +39,7 @@ public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsume
                     message -> decoratedHandler.apply(new SubscriberIdAndMessage(subscriberId, message)).map(SubscriberIdAndMessage::getMessage)
             );
 
-    logger.info("Subscribed: subscriberId = {}, channels = {}", subscriberId, channels);
+    logger.info("Subscribed (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 
     return messageSubscription;
   }
@@ -51,11 +51,11 @@ public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsume
 
   @Override
   public void close() {
-    logger.info("Closing consumer");
+    logger.info("Closing reactive consumer");
 
     target.close();
 
-    logger.info("Closed consumer");
+    logger.info("Closed reactive consumer");
   }
 
 }

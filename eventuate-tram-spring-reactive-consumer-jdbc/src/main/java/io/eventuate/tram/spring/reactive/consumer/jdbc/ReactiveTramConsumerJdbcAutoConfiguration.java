@@ -20,7 +20,7 @@ import java.util.Optional;
 @Import({SqlDialectConfiguration.class,
     EventuateSchemaConfiguration.class})
 @ConditionalOnMissingBean(ReactiveDuplicateMessageDetector.class)
-public class TramConsumerJdbcAutoConfiguration {
+public class ReactiveTramConsumerJdbcAutoConfiguration {
 
   @Value("${eventuate.reactive.db.driver}")
   private String driver;

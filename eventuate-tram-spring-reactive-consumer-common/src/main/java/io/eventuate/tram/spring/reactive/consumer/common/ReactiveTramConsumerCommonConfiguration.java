@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(ReactiveTramConsumerBaseCommonConfiguration.class)
-public class TramConsumerCommonConfiguration {
+public class ReactiveTramConsumerCommonConfiguration {
 
   @Bean
   public ReactiveMessageConsumer messageConsumer(ReactiveMessageConsumerImplementation messageConsumerImplementation,

@@ -5,13 +5,13 @@ import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfigur
 import io.eventuate.messaging.kafka.spring.consumer.MessageConsumerKafkaConfiguration;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumerImplementation;
 import io.eventuate.tram.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumer;
-import io.eventuate.tram.spring.consumer.common.TramConsumerCommonConfiguration;
+import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerBaseCommonConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({TramConsumerCommonConfiguration.class, MessageConsumerKafkaConfiguration.class, KafkaConsumerFactoryConfiguration.class})
+@Import({ReactiveTramConsumerBaseCommonConfiguration.class, MessageConsumerKafkaConfiguration.class, KafkaConsumerFactoryConfiguration.class})
 public class EventuateTramReactiveKafkaMessageConsumerConfiguration {
 
   @Bean
