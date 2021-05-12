@@ -1,5 +1,6 @@
 package io.eventuate.tram.messaging.producer.common;
 
+import io.eventuate.tram.messaging.producer.HttpDateHeaderFormatUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

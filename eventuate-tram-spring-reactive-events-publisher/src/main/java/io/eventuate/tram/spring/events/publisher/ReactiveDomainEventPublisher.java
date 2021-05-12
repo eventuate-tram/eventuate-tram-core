@@ -4,7 +4,7 @@ import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.common.EventUtil;
 import io.eventuate.tram.messaging.common.Message;
-import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.SpringReactiveMessageProducer;
+import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,10 +17,10 @@ import static java.util.function.Function.identity;
 
 public class ReactiveDomainEventPublisher {
 
-  private SpringReactiveMessageProducer reactiveMessageProducer;
+  private ReactiveMessageProducer reactiveMessageProducer;
   private DomainEventNameMapping domainEventNameMapping;
 
-  public ReactiveDomainEventPublisher(SpringReactiveMessageProducer reactiveMessageProducer, DomainEventNameMapping domainEventNameMapping) {
+  public ReactiveDomainEventPublisher(ReactiveMessageProducer reactiveMessageProducer, DomainEventNameMapping domainEventNameMapping) {
     this.reactiveMessageProducer = reactiveMessageProducer;
     this.domainEventNameMapping = domainEventNameMapping;
   }

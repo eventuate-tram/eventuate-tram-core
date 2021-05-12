@@ -1,0 +1,5 @@
+
+dependencies {
+    compile project(":eventuate-tram-spring-messaging-starter")
+    compile project(":eventuate-tram-spring-events")
+}

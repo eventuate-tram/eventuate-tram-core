@@ -2,8 +2,8 @@ package io.eventuate.tram.reactive.integrationtests;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
+import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMessageProducerJdbcConfiguration;
-import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.SpringReactiveMessageProducer;
 import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumerConfiguration;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class ReactiveTramMessagingIntegrationTest {
   }
 
   @Autowired
-  protected SpringReactiveMessageProducer messageProducer;
+  protected ReactiveMessageProducer messageProducer;
 
   @Autowired
   protected ReactiveMessageConsumer messageConsumer;

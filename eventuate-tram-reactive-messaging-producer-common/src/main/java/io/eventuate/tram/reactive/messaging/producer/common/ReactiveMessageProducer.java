@@ -1,25 +1,25 @@
-package io.eventuate.tram.spring.messaging.producer.jdbc.reactive;
+package io.eventuate.tram.reactive.messaging.producer.common;
 
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
-import io.eventuate.tram.messaging.producer.common.HttpDateHeaderFormatUtil;
+import io.eventuate.tram.messaging.producer.HttpDateHeaderFormatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
-public final class SpringReactiveMessageProducer {
+public final class ReactiveMessageProducer {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private final MessageInterceptor[] messageInterceptors;
   private final ChannelMapping channelMapping;
-  private final SpringReactiveMessageProducerJdbc implementation;
+  private final ReactiveMessageProducerImplementation implementation;
 
-  public SpringReactiveMessageProducer(MessageInterceptor[] messageInterceptors,
-                                       ChannelMapping channelMapping,
-                                       SpringReactiveMessageProducerJdbc implementation) {
+  public ReactiveMessageProducer(MessageInterceptor[] messageInterceptors,
+                                 ChannelMapping channelMapping,
+                                 ReactiveMessageProducerImplementation implementation) {
     this.messageInterceptors = messageInterceptors;
     this.channelMapping = channelMapping;
     this.implementation = implementation;

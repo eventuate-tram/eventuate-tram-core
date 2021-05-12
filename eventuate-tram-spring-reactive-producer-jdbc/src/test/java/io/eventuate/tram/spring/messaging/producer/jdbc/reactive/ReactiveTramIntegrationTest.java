@@ -4,6 +4,7 @@ import io.eventuate.common.spring.jdbc.reactive.EventuateCommonReactiveMysqlConf
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
+import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import io.eventuate.tram.spring.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.spring.consumer.kafka.EventuateTramKafkaMessageConsumerConfiguration;
 import io.eventuate.tram.spring.messaging.common.TramMessagingCommonAutoConfiguration;
@@ -40,7 +41,7 @@ public class ReactiveTramIntegrationTest {
   }
 
   @Autowired
-  protected SpringReactiveMessageProducer messageProducer;
+  protected ReactiveMessageProducer messageProducer;
 
   @Autowired
   protected MessageConsumer messageConsumer;

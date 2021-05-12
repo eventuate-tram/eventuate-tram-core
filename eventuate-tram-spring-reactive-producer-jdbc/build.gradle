@@ -1,7 +1,6 @@
 
 dependencies {
-    compile project(":eventuate-tram-producer-jdbc")
-    compile project(":eventuate-tram-spring-messaging-producer-common")
+    compile project(":eventuate-tram-reactive-producer-jdbc")
 
     compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
 
