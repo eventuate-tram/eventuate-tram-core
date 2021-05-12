@@ -34,7 +34,7 @@ public class SpringCloudSleuthIntegrationTest {
 
   @Configuration
   @SpringBootApplication
-  @Import({TramInMemoryConfiguration.class, EventuateTransactionTemplateConfiguration.class})
+  @Import(TramInMemoryConfiguration.class)
   static class TestConfiguration {
 
       @Bean

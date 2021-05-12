@@ -1,6 +1,5 @@
 package io.eventuate.tram.testing;
 
-import io.eventuate.common.spring.jdbc.EventuateTransactionTemplateConfiguration;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.spring.commands.producer.TramCommandProducerConfiguration;
@@ -35,8 +34,7 @@ public class MessageTrackerTest {
   @EnableAutoConfiguration
   @Import({TramInMemoryConfiguration.class,
           TramCommandProducerConfiguration.class,
-          TramEventsPublisherConfiguration.class,
-          EventuateTransactionTemplateConfiguration.class})
+          TramEventsPublisherConfiguration.class})
   public static  class MessageTrackerTestConfiguration {
 
     @Bean
