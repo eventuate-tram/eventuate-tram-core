@@ -34,7 +34,7 @@ public class ReactiveTramMessageProducerJdbcConfiguration {
 
   @Bean
   public ReactiveMessageProducer reactiveMessageProducer(ChannelMapping channelMapping,
-                                                         ReactiveMessageProducerJdbcImpl reactiveMessageProducerJdbc) {
+                                                         ReactiveMessageProducerImplementation reactiveMessageProducerJdbc) {
     return new ReactiveMessageProducer(messageInterceptors, channelMapping, reactiveMessageProducerJdbc);
   }
 }
