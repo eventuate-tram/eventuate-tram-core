@@ -12,9 +12,9 @@ import java.util.function.Function;
 public class ReactiveDomainEventHandler {
   private String aggregateType;
   private final Class<DomainEvent> eventClass;
-  private final Function<DomainEventEnvelope<DomainEvent>, Mono<Message>> handler;
+  private final Function<DomainEventEnvelope<DomainEvent>, Mono<Void>> handler;
 
-  public ReactiveDomainEventHandler(String aggregateType, Class<DomainEvent> eventClass, Function<DomainEventEnvelope<DomainEvent>, Mono<Message>> handler) {
+  public ReactiveDomainEventHandler(String aggregateType, Class<DomainEvent> eventClass, Function<DomainEventEnvelope<DomainEvent>, Mono<Void>> handler) {
     this.aggregateType = aggregateType;
     this.eventClass = eventClass;
     this.handler = handler;
@@ -25,7 +25,7 @@ public class ReactiveDomainEventHandler {
             && eventClass.getName().equals(message.getRequiredHeader(EventMessageHeaders.EVENT_TYPE));
   }
 
-  public Mono<Message> invoke(DomainEventEnvelope<DomainEvent> dee) {
+  public Mono<Void> invoke(DomainEventEnvelope<DomainEvent> dee) {
     return handler.apply(dee);
   }
 

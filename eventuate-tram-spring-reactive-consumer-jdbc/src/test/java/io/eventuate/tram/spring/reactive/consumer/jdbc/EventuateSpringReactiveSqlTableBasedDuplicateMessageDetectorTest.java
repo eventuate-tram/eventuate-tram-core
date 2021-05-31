@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -39,7 +41,7 @@ public class EventuateSpringReactiveSqlTableBasedDuplicateMessageDetectorTest {
     Message message = new MessageImpl();
     message.setHeader(Message.ID, messageId);
 
-    Mono<SubscriberIdAndMessage> subscriberIdAndMessage = Mono.just(new SubscriberIdAndMessage(consumerId, message));
+    SubscriberIdAndMessage subscriberIdAndMessage = new SubscriberIdAndMessage(consumerId, message);
 
     assertFalse(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block());
     assertTrue(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block());

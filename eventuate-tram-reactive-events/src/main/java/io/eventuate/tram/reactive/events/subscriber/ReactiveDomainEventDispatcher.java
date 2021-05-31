@@ -42,7 +42,7 @@ public class ReactiveDomainEventDispatcher {
     logger.info("Initialized reactive domain event dispatcher");
   }
 
-  public Mono<Message> messageHandler(Message message) {
+  public Mono<Void> messageHandler(Message message) {
     String aggregateType = message.getRequiredHeader(EventMessageHeaders.AGGREGATE_TYPE);
 
     message.setHeader(EventMessageHeaders.EVENT_TYPE,

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramEventIntegrationTestConfiguration.class)
 @DirtiesContext
-public class ReactiveTramEventIntegrationTest {
+public class ReactiveTramEventTransactionIntegrationTest {
 
   @Autowired
   private ReactiveDomainEventPublisher domainEventPublisher;
@@ -34,24 +34,13 @@ public class ReactiveTramEventIntegrationTest {
   }
 
   @Test
-  public void shouldSendAndReceiveEvent() throws InterruptedException {
+  public void shouldRollbackFailedTransactionInsideEventConsumer() throws InterruptedException {
     domainEventPublisher
-            .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEvent(payload)))
+            .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEventThatInitiatesException(payload)))
             .collectList()
             .block();
 
-    TestEvent event = tramTestEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
-
-    Assert.assertEquals(payload, event.getPayload());
-  }
-
-  @Test
-  public void shouldNotHandleFilteredEvents() throws InterruptedException {
-    domainEventPublisher
-            .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEvent(payload + "ignored")))
-            .collectList()
-            .block();
-
+    //event consumer will try to publish reply (TestEvent), but because of exception it should not be delivered (transaction rollback)
     TestEvent event = tramTestEventConsumer.getQueue().poll(5, TimeUnit.SECONDS);
 
     Assert.assertNull(event);

@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 
-public interface ReactiveMessageHandler extends Function<Message, Mono<Message>> {
+public interface ReactiveMessageHandler extends Function<Message, Mono<Void>> {
 }

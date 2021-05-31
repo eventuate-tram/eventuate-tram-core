@@ -58,7 +58,7 @@ public class ReactiveTramMessagingIntegrationTest {
     messageConsumer.subscribe(subscriberId, Collections.singleton(destination), message -> {
       messageQueue.add(message.getPayload());
 
-      return Mono.just(message);
+      return Mono.empty();
     });
 
     messageProducer.send(destination, MessageBuilder.withPayload(payload).build()).block();

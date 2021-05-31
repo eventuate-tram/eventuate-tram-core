@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsumer {
@@ -30,14 +31,16 @@ public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsume
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, ReactiveMessageHandler handler) {
     logger.info("Subscribing (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 
-    Function<SubscriberIdAndMessage, Mono<SubscriberIdAndMessage>> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
+    Function<SubscriberIdAndMessage, Supplier<Mono<Void>>> decoratedHandler =
+            decoratedMessageHandlerFactory.decorate(handler);
 
     MessageSubscription messageSubscription =
             target.subscribe(
                     subscriberId,
                     channels.stream().map(channelMapping::transform).collect(Collectors.toSet()),
-                    message -> decoratedHandler.apply(new SubscriberIdAndMessage(subscriberId, message)).map(SubscriberIdAndMessage::getMessage)
-            );
+                    message -> decoratedHandler
+                            .apply(new SubscriberIdAndMessage(subscriberId, message))
+                            .get());
 
     logger.info("Subscribed (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 

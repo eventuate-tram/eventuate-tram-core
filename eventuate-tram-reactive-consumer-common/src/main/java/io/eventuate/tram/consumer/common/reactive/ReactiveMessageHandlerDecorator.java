@@ -3,14 +3,10 @@ package io.eventuate.tram.consumer.common.reactive;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import reactor.core.publisher.Mono;
 
-public interface ReactiveMessageHandlerDecorator {
-  default Mono<SubscriberIdAndMessage> preHandler(Mono<SubscriberIdAndMessage> subscriberIdAndMessage) {
-    return subscriberIdAndMessage;
-  }
+import java.util.function.Supplier;
 
-  default Mono<SubscriberIdAndMessage> postHandler(Mono<SubscriberIdAndMessage> subscriberIdAndMessage) {
-    return subscriberIdAndMessage;
-  }
+public interface ReactiveMessageHandlerDecorator {
+  Supplier<Mono<Void>> accept(SubscriberIdAndMessage subscriberIdAndMessage, Supplier<Mono<Void>> processingFlow);
 
   int getOrder();
 }
