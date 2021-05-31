@@ -44,8 +44,8 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
     return () -> isDuplicate(subscriberIdAndMessage)
             .flatMap(dup -> {
               if (dup) return Mono.empty();
-              else return processingFlow.get().as(transactionalOperator::transactional);
-            });
+              else return processingFlow.get();
+            }).as(transactionalOperator::transactional);
   }
 
   private Mono<Integer> insertIntoReceivedMessagesTable(String consumerId, String messageId) {
