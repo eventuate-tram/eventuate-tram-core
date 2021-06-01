@@ -4,8 +4,6 @@ import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.BuiltInMessageHandlerDecoratorOrder;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Supplier;
-
 public class ReactiveDuplicateDetectingMessageHandlerDecorator implements ReactiveMessageHandlerDecorator {
 
   private ReactiveDuplicateMessageDetector duplicateMessageDetector;
@@ -15,7 +13,7 @@ public class ReactiveDuplicateDetectingMessageHandlerDecorator implements Reacti
   }
 
   @Override
-  public Supplier<Mono<Void>> accept(SubscriberIdAndMessage subscriberIdAndMessage, Supplier<Mono<Void>> processingFlow) {
+  public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
     return duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, processingFlow);
   }
 

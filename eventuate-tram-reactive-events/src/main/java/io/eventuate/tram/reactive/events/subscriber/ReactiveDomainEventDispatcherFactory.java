@@ -2,7 +2,6 @@ package io.eventuate.tram.reactive.events.subscriber;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.events.common.DomainEventNameMapping;
-import io.eventuate.tram.messaging.consumer.MessageConsumer;
 
 public class ReactiveDomainEventDispatcherFactory {
 

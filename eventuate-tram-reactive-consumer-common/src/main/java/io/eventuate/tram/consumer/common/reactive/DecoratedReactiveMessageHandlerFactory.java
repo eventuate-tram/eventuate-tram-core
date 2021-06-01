@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class DecoratedReactiveMessageHandlerFactory {
 
@@ -23,14 +22,13 @@ public class DecoratedReactiveMessageHandlerFactory {
     Collections.reverse(decoratorsWithReversedOrder);
   }
 
-  public Function<SubscriberIdAndMessage, Supplier<Mono<Void>>> decorate(ReactiveMessageHandler reactiveMessageHandler) {
+  public Function<SubscriberIdAndMessage, Mono<Void>> decorate(ReactiveMessageHandler reactiveMessageHandler) {
     return subscriberIdAndMessage -> {
 
-      Supplier<Mono<Void>> processingFlow = () -> reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage());
+      Mono<Void> processingFlow = Mono.defer(() -> reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage()));
 
       for (ReactiveMessageHandlerDecorator decorator : decorators) {
-        final Supplier<Mono<Void>> flow = processingFlow;
-        processingFlow = decorator.accept(subscriberIdAndMessage, flow::get);
+        processingFlow = decorator.accept(subscriberIdAndMessage, processingFlow);
       }
 
       return processingFlow;

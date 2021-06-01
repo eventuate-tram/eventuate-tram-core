@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
 @Import({ReactiveTramMessageProducerJdbcConfiguration.class,
         ReactiveTramEventsPublisherConfiguration.class,
@@ -43,12 +42,13 @@ public class ReactiveTramEventIntegrationTestConfiguration {
       return new ReactiveMessageHandlerDecorator() {
 
         @Override
-        public Supplier<Mono<Void>> accept(SubscriberIdAndMessage subscriberIdAndMessage, Supplier<Mono<Void>> processingFlow) {
+        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
 
           if (subscriberIdAndMessage.getMessage().getPayload().contains("ignored")) {
-            return Mono::empty;
+            return Mono.defer(Mono::empty);
           }
-          else return processingFlow;
+
+          else return Mono.defer(() -> processingFlow);
         }
 
         @Override

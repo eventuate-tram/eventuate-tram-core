@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Supplier;
-
 public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDuplicateMessageDetector {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,12 +38,13 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
   }
 
   @Override
-  public Supplier<Mono<Void>> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Supplier<Mono<Void>> processingFlow) {
-    return () -> isDuplicate(subscriberIdAndMessage)
+  public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+    return Mono.defer(() -> isDuplicate(subscriberIdAndMessage)
             .flatMap(dup -> {
               if (dup) return Mono.empty();
-              else return processingFlow.get();
-            }).as(transactionalOperator::transactional);
+              else return processingFlow;
+            })).as(transactionalOperator::transactional);
+
   }
 
   private Mono<Integer> insertIntoReceivedMessagesTable(String consumerId, String messageId) {

@@ -5,8 +5,6 @@ import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Supplier;
-
 public class ReactiveTransactionalNoopDuplicateMessageDetector implements ReactiveDuplicateMessageDetector {
 
   private TransactionalOperator transactionalOperator;
@@ -21,7 +19,7 @@ public class ReactiveTransactionalNoopDuplicateMessageDetector implements Reacti
   }
 
   @Override
-  public Supplier<Mono<Void>> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Supplier<Mono<Void>> processingFlow) {
-    return () -> processingFlow.get().as(transactionalOperator::transactional);
+  public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+    return Mono.defer(() -> processingFlow.as(transactionalOperator::transactional));
   }
 }
