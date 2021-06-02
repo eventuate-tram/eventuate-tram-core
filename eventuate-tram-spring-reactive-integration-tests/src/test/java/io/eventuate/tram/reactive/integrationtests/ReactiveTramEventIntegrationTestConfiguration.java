@@ -46,7 +46,7 @@ public class ReactiveTramEventIntegrationTestConfiguration {
         public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
           if (subscriberIdAndMessage.getMessage().getPayload().contains("ignored")) {
-            return Mono.defer(Mono::empty);
+            return Mono.empty();
           }
           else return decoratorChain.next(subscriberIdAndMessage);
         }

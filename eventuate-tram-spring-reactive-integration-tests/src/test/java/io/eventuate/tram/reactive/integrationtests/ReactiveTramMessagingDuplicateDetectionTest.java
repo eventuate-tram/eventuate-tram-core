@@ -68,7 +68,7 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
   private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor() {
     EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mock(EventuateSpringReactiveJdbcStatementExecutor.class);
 
-    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.defer(() -> Mono.just(1)));
+    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.just(1));
 
     return jdbcStatementExecutor;
   }
