@@ -16,13 +16,7 @@ public class DecoratedReactiveMessageHandlerFactory {
   }
 
   public Function<SubscriberIdAndMessage, Mono<Void>> decorate(ReactiveMessageHandler reactiveMessageHandler) {
-    return subscriberIdAndMessage -> {
-
-      Mono<Void> processingFlow = Mono.defer(() -> reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage()));
-
-      ReactiveMessageHandlerDecoratorChain decoratorChain = new ReactiveMessageHandlerDecoratorChain(decorators);
-
-      return decoratorChain.next(subscriberIdAndMessage, processingFlow);
-    };
+    return subscriberIdAndMessage ->
+            new ReactiveMessageHandlerDecoratorChain(decorators, reactiveMessageHandler).next(subscriberIdAndMessage);
   }
 }

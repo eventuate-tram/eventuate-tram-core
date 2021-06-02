@@ -8,16 +8,20 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ReactiveMessageHandlerDecoratorChain {
-  ConcurrentLinkedQueue<ReactiveMessageHandlerDecorator> decorators = new ConcurrentLinkedQueue<>();
+  private ConcurrentLinkedQueue<ReactiveMessageHandlerDecorator> decorators = new ConcurrentLinkedQueue<>();
+  private ReactiveMessageHandler reactiveMessageHandler;
 
-  public ReactiveMessageHandlerDecoratorChain(List<ReactiveMessageHandlerDecorator> decorators) {
+  public ReactiveMessageHandlerDecoratorChain(List<ReactiveMessageHandlerDecorator> decorators,
+                                              ReactiveMessageHandler reactiveMessageHandler) {
     this.decorators.addAll(decorators);
+
+    this.reactiveMessageHandler = reactiveMessageHandler;
   }
 
-  public Mono<Void> next(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+  public Mono<Void> next(SubscriberIdAndMessage subscriberIdAndMessage) {
     return Optional
             .ofNullable(decorators.poll())
-            .map(d -> d.accept(subscriberIdAndMessage, processingFlow, this))
-            .orElse(processingFlow);
+            .map(d -> d.accept(subscriberIdAndMessage, this))
+            .orElse(Mono.defer(() -> reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage())));
   }
 }

@@ -43,14 +43,12 @@ public class ReactiveTramEventIntegrationTestConfiguration {
       return new ReactiveMessageHandlerDecorator() {
 
         @Override
-        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage,
-                                 Mono<Void> processingFlow,
-                                 ReactiveMessageHandlerDecoratorChain decoratorChain) {
+        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
           if (subscriberIdAndMessage.getMessage().getPayload().contains("ignored")) {
-            return decoratorChain.next(subscriberIdAndMessage, Mono.defer(Mono::empty));
+            return Mono.defer(Mono::empty);
           }
-          else return decoratorChain.next(subscriberIdAndMessage, Mono.defer(() -> processingFlow));
+          else return decoratorChain.next(subscriberIdAndMessage);
         }
 
         @Override

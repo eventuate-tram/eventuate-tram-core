@@ -14,10 +14,14 @@ public class ReactiveDuplicateDetectingMessageHandlerDecorator implements Reacti
 
   @Override
   public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage,
-                           Mono<Void> processingFlow,
                            ReactiveMessageHandlerDecoratorChain decoratorChain) {
-    return decoratorChain.next(subscriberIdAndMessage,
-            Mono.defer(() -> duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, processingFlow)));
+
+    return duplicateMessageDetector
+            .isDuplicate(subscriberIdAndMessage)
+            .flatMap(dup -> {
+              if (dup) return Mono.empty();
+              else return duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, decoratorChain.next(subscriberIdAndMessage));
+            });
   }
 
   @Override

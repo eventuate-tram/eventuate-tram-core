@@ -4,7 +4,7 @@ import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageHandlerDecorator {
-  Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow, ReactiveMessageHandlerDecoratorChain decoratorChain);
+  Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain);
 
   int getOrder();
 }
