@@ -33,30 +33,29 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
 
   @Test
   public void shouldInvokeTransactionalForDuplicate() {
-    //TODO
-//    Supplier<Mono<Void>> messageHandlerInvocationFlag = mockMessageHandler();
-//    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor();
-//    ReactiveTransactionManager transactionManager = mockTransactionManager();
-//    TransactionalOperator transactionalOperator = TransactionalOperator.create(transactionManager);
-//
-//    ReactiveSqlTableBasedDuplicateMessageDetector duplicateMessageDetector =
-//            new ReactiveSqlTableBasedDuplicateMessageDetector(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
-//                    "", transactionalOperator, jdbcStatementExecutor);
-//
-//    duplicateMessageDetector.doWithMessage(new SubscriberIdAndMessage(subscriberId, new MessageImpl(payload, Collections.singletonMap("ID", messageId))),
-//            Mono.defer(messageHandlerInvocationFlag)).block();
-//
-//    InOrder verificationOrder = inOrder(transactionManager, jdbcStatementExecutor, messageHandlerInvocationFlag);
-//
-//    eventually(10, 500, TimeUnit.MILLISECONDS, () -> {
-//      verificationOrder.verify(transactionManager).getReactiveTransaction(any());
-//
-//      verificationOrder.verify(jdbcStatementExecutor).update(insertIntoReceivedMessageSql, subscriberId, messageId);
-//
-//      verificationOrder.verify(messageHandlerInvocationFlag).get();
-//
-//      verificationOrder.verify(transactionManager).commit(any());
-//    });
+    Supplier<Mono<Void>> messageHandlerInvocationFlag = mockMessageHandler();
+    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor();
+    ReactiveTransactionManager transactionManager = mockTransactionManager();
+    TransactionalOperator transactionalOperator = TransactionalOperator.create(transactionManager);
+
+    ReactiveSqlTableBasedDuplicateMessageDetector duplicateMessageDetector =
+            new ReactiveSqlTableBasedDuplicateMessageDetector(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+                    "", transactionalOperator, jdbcStatementExecutor);
+
+    duplicateMessageDetector.doWithMessage(new SubscriberIdAndMessage(subscriberId, new MessageImpl(payload, Collections.singletonMap("ID", messageId))),
+            Mono.defer(messageHandlerInvocationFlag)).block();
+
+    InOrder verificationOrder = inOrder(transactionManager, jdbcStatementExecutor, messageHandlerInvocationFlag);
+
+    eventually(10, 500, TimeUnit.MILLISECONDS, () -> {
+      verificationOrder.verify(transactionManager).getReactiveTransaction(any());
+
+      verificationOrder.verify(jdbcStatementExecutor).update(insertIntoReceivedMessageSql, subscriberId, messageId);
+
+      verificationOrder.verify(messageHandlerInvocationFlag).get();
+
+      verificationOrder.verify(transactionManager).commit(any());
+    });
   }
 
   private Supplier<Mono<Void>> mockMessageHandler() {

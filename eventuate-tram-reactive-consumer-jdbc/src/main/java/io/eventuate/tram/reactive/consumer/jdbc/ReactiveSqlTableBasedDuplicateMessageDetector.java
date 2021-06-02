@@ -39,7 +39,11 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
 
   @Override
   public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
-    return Mono.defer(() -> processingFlow.as(transactionalOperator::transactional));
+    return Mono.defer(() -> isDuplicate(subscriberIdAndMessage)
+            .flatMap(dup -> {
+              if (dup) return Mono.empty();
+              else return processingFlow;
+            })).as(transactionalOperator::transactional);
 
   }
 
