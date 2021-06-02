@@ -1,6 +1,7 @@
 package io.eventuate.tram.reactive.integrationtests;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandlerDecorator;
+import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandlerDecoratorChain;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventDispatcher;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventDispatcherFactory;
@@ -42,13 +43,14 @@ public class ReactiveTramEventIntegrationTestConfiguration {
       return new ReactiveMessageHandlerDecorator() {
 
         @Override
-        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage,
+                                 Mono<Void> processingFlow,
+                                 ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
           if (subscriberIdAndMessage.getMessage().getPayload().contains("ignored")) {
-            return Mono.defer(Mono::empty);
+            return decoratorChain.next(subscriberIdAndMessage, Mono.defer(Mono::empty));
           }
-
-          else return Mono.defer(() -> processingFlow);
+          else return decoratorChain.next(subscriberIdAndMessage, Mono.defer(() -> processingFlow));
         }
 
         @Override

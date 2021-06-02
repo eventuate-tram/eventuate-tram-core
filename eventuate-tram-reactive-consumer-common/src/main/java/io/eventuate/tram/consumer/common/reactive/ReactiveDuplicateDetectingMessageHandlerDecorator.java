@@ -13,8 +13,11 @@ public class ReactiveDuplicateDetectingMessageHandlerDecorator implements Reacti
   }
 
   @Override
-  public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
-    return duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, processingFlow);
+  public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage,
+                           Mono<Void> processingFlow,
+                           ReactiveMessageHandlerDecoratorChain decoratorChain) {
+    return decoratorChain.next(subscriberIdAndMessage,
+            Mono.defer(() -> duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, processingFlow)));
   }
 
   @Override

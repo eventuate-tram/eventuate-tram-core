@@ -1,87 +1,93 @@
 package io.eventuate.tram.reactive.integrationtests;
 
-import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
-import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumerImplementation;
-import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandler;
-import io.eventuate.tram.messaging.consumer.MessageSubscription;
-import io.eventuate.tram.messaging.producer.MessageBuilder;
-import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMessageProducerJdbcConfiguration;
-import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
-import io.eventuate.tram.spring.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumerConfiguration;
-import io.eventuate.util.test.async.Eventually;
+import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
+import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import io.eventuate.tram.reactive.consumer.jdbc.ReactiveSqlTableBasedDuplicateMessageDetector;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.InOrder;
+import org.springframework.transaction.ReactiveTransaction;
+import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = ReactiveTramMessagingDuplicateDetectionTest.Config.class, properties = "spring.main.allow-bean-definition-overriding=true")
+import static io.eventuate.util.test.async.Eventually.eventually;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ReactiveTramMessagingDuplicateDetectionTest {
+  private String subscriberId = "subscriberId";
+  private String messageId = "messageId";
+  private String payload = "payload";
 
-  @Import({ReactiveTramMessageProducerJdbcConfiguration.class,
-          EventuateTramReactiveKafkaMessageConsumerConfiguration.class,
-          ReactiveTramConsumerCommonConfiguration.class})
-  @EnableAutoConfiguration
-  public static class Config {
-
-    @Bean
-    @Primary
-    public TransactionalOperator transactionalOperator() {
-      TransactionalOperator transactionalOperator = Mockito.mock(TransactionalOperator.class);
-
-      Mockito.when(transactionalOperator.transactional((Mono<? extends Object>) Mockito.any())).thenReturn(Mono.empty());
-
-      return transactionalOperator;
-    }
-
-    @Bean
-    @Primary
-    public ReactiveMessageConsumerImplementation reactiveMessageConsumerImplementation() {
-      String id = UUID.randomUUID().toString();
-
-      return new ReactiveMessageConsumerImplementation() {
-        @Override
-        public MessageSubscription subscribe(String subscriberId, Set<String> channels, ReactiveMessageHandler handler) {
-          handler.apply(MessageBuilder.withPayload(id).withHeader("ID", id).build()).block();
-          handler.apply(MessageBuilder.withPayload(id).withHeader("ID", id).build()).block();
-
-          return () -> {};
-        }
-
-        @Override
-        public String getId() {
-          return UUID.randomUUID().toString();
-        }
-
-        @Override
-        public void close() {}
-      };
-    }
-  }
-
-  @Autowired
-  protected ReactiveMessageConsumer messageConsumer;
-
-  @Autowired
-  protected TransactionalOperator transactionalOperator;
+  private String insertIntoReceivedMessageSql =
+          "insert into eventuate.received_messages(consumer_id, message_id, creation_time) values(?, ?, )";
 
   @Test
   public void shouldInvokeTransactionalForDuplicate() {
-    messageConsumer.subscribe(IdSupplier.get(), Collections.singleton(IdSupplier.get()), message -> Mono.empty());
+    Supplier<Mono<Void>> messageHandlerInvocationFlag = mockMessageHandler();
+    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor();
+    ReactiveTransactionManager transactionManager = mockTransactionManager();
+    TransactionalOperator transactionalOperator = TransactionalOperator.create(transactionManager);
 
-    Eventually.eventually(() ->
-            Mockito.verify(transactionalOperator, Mockito.times(2)).transactional((Mono<?>) Mockito.any()));
+    ReactiveSqlTableBasedDuplicateMessageDetector duplicateMessageDetector =
+            new ReactiveSqlTableBasedDuplicateMessageDetector(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+                    "", transactionalOperator, jdbcStatementExecutor);
+
+    duplicateMessageDetector.doWithMessage(new SubscriberIdAndMessage(subscriberId, new MessageImpl(payload, Collections.singletonMap("ID", messageId))),
+            Mono.defer(messageHandlerInvocationFlag)).block();
+
+    InOrder verificationOrder = inOrder(transactionManager, jdbcStatementExecutor, messageHandlerInvocationFlag);
+
+    eventually(10, 500, TimeUnit.MILLISECONDS, () -> {
+      verificationOrder.verify(transactionManager).getReactiveTransaction(any());
+
+      verificationOrder.verify(jdbcStatementExecutor).update(insertIntoReceivedMessageSql, subscriberId, messageId);
+
+      verificationOrder.verify(messageHandlerInvocationFlag).get();
+
+      verificationOrder.verify(transactionManager).commit(any());
+    });
+  }
+
+  private Supplier<Mono<Void>> mockMessageHandler() {
+    Supplier<Mono<Void>> messageHandler = mock(Supplier.class);
+    when(messageHandler.get()).thenReturn(Mono.empty().then());
+    return messageHandler;
+  }
+
+  private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor() {
+    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mock(EventuateSpringReactiveJdbcStatementExecutor.class);
+
+    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.defer(() -> Mono.just(1)));
+
+    return jdbcStatementExecutor;
+  }
+
+  private ReactiveTransactionManager mockTransactionManager() {
+    ReactiveTransactionManager transactionManager = mock(ReactiveTransactionManager.class);
+
+    when(transactionManager.getReactiveTransaction(any())).thenReturn(Mono.defer(() -> Mono.just(mockReactiveTransaction())));
+    when(transactionManager.commit(any())).thenReturn(Mono.empty());
+
+    return transactionManager;
+  }
+
+  private ReactiveTransaction mockReactiveTransaction() {
+    ReactiveTransaction reactiveTransaction = mock(ReactiveTransaction.class);
+
+    when(reactiveTransaction.isNewTransaction()).thenReturn(false);
+    when(reactiveTransaction.isRollbackOnly()).thenReturn(false);
+    when(reactiveTransaction.isCompleted()).thenReturn(false);
+
+    return reactiveTransaction;
   }
 }
