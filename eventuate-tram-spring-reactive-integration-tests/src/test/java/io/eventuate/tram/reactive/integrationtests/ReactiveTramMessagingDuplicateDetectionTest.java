@@ -1,5 +1,6 @@
 package io.eventuate.tram.reactive.integrationtests;
 
+import io.eventuate.common.jdbc.EventuateDuplicateKeyException;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
 import io.eventuate.tram.messaging.common.MessageImpl;
@@ -42,7 +43,7 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
 
   private void verifyDuplicateDetection(boolean duplicate) {
     Supplier<Mono<Void>> messageHandlerInvocationFlag = mockMessageHandler();
-    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor(duplicate ? 0 : 1);
+    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor(duplicate);
     ReactiveTransactionManager transactionManager = mockTransactionManager();
     TransactionalOperator transactionalOperator = TransactionalOperator.create(transactionManager);
 
@@ -70,14 +71,19 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
 
   private Supplier<Mono<Void>> mockMessageHandler() {
     Supplier<Mono<Void>> messageHandler = mock(Supplier.class);
-    when(messageHandler.get()).thenReturn(Mono.empty().then());
+    when(messageHandler.get()).thenReturn(Mono.empty());
     return messageHandler;
   }
 
-  private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor(int result) {
+  private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor(boolean duplicate) {
     EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mock(EventuateSpringReactiveJdbcStatementExecutor.class);
 
-    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.just(result));
+    if (duplicate) {
+      when(jdbcStatementExecutor.update(anyString(), any()))
+              .thenReturn(Mono.error(new EventuateDuplicateKeyException(new RuntimeException("duplicate"))));
+    } else {
+      when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.just(1));
+    }
 
     return jdbcStatementExecutor;
   }

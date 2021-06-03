@@ -30,11 +30,14 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
 
   @Override
   public Mono<Boolean> isDuplicate(SubscriberIdAndMessage subscriberIdAndMessage) {
-    return Mono
-            .empty()
-            .then(insertIntoReceivedMessagesTable(subscriberIdAndMessage.getSubscriberId(),
-                            subscriberIdAndMessage.getMessage().getId()))
-            .map(rows -> rows == 0);
+    String table = eventuateSchema.qualifyTable("received_messages");
+
+    return jdbcStatementExecutor
+            .update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)", table, currentTimeInMillisecondsSql),
+                    subscriberIdAndMessage.getSubscriberId(),
+                    subscriberIdAndMessage.getMessage().getId())
+            .then(Mono.just(false))
+            .onErrorResume(EventuateDuplicateKeyException.class, throwable -> Mono.just(true));
   }
 
   @Override
@@ -45,15 +48,5 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
               else return processingFlow;
             })).as(transactionalOperator::transactional);
 
-  }
-
-  private Mono<Integer> insertIntoReceivedMessagesTable(String consumerId, String messageId) {
-    String table = eventuateSchema.qualifyTable("received_messages");
-
-    return jdbcStatementExecutor
-            .update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)", table, currentTimeInMillisecondsSql),
-                    consumerId,
-                    messageId)
-            .onErrorResume(EventuateDuplicateKeyException.class, throwable -> Mono.just(0));
   }
 }
