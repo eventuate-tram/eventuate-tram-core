@@ -13,14 +13,13 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static io.eventuate.util.test.async.Eventually.eventually;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 public class ReactiveTramMessagingDuplicateDetectionTest {
@@ -32,9 +31,18 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
           "insert into eventuate.received_messages(consumer_id, message_id, creation_time) values(?, ?, )";
 
   @Test
-  public void shouldInvokeTransactionalForDuplicate() {
+  public void shouldInvokeHandlerIfThereIsNoDuplicate() {
+    verifyDuplicateDetection(false);
+  }
+
+  @Test
+  public void shouldNotInvokeHandlerIfThereIsDuplicate() {
+    verifyDuplicateDetection(true);
+  }
+
+  private void verifyDuplicateDetection(boolean duplicate) {
     Supplier<Mono<Void>> messageHandlerInvocationFlag = mockMessageHandler();
-    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor();
+    EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mockReactiveJdbcStatementExecutor(duplicate ? 0 : 1);
     ReactiveTransactionManager transactionManager = mockTransactionManager();
     TransactionalOperator transactionalOperator = TransactionalOperator.create(transactionManager);
 
@@ -47,15 +55,17 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
 
     InOrder verificationOrder = inOrder(transactionManager, jdbcStatementExecutor, messageHandlerInvocationFlag);
 
-    eventually(10, 500, TimeUnit.MILLISECONDS, () -> {
-      verificationOrder.verify(transactionManager).getReactiveTransaction(any());
+    verificationOrder.verify(transactionManager).getReactiveTransaction(any());
 
-      verificationOrder.verify(jdbcStatementExecutor).update(insertIntoReceivedMessageSql, subscriberId, messageId);
+    verificationOrder.verify(jdbcStatementExecutor).update(insertIntoReceivedMessageSql, subscriberId, messageId);
 
+    if (duplicate) {
+      verificationOrder.verify(messageHandlerInvocationFlag, never()).get();
+    } else {
       verificationOrder.verify(messageHandlerInvocationFlag).get();
+    }
 
-      verificationOrder.verify(transactionManager).commit(any());
-    });
+    verificationOrder.verify(transactionManager).commit(any());
   }
 
   private Supplier<Mono<Void>> mockMessageHandler() {
@@ -64,10 +74,10 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
     return messageHandler;
   }
 
-  private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor() {
+  private EventuateSpringReactiveJdbcStatementExecutor mockReactiveJdbcStatementExecutor(int result) {
     EventuateSpringReactiveJdbcStatementExecutor jdbcStatementExecutor = mock(EventuateSpringReactiveJdbcStatementExecutor.class);
 
-    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.just(1));
+    when(jdbcStatementExecutor.update(anyString(), any())).thenReturn(Mono.just(result));
 
     return jdbcStatementExecutor;
   }
