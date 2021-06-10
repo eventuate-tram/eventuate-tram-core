@@ -37,7 +37,6 @@ public class ReactiveTramEventIntegrationTest {
   public void shouldSendAndReceiveEvent() throws InterruptedException {
     domainEventPublisher
             .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEvent(payload)))
-            .collectList()
             .block();
 
     TestEvent event = tramTestEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
@@ -49,7 +48,6 @@ public class ReactiveTramEventIntegrationTest {
   public void shouldNotHandleFilteredEvents() throws InterruptedException {
     domainEventPublisher
             .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEvent(payload + "ignored")))
-            .collectList()
             .block();
 
     TestEvent event = tramTestEventConsumer.getQueue().poll(5, TimeUnit.SECONDS);

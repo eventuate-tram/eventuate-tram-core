@@ -3,6 +3,7 @@ package io.eventuate.tram.consumer.common.reactive;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -30,7 +31,7 @@ public final class ReactiveMessageConsumerImpl implements ReactiveMessageConsume
   public MessageSubscription subscribe(String subscriberId, Set<String> channels, ReactiveMessageHandler handler) {
     logger.info("Subscribing (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 
-    Function<SubscriberIdAndMessage, Mono<Void>> decoratedHandler =
+    Function<SubscriberIdAndMessage, Publisher<?>> decoratedHandler =
             decoratedMessageHandlerFactory.decorate(handler);
 
     MessageSubscription messageSubscription =

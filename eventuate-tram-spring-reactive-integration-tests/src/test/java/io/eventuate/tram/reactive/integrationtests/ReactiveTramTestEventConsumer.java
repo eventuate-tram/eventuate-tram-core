@@ -45,8 +45,7 @@ public class ReactiveTramTestEventConsumer {
             // something went wrong and reply message should not be inserted into database
             .map(message -> {
               throw new RuntimeException("Something happened");
-            })
-            .then();
+            });
   }
 
   public BlockingQueue<TestEvent> getQueue() {

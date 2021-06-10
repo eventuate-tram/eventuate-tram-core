@@ -1,10 +1,11 @@
 package io.eventuate.tram.consumer.common.reactive;
 
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageHandlerDecorator {
-  Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain);
+  Publisher<?> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain);
 
   int getOrder();
 }

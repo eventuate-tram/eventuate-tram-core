@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.common.reactive;
 
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +16,7 @@ public class DecoratedReactiveMessageHandlerFactory {
     decorators.sort(Comparator.comparingInt(ReactiveMessageHandlerDecorator::getOrder));
   }
 
-  public Function<SubscriberIdAndMessage, Mono<Void>> decorate(ReactiveMessageHandler reactiveMessageHandler) {
+  public Function<SubscriberIdAndMessage, Publisher<?>> decorate(ReactiveMessageHandler reactiveMessageHandler) {
     return subscriberIdAndMessage ->
             new ReactiveMessageHandlerDecoratorChain(decorators, reactiveMessageHandler).next(subscriberIdAndMessage);
   }

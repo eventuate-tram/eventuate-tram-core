@@ -2,6 +2,7 @@ package io.eventuate.tram.consumer.common.reactive;
 
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.BuiltInMessageHandlerDecoratorOrder;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 public class ReactiveDuplicateDetectingMessageHandlerDecorator implements ReactiveMessageHandlerDecorator {
@@ -13,11 +14,11 @@ public class ReactiveDuplicateDetectingMessageHandlerDecorator implements Reacti
   }
 
   @Override
-  public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage,
+  public Publisher<?> accept(SubscriberIdAndMessage subscriberIdAndMessage,
                            ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
       return duplicateMessageDetector.doWithMessage(subscriberIdAndMessage,
-              Mono.defer(() -> decoratorChain.next(subscriberIdAndMessage)));
+              Mono.defer(() -> Mono.from(decoratorChain.next(subscriberIdAndMessage))));
   }
 
   @Override

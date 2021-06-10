@@ -5,6 +5,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
 import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -41,11 +42,11 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
   }
 
   @Override
-  public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+  public Publisher<?> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Publisher<?> processingFlow) {
     return Mono.defer(() -> isDuplicate(subscriberIdAndMessage)
             .flatMap(dup -> {
               if (dup) return Mono.empty();
-              else return processingFlow;
+              else return Mono.from(processingFlow);
             })).as(transactionalOperator::transactional);
 
   }

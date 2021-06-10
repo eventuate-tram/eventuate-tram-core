@@ -2,6 +2,7 @@ package io.eventuate.tram.reactive.events.subscriber;
 
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class ReactiveDomainEventHandlersBuilder {
     return new ReactiveDomainEventHandlersBuilder(aggregateType);
   }
 
-  public <E extends DomainEvent> ReactiveDomainEventHandlersBuilder onEvent(Class<E> eventClass, Function<DomainEventEnvelope<E>, Mono<Void>> handler) {
+  public <E extends DomainEvent> ReactiveDomainEventHandlersBuilder onEvent(Class<E> eventClass, Function<DomainEventEnvelope<E>, Publisher<?>> handler) {
 
     handlers.add(new ReactiveDomainEventHandler(aggregateType,
             ((Class<DomainEvent>) eventClass),

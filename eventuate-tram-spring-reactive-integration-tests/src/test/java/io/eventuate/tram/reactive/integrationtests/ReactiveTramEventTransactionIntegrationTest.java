@@ -37,7 +37,6 @@ public class ReactiveTramEventTransactionIntegrationTest {
   public void shouldRollbackFailedTransactionInsideEventConsumer() throws InterruptedException {
     domainEventPublisher
             .publish(tramTestEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEventThatInitiatesException(payload)))
-            .collectList()
             .block();
 
     //event consumer will try to publish reply (TestEvent), but because of exception it should not be delivered (transaction rollback)

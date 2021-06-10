@@ -7,6 +7,7 @@ import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.eventuate.tram.events.common.EventMessageHeaders;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelopeImpl;
 import io.eventuate.tram.messaging.common.Message;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -42,7 +43,7 @@ public class ReactiveDomainEventDispatcher {
     logger.info("Initialized reactive domain event dispatcher");
   }
 
-  public Mono<Void> messageHandler(Message message) {
+  public Publisher<?> messageHandler(Message message) {
     String aggregateType = message.getRequiredHeader(EventMessageHeaders.AGGREGATE_TYPE);
 
     message.setHeader(EventMessageHeaders.EVENT_TYPE,

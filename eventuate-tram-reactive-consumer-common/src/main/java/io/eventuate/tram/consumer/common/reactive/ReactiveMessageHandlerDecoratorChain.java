@@ -1,10 +1,10 @@
 package io.eventuate.tram.consumer.common.reactive;
 
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ReactiveMessageHandlerDecoratorChain {
@@ -18,10 +18,14 @@ public class ReactiveMessageHandlerDecoratorChain {
     this.reactiveMessageHandler = reactiveMessageHandler;
   }
 
-  public Mono<Void> next(SubscriberIdAndMessage subscriberIdAndMessage) {
-    return Optional
-            .ofNullable(decorators.poll())
-            .map(d -> d.accept(subscriberIdAndMessage, this))
-            .orElse(Mono.defer(() -> reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage())));
+  public Publisher<?> next(SubscriberIdAndMessage subscriberIdAndMessage) {
+
+    ReactiveMessageHandlerDecorator decorator = decorators.poll();
+
+    if (decorator != null) {
+      return decorator.accept(subscriberIdAndMessage, this);
+    }
+
+    return Mono.defer(() -> Mono.from(reactiveMessageHandler.apply(subscriberIdAndMessage.getMessage())));
   }
 }

@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.common.reactive;
 
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 public class ReactiveNoopDuplicateMessageDetector implements ReactiveDuplicateMessageDetector {
@@ -10,7 +11,7 @@ public class ReactiveNoopDuplicateMessageDetector implements ReactiveDuplicateMe
   }
 
   @Override
-  public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
+  public Publisher<?> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Publisher<?> processingFlow) {
     return processingFlow;
   }
 }

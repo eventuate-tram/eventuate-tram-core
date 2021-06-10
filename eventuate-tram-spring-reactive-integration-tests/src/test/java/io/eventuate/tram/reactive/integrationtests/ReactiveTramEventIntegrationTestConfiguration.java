@@ -11,6 +11,7 @@ import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMes
 import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumerConfiguration;
 import io.eventuate.tram.spring.reactive.events.subscriber.ReactiveTramEventSubscriberConfiguration;
+import org.reactivestreams.Publisher;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -43,7 +44,7 @@ public class ReactiveTramEventIntegrationTestConfiguration {
       return new ReactiveMessageHandlerDecorator() {
 
         @Override
-        public Mono<Void> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain) {
+        public Publisher<?> accept(SubscriberIdAndMessage subscriberIdAndMessage, ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
           if (subscriberIdAndMessage.getMessage().getPayload().contains("ignored")) {
             return Mono.empty();

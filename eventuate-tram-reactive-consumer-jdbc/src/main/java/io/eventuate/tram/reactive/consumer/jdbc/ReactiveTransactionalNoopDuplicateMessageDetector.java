@@ -2,6 +2,7 @@ package io.eventuate.tram.reactive.consumer.jdbc;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+import org.reactivestreams.Publisher;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
@@ -19,7 +20,7 @@ public class ReactiveTransactionalNoopDuplicateMessageDetector implements Reacti
   }
 
   @Override
-  public Mono<Void> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Mono<Void> processingFlow) {
-    return Mono.defer(() -> processingFlow.as(transactionalOperator::transactional));
+  public Publisher<?> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Publisher<?> processingFlow) {
+    return Mono.defer(() -> Mono.from(processingFlow).as(transactionalOperator::transactional));
   }
 }

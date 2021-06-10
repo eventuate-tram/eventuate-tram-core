@@ -9,6 +9,7 @@ import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class EventuateTramReactiveKafkaMessageConsumer implements ReactiveMessag
     logger.info("Subscribing (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 
     KafkaSubscription subscription = messageConsumerKafka.subscribeWithReactiveHandler(subscriberId,
-            channels, message -> handler.apply(JSonMapper.fromJson(message.getPayload(), MessageImpl.class)).then().toFuture());
+            channels, message -> Mono.from(handler.apply(JSonMapper.fromJson(message.getPayload(), MessageImpl.class))).then().toFuture());
 
     logger.info("Subscribed (reactive): subscriberId = {}, channels = {}", subscriberId, channels);
 

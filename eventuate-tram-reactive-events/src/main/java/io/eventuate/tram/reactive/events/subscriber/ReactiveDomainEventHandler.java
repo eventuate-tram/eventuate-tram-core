@@ -4,6 +4,7 @@ import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.EventMessageHeaders;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.messaging.common.Message;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
@@ -12,9 +13,9 @@ import java.util.function.Function;
 public class ReactiveDomainEventHandler {
   private String aggregateType;
   private final Class<DomainEvent> eventClass;
-  private final Function<DomainEventEnvelope<DomainEvent>, Mono<Void>> handler;
+  private final Function<DomainEventEnvelope<DomainEvent>, Publisher<?>> handler;
 
-  public ReactiveDomainEventHandler(String aggregateType, Class<DomainEvent> eventClass, Function<DomainEventEnvelope<DomainEvent>, Mono<Void>> handler) {
+  public ReactiveDomainEventHandler(String aggregateType, Class<DomainEvent> eventClass, Function<DomainEventEnvelope<DomainEvent>, Publisher<?>> handler) {
     this.aggregateType = aggregateType;
     this.eventClass = eventClass;
     this.handler = handler;
@@ -25,7 +26,7 @@ public class ReactiveDomainEventHandler {
             && eventClass.getName().equals(message.getRequiredHeader(EventMessageHeaders.EVENT_TYPE));
   }
 
-  public Mono<Void> invoke(DomainEventEnvelope<DomainEvent> dee) {
+  public Publisher<?> invoke(DomainEventEnvelope<DomainEvent> dee) {
     return handler.apply(dee);
   }
 

@@ -51,8 +51,8 @@ public class ReactiveTramMessagingDuplicateDetectionTest {
             new ReactiveSqlTableBasedDuplicateMessageDetector(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
                     "", transactionalOperator, jdbcStatementExecutor);
 
-    duplicateMessageDetector.doWithMessage(new SubscriberIdAndMessage(subscriberId, new MessageImpl(payload, Collections.singletonMap("ID", messageId))),
-            Mono.defer(messageHandlerInvocationFlag)).block();
+    Mono.from(duplicateMessageDetector.doWithMessage(new SubscriberIdAndMessage(subscriberId, new MessageImpl(payload, Collections.singletonMap("ID", messageId))),
+            Mono.defer(messageHandlerInvocationFlag))).block();
 
     InOrder verificationOrder = inOrder(transactionManager, jdbcStatementExecutor, messageHandlerInvocationFlag);
 

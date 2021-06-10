@@ -25,21 +25,52 @@ public class ReactiveDomainEventPublisher {
     this.domainEventNameMapping = domainEventNameMapping;
   }
 
-  public Flux<Message> publish(String aggregateType, Object aggregateId, List<DomainEvent> domainEvents) {
+  public Mono<List<Message>> publish(List<DomainEventPublishingBuilder.EventContainer> events) {
+
+    Mono<List<Message>> result = null;
+
+    for (DomainEventPublishingBuilder.EventContainer container : events) {
+      Mono<List<Message>> iteration = publish(container.getAggregateType(),
+              container.getAggregateId(), container.getHeaders(), container.getDomainEvents());
+
+      if (result == null) {
+        result = iteration;
+      } else {
+        result = result.flatMap(notUsed -> iteration);
+      }
+    }
+
+    return result;
+  }
+
+  public Mono<Message> publish(String aggregateType, Object aggregateId, DomainEvent domainEvent) {
+    return publish(aggregateType, aggregateId, Collections.emptyMap(), domainEvent);
+  }
+
+  public Mono<List<Message>> publish(String aggregateType, Object aggregateId, List<DomainEvent> domainEvents) {
     return publish(aggregateType, aggregateId, Collections.emptyMap(), domainEvents);
   }
 
-  public Flux<Message> publish(String aggregateType, Object aggregateId, Map<String, String> headers, List<DomainEvent> domainEvents) {
+  public Mono<Message> publish(String aggregateType, Object aggregateId, Map<String, String> headers, DomainEvent domainEvent) {
+    return reactiveMessageProducer.send(aggregateType, EventUtil.makeMessageForDomainEvent(aggregateType, aggregateId, headers, domainEvent,
+            domainEventNameMapping.eventToExternalEventType(aggregateType, domainEvent)));
+  }
+
+  public Mono<List<Message>> publish(String aggregateType, Object aggregateId, Map<String, String> headers, List<DomainEvent> domainEvents) {
     Stream<Mono<Message>> messages = domainEvents
             .stream()
             .map(event -> reactiveMessageProducer.send(aggregateType,
                     EventUtil.makeMessageForDomainEvent(aggregateType, aggregateId, headers, event,
                             domainEventNameMapping.eventToExternalEventType(aggregateType, event))));
 
-    return Flux.fromStream(messages).flatMap(identity());
+    return Flux.fromStream(messages).flatMap(identity()).collectList();
   }
 
-  public Flux<Message> publish(Class<?> aggregateType, Object aggregateId, List<DomainEvent> domainEvents) {
+  public Mono<Message> publish(Class<?> aggregateType, Object aggregateId, DomainEvent domainEvent) {
+    return publish(aggregateType.getName(), aggregateId, domainEvent);
+  }
+
+  public Mono<List<Message>> publish(Class<?> aggregateType, Object aggregateId, List<DomainEvent> domainEvents) {
     return publish(aggregateType.getName(), aggregateId, domainEvents);
   }
 }
