@@ -8,6 +8,7 @@ import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProdu
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,22 +26,33 @@ public class ReactiveDomainEventPublisher {
     this.domainEventNameMapping = domainEventNameMapping;
   }
 
-  public Mono<List<Message>> publish(List<DomainEventPublishingBuilder.EventContainer> events) {
+  public DomainEventPublishingBuilder.AggregateTypeStep aggregateType(String value) {
+    return new DomainEventPublishingBuilder(this).aggregateType(value);
+  }
 
-    Mono<List<Message>> result = null;
+  public DomainEventPublishingBuilder.AggregateTypeStep aggregateType(Class<?> value) {
+    return new DomainEventPublishingBuilder(this).aggregateType(value);
+  }
+
+  Mono<List<Message>> publish(List<DomainEventPublishingBuilder.EventContainer> events) {
+    List<Mono<List<Message>>> result = new ArrayList<>();
 
     for (DomainEventPublishingBuilder.EventContainer container : events) {
       Mono<List<Message>> iteration = publish(container.getAggregateType(),
               container.getAggregateId(), container.getHeaders(), container.getDomainEvents());
 
-      if (result == null) {
-        result = iteration;
-      } else {
-        result = result.flatMap(notUsed -> iteration);
-      }
+        result.add(iteration);
     }
 
-    return result;
+    return Mono.zip(result, objects -> {
+      ArrayList<Message> messages = new ArrayList<>();
+
+      for (Object o : objects) {
+        messages.addAll((List<Message>)o);
+      }
+
+      return messages;
+    });
   }
 
   public Mono<Message> publish(String aggregateType, Object aggregateId, DomainEvent domainEvent) {

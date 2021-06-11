@@ -34,10 +34,22 @@ public class ReactiveTramEventIntegrationTestConfiguration {
       return reactiveDomainEventDispatcherFactory.make(IdSupplier.get(), reactiveTramTestEventConsumer.domainEventHandlers());
     }
 
-    @Bean
-    public ReactiveTramTestEventConsumer reactiveTramTestEventConsumer(ReactiveDomainEventPublisher domainEventPublisher) {
-      return new ReactiveTramTestEventConsumer(UUID.randomUUID().toString(), domainEventPublisher);
-    }
+  @Bean
+  public ReactiveDomainEventDispatcher additionalReactiveDomainEventDispatcher(ReactiveDomainEventDispatcherFactory reactiveDomainEventDispatcherFactory,
+                                                                               ReactiveTramAdditionalTestEventConsumer additionalTestEventConsumer) {
+
+    return reactiveDomainEventDispatcherFactory.make(IdSupplier.get(), additionalTestEventConsumer.domainEventHandlers());
+  }
+
+  @Bean
+  public ReactiveTramTestEventConsumer reactiveTramTestEventConsumer(ReactiveDomainEventPublisher domainEventPublisher) {
+    return new ReactiveTramTestEventConsumer(IdSupplier.get(), domainEventPublisher);
+  }
+
+  @Bean
+  public ReactiveTramAdditionalTestEventConsumer reactiveTramAdditionalTestEventConsumer(ReactiveDomainEventPublisher domainEventPublisher) {
+    return new ReactiveTramAdditionalTestEventConsumer(IdSupplier.get());
+  }
 
     @Bean
     public ReactiveMessageHandlerDecorator decoratorThatFilterEventsThatShouldBeIgnored() {

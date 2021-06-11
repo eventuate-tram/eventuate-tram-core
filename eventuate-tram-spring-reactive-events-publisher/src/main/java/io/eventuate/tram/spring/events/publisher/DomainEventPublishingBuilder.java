@@ -1,6 +1,8 @@
 package io.eventuate.tram.spring.events.publisher;
 
 import io.eventuate.tram.events.common.DomainEvent;
+import io.eventuate.tram.messaging.common.Message;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,28 +11,25 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.singletonList;
-//TODO: add tests if approved
+
 public class DomainEventPublishingBuilder {
+  private ReactiveDomainEventPublisher reactiveDomainEventPublisher;
   private LinkedList<EventContainer> eventContainers = new LinkedList<>();
 
-  private DomainEventPublishingBuilder() {
+  DomainEventPublishingBuilder(ReactiveDomainEventPublisher reactiveDomainEventPublisher) {
+    this.reactiveDomainEventPublisher = reactiveDomainEventPublisher;
+
     eventContainers.add(new EventContainer());
   }
 
-  public static DomainEventPublishingBuilder createEvents() {
-    return new DomainEventPublishingBuilder();
-  }
-
-  public AggregateTypeStep aggregateType(String value) {
+  AggregateTypeStep aggregateType(String value) {
     eventContainers.peek().aggregateType = value;
     return new AggregateTypeStep();
   }
 
-  public AggregateTypeStep aggregateType(Class<?> value) {
+  AggregateTypeStep aggregateType(Class<?> value) {
     return aggregateType(value.getName());
   }
-
-
 
   public static class EventContainer {
     private EventContainer() {}
@@ -102,16 +101,25 @@ public class DomainEventPublishingBuilder {
       return this;
     }
 
-    public DomainEventPublishingBuilder next() {
+    public AggregateTypeStep aggregateType(String value) {
+      return next().aggregateType(value);
+    }
+
+    public AggregateTypeStep aggregateType(Class<?> value) {
+      return next().aggregateType(value);
+    }
+
+    public Mono<List<Message>> publish() {
+      return reactiveDomainEventPublisher.publish(eventContainers);
+    }
+
+    private DomainEventPublishingBuilder next() {
       DomainEventPublishingBuilder domainEventPublishingBuilder = DomainEventPublishingBuilder.this;
 
       domainEventPublishingBuilder.eventContainers.addFirst(new EventContainer());
 
       return domainEventPublishingBuilder;
     }
-
-    public List<EventContainer> build() {
-      return eventContainers;
-    }
   }
+
 }
