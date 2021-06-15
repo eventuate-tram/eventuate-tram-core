@@ -1,5 +1,7 @@
 package io.eventuate.tram.consumer.common;
 
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
+
 public class  NoopDuplicateMessageDetector implements DuplicateMessageDetector {
 
   @Override

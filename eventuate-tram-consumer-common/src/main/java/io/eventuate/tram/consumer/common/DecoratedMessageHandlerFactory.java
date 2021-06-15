@@ -1,6 +1,7 @@
 package io.eventuate.tram.consumer.common;
 
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

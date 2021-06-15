@@ -5,7 +5,7 @@ import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,0 +1,8 @@
+
+dependencies {
+    compile project(":eventuate-tram-reactive-consumer-common")
+
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
+}
+
+

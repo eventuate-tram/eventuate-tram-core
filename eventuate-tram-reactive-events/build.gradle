@@ -1,0 +1,10 @@
+
+dependencies {
+    compile project(":eventuate-tram-messaging")
+    compile project(":eventuate-tram-events")
+    compile project(":eventuate-tram-reactive-consumer-common")
+
+    compile "io.projectreactor:reactor-core:$reactorVersion"
+
+    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+}

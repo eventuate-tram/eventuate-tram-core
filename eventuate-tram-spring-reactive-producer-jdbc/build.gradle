@@ -1,7 +1,6 @@
 
 dependencies {
-    compile project(":eventuate-tram-producer-jdbc")
-    compile project(":eventuate-tram-spring-messaging-producer-common")
+    compile project(":eventuate-tram-reactive-producer-jdbc")
 
     compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
 
@@ -10,7 +9,7 @@ dependencies {
 }
 
 test {
-    def profile = System.env['SPRING_PROFILES_ACTIVE'].toString()
+    def profile = System.env['SPRING_PROFILES_ACTIVE']
     if (profile != null && profile != '' && !profile.toLowerCase().contains("mysql")) {
         exclude '**/ReactiveTramIntegrationTest**'
     }

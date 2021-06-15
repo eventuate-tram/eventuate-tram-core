@@ -2,7 +2,7 @@ package io.eventuate.tram.micronaut.data.jdbc.optimistic.locking;
 
 import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
 import io.eventuate.tram.consumer.common.MessageHandlerDecoratorChain;
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.micronaut.retry.annotation.Retryable;
 import io.micronaut.transaction.annotation.TransactionalAdvice;
 

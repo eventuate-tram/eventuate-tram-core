@@ -1,0 +1,8 @@
+
+dependencies {
+    compile project(":eventuate-tram-commands")
+    compile project(":eventuate-tram-reactive-messaging-producer-common")
+    compile project(":eventuate-tram-reactive-consumer-common")
+
+    compile "io.projectreactor:reactor-core:$reactorVersion"
+}

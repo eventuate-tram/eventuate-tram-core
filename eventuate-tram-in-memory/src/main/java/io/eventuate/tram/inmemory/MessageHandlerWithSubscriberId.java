@@ -1,6 +1,6 @@
 package io.eventuate.tram.inmemory;
 
-import io.eventuate.tram.consumer.common.SubscriberIdAndMessage;
+import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 
 import java.util.function.Consumer;
 
