@@ -17,8 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
 @Import({ReactiveTramMessageProducerJdbcConfiguration.class,
         ReactiveTramEventsPublisherConfiguration.class,
         ReactiveTramEventSubscriberConfiguration.class,

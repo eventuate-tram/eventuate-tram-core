@@ -1,0 +1,25 @@
+package io.eventuate.tram.commands.producer;
+
+import io.eventuate.common.json.mapper.JSonMapper;
+import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.CommandMessageHeaders;
+import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
+
+import java.util.Map;
+
+public class CommandMessageFactory {
+  public static Message makeMessage(String channel, String resource, Command command, String replyTo, Map<String, String> headers) {
+    MessageBuilder builder = MessageBuilder.withPayload(JSonMapper.toJson(command))
+            .withExtraHeaders("", headers) // TODO should these be prefixed??!
+            .withHeader(CommandMessageHeaders.DESTINATION, channel)
+            .withHeader(CommandMessageHeaders.COMMAND_TYPE, command.getClass().getName())
+            .withHeader(CommandMessageHeaders.REPLY_TO, replyTo);
+
+    if (resource != null)
+      builder.withHeader(CommandMessageHeaders.RESOURCE, resource);
+
+    return builder
+            .build();
+  }
+}

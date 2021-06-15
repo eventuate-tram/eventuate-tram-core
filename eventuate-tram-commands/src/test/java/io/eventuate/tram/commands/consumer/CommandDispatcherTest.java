@@ -3,7 +3,6 @@ package io.eventuate.tram.commands.consumer;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.Success;
-import io.eventuate.tram.commands.producer.CommandProducerImpl;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -12,6 +11,7 @@ import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Test;
 
+import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMessage;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -75,7 +75,7 @@ public class CommandDispatcherTest {
 
     String channel = "myChannel";
 
-    Message message = CommandProducerImpl.makeMessage(channel, resource, command, replyTo, singletonMap(Message.ID, "999"));
+    Message message = makeMessage(channel, resource, command, replyTo, singletonMap(Message.ID, "999"));
 
     dispatcher.messageHandler(message);
 

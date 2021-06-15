@@ -5,6 +5,7 @@ dependencies {
     compile project(":eventuate-tram-spring-reactive-producer-jdbc")
     compile project(":eventuate-tram-spring-reactive-events-publisher")
     compile project(":eventuate-tram-spring-reactive-events-subscriber")
+    compile project(":eventuate-tram-spring-reactive-commands")
 
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
