@@ -1,4 +1,4 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.events.common.DomainEvent;
 

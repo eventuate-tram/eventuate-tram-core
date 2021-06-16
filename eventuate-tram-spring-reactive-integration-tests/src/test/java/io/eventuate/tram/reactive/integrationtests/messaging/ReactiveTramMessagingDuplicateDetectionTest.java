@@ -1,4 +1,4 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.messaging;
 
 import io.eventuate.common.jdbc.EventuateDuplicateKeyException;
 import io.eventuate.common.jdbc.EventuateSchema;

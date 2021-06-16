@@ -1,6 +1,7 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.reactive.integrationtests.IdSupplier;
 import io.eventuate.tram.spring.events.publisher.ReactiveDomainEventPublisher;
 import org.junit.Assert;
 import org.junit.Before;

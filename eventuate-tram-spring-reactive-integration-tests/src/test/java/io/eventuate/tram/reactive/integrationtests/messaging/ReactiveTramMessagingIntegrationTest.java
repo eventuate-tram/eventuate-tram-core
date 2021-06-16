@@ -1,7 +1,8 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.messaging;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
+import io.eventuate.tram.reactive.integrationtests.IdSupplier;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMessageProducerJdbcConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
@@ -55,11 +56,8 @@ public class ReactiveTramMessagingIntegrationTest {
   public void shouldSendAndReceiveMessage() throws InterruptedException {
     BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
-    messageConsumer.subscribe(subscriberId, Collections.singleton(destination), message -> {
-      messageQueue.add(message.getPayload());
-
-      return Mono.empty();
-    });
+    messageConsumer.subscribe(subscriberId, Collections.singleton(destination), message ->
+      Mono.defer(() -> Mono.just(messageQueue.add(message.getPayload()))));
 
     messageProducer.send(destination, MessageBuilder.withPayload(payload).build()).block();
 

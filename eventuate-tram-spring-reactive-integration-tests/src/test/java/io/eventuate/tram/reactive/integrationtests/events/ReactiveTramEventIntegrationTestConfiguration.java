@@ -1,10 +1,11 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandlerDecorator;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandlerDecoratorChain;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventDispatcher;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventDispatcherFactory;
+import io.eventuate.tram.reactive.integrationtests.IdSupplier;
 import io.eventuate.tram.spring.events.publisher.ReactiveDomainEventPublisher;
 import io.eventuate.tram.spring.events.publisher.ReactiveTramEventsPublisherConfiguration;
 import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMessageProducerJdbcConfiguration;
