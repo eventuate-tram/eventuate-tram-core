@@ -64,7 +64,7 @@ public class CommandDispatcher {
               commandHandlerParams.getCorrelationHeaders(),
               message);
 
-      replies = m.invokeMethod(cm, commandHandlerParams.getPathVars());
+      replies = invoke(m, cm, commandHandlerParams.getPathVars());
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
@@ -78,6 +78,10 @@ public class CommandDispatcher {
     } else {
       logger.trace("Null replies - not publishing");
     }
+  }
+
+  protected List<Message> invoke(CommandHandler commandHandler, CommandMessage cm, Map<String, String> pathVars) {
+    return commandHandler.invokeMethod(cm, pathVars);
   }
 
   private void sendReplies(Map<String, String> correlationHeaders, List<Message> replies, Optional<String> defaultReplyChannel) {
