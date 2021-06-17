@@ -1,15 +1,15 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.events.common.DomainEvent;
 
-public class TestEventThatInitiatesException implements DomainEvent {
+public class TestEvent implements DomainEvent {
 
   private String payload;
 
-  public TestEventThatInitiatesException() {
+  public TestEvent() {
   }
 
-  public TestEventThatInitiatesException(String payload) {
+  public TestEvent(String payload) {
     this.payload = payload;
   }
 

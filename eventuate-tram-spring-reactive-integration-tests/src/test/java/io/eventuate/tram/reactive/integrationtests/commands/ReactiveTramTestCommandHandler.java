@@ -5,6 +5,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.reactive.commands.consumer.ReactiveCommandHandlers;
 import io.eventuate.tram.reactive.commands.consumer.ReactiveCommandHandlersBuilder;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -36,8 +37,8 @@ public class ReactiveTramTestCommandHandler {
   }
 
   public Publisher<Message> handleTestCommand(CommandMessage<TestCommand> commandMessage) {
-    commandQueue.add(commandMessage.getCommand());
-
-    return withSuccess();
+    return Mono
+            .defer(() -> Mono.just(commandQueue.add(commandMessage.getCommand())))
+            .then(withSuccess());
   }
 }

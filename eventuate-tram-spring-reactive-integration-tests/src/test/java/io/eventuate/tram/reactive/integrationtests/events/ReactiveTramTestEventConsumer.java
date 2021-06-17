@@ -1,4 +1,4 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventHandlers;
@@ -32,10 +32,8 @@ public class ReactiveTramTestEventConsumer {
     return aggregateType;
   }
 
-  public Mono<Void> handleTestEvent(DomainEventEnvelope<TestEvent> event) {
-    queue.add(event.getEvent());
-
-    return Mono.empty();
+  public Mono<?> handleTestEvent(DomainEventEnvelope<TestEvent> event) {
+    return Mono.defer(() -> Mono.just(queue.add(event.getEvent())));
   }
 
   public Mono<Void> handleEventThatInitiatesException(DomainEventEnvelope<TestEventThatInitiatesException> event) {

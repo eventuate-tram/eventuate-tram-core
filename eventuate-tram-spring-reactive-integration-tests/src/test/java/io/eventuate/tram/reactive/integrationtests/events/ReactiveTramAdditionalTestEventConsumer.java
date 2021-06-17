@@ -1,8 +1,9 @@
-package io.eventuate.tram.reactive.integrationtests;
+package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventHandlers;
 import io.eventuate.tram.reactive.events.subscriber.ReactiveDomainEventHandlersBuilder;
+import io.eventuate.tram.reactive.integrationtests.events.AdditionalTestEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.BlockingQueue;
@@ -27,10 +28,8 @@ public class ReactiveTramAdditionalTestEventConsumer {
     return aggregateType;
   }
 
-  public Mono<Void> handleTestEvent(DomainEventEnvelope<AdditionalTestEvent> event) {
-    queue.add(event.getEvent());
-
-    return Mono.empty();
+  public Mono<?> handleTestEvent(DomainEventEnvelope<AdditionalTestEvent> event) {
+    return Mono.defer(() -> Mono.just(queue.add(event.getEvent())));
   }
 
   public BlockingQueue<AdditionalTestEvent> getQueue() {

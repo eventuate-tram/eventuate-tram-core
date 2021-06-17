@@ -107,8 +107,6 @@ public class ReactiveTramCommandIntegrationTest {
   }
 
   private Publisher<?> handleMessage(Message message) {
-    messageQueue.add(message);
-
-    return Mono.empty();
+    return Mono.defer(() -> Mono.just(messageQueue.add(message)));
   }
 }
