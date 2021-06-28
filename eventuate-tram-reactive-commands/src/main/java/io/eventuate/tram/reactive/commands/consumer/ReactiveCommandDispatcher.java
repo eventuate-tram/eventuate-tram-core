@@ -65,7 +65,7 @@ public class ReactiveCommandDispatcher {
 
     try {
       CommandMessage cm = new CommandMessage(message.getId(), commandHandlerParams.getCommand(), commandHandlerParams.getCorrelationHeaders(), message);
-      replies = m.invokeMethod(cm, commandHandlerParams.getPathVars());
+      replies = invoke(m, cm, commandHandlerParams);
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
@@ -78,6 +78,12 @@ public class ReactiveCommandDispatcher {
     } else {
       return Mono.defer(Mono::empty);
     }
+  }
+
+  protected Publisher<List<Message>> invoke(ReactiveCommandHandler m,
+                                            CommandMessage cm,
+                                            CommandHandlerParams commandHandlerParams) {
+    return m.invokeMethod(cm, commandHandlerParams.getPathVars());
   }
 
   private String destination(Optional<String> defaultReplyChannel) {
