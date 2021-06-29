@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
-public final class ReactiveMessageProducer {
+public class ReactiveMessageProducer {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private final MessageInterceptor[] messageInterceptors;
