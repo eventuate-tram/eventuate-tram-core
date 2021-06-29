@@ -16,6 +16,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -61,7 +63,7 @@ public class ReactiveCommandDispatcherTest {
     invokeMessageHandler();
 
     verify(alternativeCommandHandler).invokeMethod(any(), any());
-    verifyNoMoreInteractions(commandHandler);
+    verify(commandHandler, never()).invokeMethod(any(), any());
   }
 
   private void invokeMessageHandler() {
