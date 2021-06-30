@@ -10,8 +10,8 @@ import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProdu
 import org.junit.Before;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +53,7 @@ public class ReactiveCommandDispatcherTest {
 
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer) {
       @Override
-      protected Publisher<List<Message>> invoke(ReactiveCommandHandler m, CommandMessage cm, CommandHandlerParams commandHandlerParams) {
+      protected Publisher<Message> invoke(ReactiveCommandHandler m, CommandMessage cm, CommandHandlerParams commandHandlerParams) {
         return alternativeCommandHandler.invokeMethod(cm, commandHandlerParams.getPathVars());
       }
     };
