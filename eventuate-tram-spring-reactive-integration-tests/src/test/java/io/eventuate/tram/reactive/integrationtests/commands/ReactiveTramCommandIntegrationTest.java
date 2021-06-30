@@ -73,12 +73,21 @@ public class ReactiveTramCommandIntegrationTest {
   private String subscriberId = IdSupplier.get();
 
   @Test
-  public void shouldInvokeCommand() throws InterruptedException {
+  public void shouldInvokeCommandAndSendReply() throws InterruptedException {
     subscribeToReplyChannel();
 
     String commandId = sendCommand();
 
     assertCommandReceived();
+
+    assertReplyReceived(commandId);
+  }
+
+  @Test
+  public void shouldSendMultipleReplies() throws InterruptedException {
+    subscribeToReplyChannel();
+
+    String commandId = sendCommandForMultipleRelies();
 
     assertReplyReceived(commandId);
   }
@@ -93,10 +102,24 @@ public class ReactiveTramCommandIntegrationTest {
     assertEquals(commandId, m.getRequiredHeader(ReplyMessageHeaders.IN_REPLY_TO));
   }
 
+  private void assertMultipleRepliesReceived(String commandId) throws InterruptedException {
+    assertReplyReceived(commandId);
+    assertReplyReceived(commandId);
+  }
+
   private String sendCommand() {
     return commandProducer
             .send(reactiveTramTestCommandHandler.getCommandChannel(),
                     new TestCommand(payload),
+                    replyChannel,
+                    Collections.emptyMap())
+            .block();
+  }
+
+  private String sendCommandForMultipleRelies() {
+    return commandProducer
+            .send(reactiveTramTestCommandHandler.getCommandChannel(),
+                    new TestCommandForMultipleReplies(),
                     replyChannel,
                     Collections.emptyMap())
             .block();

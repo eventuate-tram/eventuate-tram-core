@@ -7,7 +7,6 @@ import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.common.Success;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 public class ReactiveCommandHandlerReplyBuilder {
@@ -29,10 +28,10 @@ public class ReactiveCommandHandlerReplyBuilder {
     return withSuccess(new Success());
   }
 
-  public static Publisher<Message> withFailure() {
+  public static Mono<Message> withFailure() {
     return withFailure(new Failure());
   }
-  public static Publisher<Message> withFailure(Object reply) {
+  public static Mono<Message> withFailure(Object reply) {
     return with(reply, CommandReplyOutcome.FAILURE);
   }
 

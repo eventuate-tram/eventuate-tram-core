@@ -5,10 +5,8 @@ import io.eventuate.tram.commands.consumer.CommandMessage;
 import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.messaging.common.Message;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -34,42 +32,22 @@ public class ReactiveCommandHandlersBuilder {
     return this;
   }
 
-  public <C> ReactiveCommandHandlersBuilder onMessageReturningMessages(Class<C> commandClass,
-                                                                       BiFunction<CommandMessage<C>, PathVariables, Publisher<List<Message>>> handler) {
+  public <C> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
+                                                      BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> handler) {
 
     this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, handler));
 
     return this;
   }
 
-  public <C> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
-                                                      BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> handler) {
-
-    BiFunction<CommandMessage<C>, PathVariables, Publisher<List<Message>>> convertedHandler =
-            (c, pv) -> Mono.from(handler.apply(c, pv)).map(Collections::singletonList).switchIfEmpty(Mono.just(Collections.emptyList()));
-
-    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, convertedHandler));
-
-    return this;
-  }
-
-  public <C> ReactiveCommandHandlersBuilder onMessageReturningMessages(Class<C> commandClass,
-                                                                       Function<CommandMessage<C>, Publisher<List<Message>>> handler) {
-
-    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, (c, pv) -> handler.apply(c)));
-
-    return this;
-  }
 
   public <C> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
                                                       Function<CommandMessage<C>, Publisher<Message>> handler) {
 
-    BiFunction<CommandMessage<C>, PathVariables, Publisher<List<Message>>> convertedHandler =
-            (c, pv) -> Mono.from(handler.apply(c)).map(Collections::singletonList).switchIfEmpty(Mono.just(Collections.emptyList()));
+    BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler =
+            (c, pv) -> handler.apply(c);
 
-    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, convertedHandler));
-
-    return this;
+    return onMessage(commandClass, convertedHandler);
   }
 
   public ReactiveCommandHandlers build() {

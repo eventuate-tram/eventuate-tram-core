@@ -5,6 +5,7 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.reactive.commands.consumer.ReactiveCommandHandlers;
 import io.eventuate.tram.reactive.commands.consumer.ReactiveCommandHandlersBuilder;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.BlockingQueue;
@@ -33,6 +34,7 @@ public class ReactiveTramTestCommandHandler {
     return ReactiveCommandHandlersBuilder
             .fromChannel(commandChannel)
             .onMessage(TestCommand.class, this::handleTestCommand)
+            .onMessage(TestCommandForMultipleReplies.class, this::handleTestCommandForMultipleReplies)
             .build();
   }
 
@@ -40,5 +42,9 @@ public class ReactiveTramTestCommandHandler {
     return Mono
             .defer(() -> Mono.just(commandQueue.add(commandMessage.getCommand())))
             .then(withSuccess());
+  }
+
+  public Publisher<Message> handleTestCommandForMultipleReplies(CommandMessage<TestCommandForMultipleReplies> commandMessage) {
+    return Flux.mergeSequential(withSuccess(), withSuccess());
   }
 }

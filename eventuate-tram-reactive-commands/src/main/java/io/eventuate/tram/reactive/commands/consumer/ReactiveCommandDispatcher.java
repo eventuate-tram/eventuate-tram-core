@@ -11,11 +11,10 @@ import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProdu
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -61,11 +60,11 @@ public class ReactiveCommandDispatcher {
 
     CommandHandlerParams commandHandlerParams = new CommandHandlerParams(message, m.getCommandClass(), m.getResource());
 
-    Publisher<List<Message>> replies;
+    Flux<Message> replies;
 
     try {
       CommandMessage cm = new CommandMessage(message.getId(), commandHandlerParams.getCommand(), commandHandlerParams.getCorrelationHeaders(), message);
-      replies = invoke(m, cm, commandHandlerParams);
+      replies = Flux.from(invoke(m, cm, commandHandlerParams));
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
@@ -76,13 +75,13 @@ public class ReactiveCommandDispatcher {
     if (replies != null) {
       return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel());
     } else {
-      return Mono.defer(Mono::empty);
+      return Mono.empty();
     }
   }
 
-  protected Publisher<List<Message>> invoke(ReactiveCommandHandler m,
-                                            CommandMessage cm,
-                                            CommandHandlerParams commandHandlerParams) {
+  protected Publisher<Message> invoke(ReactiveCommandHandler m,
+                                 CommandMessage cm,
+                                 CommandHandlerParams commandHandlerParams) {
     return m.invokeMethod(cm, commandHandlerParams.getPathVars());
   }
 
@@ -92,7 +91,7 @@ public class ReactiveCommandDispatcher {
     });
   }
 
-  private Publisher<List<Message>> handleException(CommandHandlerParams commandHandlerParams,
+  private Flux<Message> handleException(CommandHandlerParams commandHandlerParams,
                                                    ReactiveCommandHandler reactiveCommandHandler,
                                                    Throwable cause,
                                                    Optional<String> defaultReplyChannel) {
@@ -102,41 +101,25 @@ public class ReactiveCommandDispatcher {
 
     logger.info("Handler for {} is {}", cause.getClass(), exceptionHandler);
 
-    Publisher<List<Message>> replies =
+    Flux<Message> replies =
             exceptionHandler
-                    .map(eh -> eh.invoke(cause))
-                    .orElse(Mono.just(singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build())));
+                    .map(eh -> Flux.from(eh.invoke(cause)))
+                    .orElse(Flux.fromIterable(singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build())));
 
     return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, defaultReplyChannel);
   }
 
-  private Mono<List<Message>> sendReplies(Map<String, String> correlationHeaders,
-                                          Publisher<List<Message>> replies,
+  private Flux<Message> sendReplies(Map<String, String> correlationHeaders,
+                                          Flux<Message> replies,
                                           Optional<String> defaultReplyChannel) {
-    return Mono
-            .from(replies)
-            .flatMap(rs -> {
+    return replies
+            .flatMap(reply -> {
+              Message transformedReply = MessageBuilder
+                      .withMessage(reply)
+                      .withExtraHeaders("", correlationHeaders)
+                      .build();
 
-              List<Mono<Message>> sentReplies = new ArrayList<>();
-
-              for (Message reply : rs) {
-                Message transformedReply = MessageBuilder
-                        .withMessage(reply)
-                        .withExtraHeaders("", correlationHeaders)
-                        .build();
-
-                sentReplies.add(messageProducer.send(destination(defaultReplyChannel), transformedReply));
-              }
-
-              return Mono.zip(sentReplies, objects -> {
-                ArrayList<Message> messages = new ArrayList<>();
-
-                for (Object o : objects) {
-                  messages.add((Message)o);
-                }
-
-                return messages;
-              });
+              return messageProducer.send(destination(defaultReplyChannel), transformedReply);
             });
   }
 }
