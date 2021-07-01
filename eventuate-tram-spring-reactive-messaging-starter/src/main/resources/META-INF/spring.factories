@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.eventuate.tram.spring.reactive.messaging.autoconfigure.EventuateTramReactiveKafkaMessageConsumerAutoConfiguration, \
+io.eventuate.tram.spring.reactive.messaging.autoconfigure.ReactiveTramMessageProducerJdbcAutoConfiguration
