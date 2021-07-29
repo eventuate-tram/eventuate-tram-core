@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.eventuate.tram.spring.events.autoconfigure.TramEventsSubscriberAutoConfiguration
+io.eventuate.tram.spring.reactive.events.autoconfigure.ReactiveTramEventsSubscriberAutoConfiguration 
