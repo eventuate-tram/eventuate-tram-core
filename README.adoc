@@ -1,9 +1,12 @@
+
 = Eventuate Tram (Transactional Messaging) platform
 
-[cols="5%,20%a"]
+[cols="a,a"]
 |===
-| RC | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-rc/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-rc/eventuate-tram/_latestVersion"]
-| Release | image::https://api.bintray.com/packages/eventuateio-oss/eventuate-maven-release/eventuate-tram/images/download.svg[link="https://bintray.com/eventuateio-oss/eventuate-maven-release/eventuate-tram/_latestVersion"]
+| Spring/Micronaut
+| image::https://img.shields.io/maven-central/v/io.eventuate.tram.core/eventuate-tram-bom[link="https://search.maven.org/artifact/io.eventuate.tram.core/eventuate-tram-bom"]
+| Quarkus
+| image::https://img.shields.io/maven-central/v/io.eventuate.tram.core/eventuate-tram-quarkus-bom[link="https://search.maven.org/artifact/io.eventuate.tram.core/eventuate-tram-bom"]
 |===
 
 
@@ -41,11 +44,11 @@ Eventuate Tram provides several messaging abstractions:
 
 Eventuate Tram messaging implements the http://microservices.io/patterns/data/application-events.html[Transactional Outbox pattern].
 An message producer inserts events into an `OUTBOX` table as part of the ACID transaction that updates data, such as JPA entities.
-A separate message relay (a.k.a. CDC service) publishes messages to the message broker.
+A separate message relay (a.k.a. Eventuate CDC service) publishes messages to the message broker.
 
 image::https://raw.githubusercontent.com/eventuate-tram/eventuate-tram-core/master/ReliablePublication.png[]
 
-The message relay works in one of two ways:
+The Eventuate CDC service works in one of two ways:
 
 * http://microservices.io/patterns/data/transaction-log-tailing.html[Transaction log tailing] - currently implemented for MySQL and Postgres WAL
 * https://microservices.io/patterns/data/polling-publisher.html[Polling] - for other databases
@@ -55,13 +58,15 @@ The message relay works in one of two ways:
 Languages:
 
 * Spring Boot
-* .NET - forthcoming, see https://github.com/eventuate-tram/eventuate-tram-core-dotnet[this project].
+* Micronaut
+* Quarkus - see https://github.com/eventuate-tram/eventuate-tram-core-quarkus
+* .NET - see https://github.com/eventuate-tram/eventuate-tram-core-dotnet[this project]
 
 Databases:
 
-* MySQL - transaction log tailing using the MySQL binlog
-* Postgres - transaction log tailing using the Postgres WAL
-* Other databases including Microsoft SQL server - polling
+* MySQL - https://microservices.io/patterns/data/transaction-log-tailing.html[transaction log tailing] using the MySQL binlog
+* Postgres - https://microservices.io/patterns/data/transaction-log-tailing.html[transaction log tailing] using the Postgres WAL
+* Other databases including Microsoft SQL server - https://microservices.io/patterns/data/polling-publisher.html[polling]
 
 Message brokers:
 
