@@ -7,8 +7,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
+            - XXX-eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - XXX-eventuate-tram-core-
       - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
