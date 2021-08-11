@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
@@ -43,8 +44,8 @@ public class EventuateSpringReactiveSqlTableBasedDuplicateMessageDetectorTest {
 
     SubscriberIdAndMessage subscriberIdAndMessage = new SubscriberIdAndMessage(consumerId, message);
 
-    assertFalse(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block());
-    assertTrue(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block());
+    assertFalse(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block(Duration.ofSeconds(30)));
+    assertTrue(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block(Duration.ofSeconds(30)));
   }
 
 }
