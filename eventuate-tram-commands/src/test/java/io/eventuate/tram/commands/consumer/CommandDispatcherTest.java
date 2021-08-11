@@ -2,6 +2,8 @@ package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.CommandNameMapping;
+import io.eventuate.tram.commands.common.DefaultCommandNameMapping;
 import io.eventuate.tram.commands.common.Success;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
@@ -62,10 +64,18 @@ public class CommandDispatcherTest {
 
     MessageProducer messageProducer = mock(MessageProducer.class);
 
+    CommandNameMapping commandNameMapping = mock(CommandNameMapping.class);
+
+    String externalName = "extTestCommand";
+
+    when(commandNameMapping.commandToExternalCommandType(any(TestCommand.class))).thenReturn(externalName);
+    when(commandNameMapping.externalCommandTypeToCommandClassName(externalName)).thenReturn(TestCommand.class.getName());
+
     CommandDispatcher dispatcher = new CommandDispatcher(commandDispatcherId,
             defineCommandHandlers(target),
             messageConsumer,
-            messageProducer);
+            messageProducer,
+            commandNameMapping);
 
     String customerId = "customer0";
     String resource = "/customers/" + customerId;
@@ -75,12 +85,16 @@ public class CommandDispatcherTest {
 
     String channel = "myChannel";
 
-    Message message = makeMessage(channel, resource, command, replyTo, singletonMap(Message.ID, "999"));
+    Message message = makeMessage(commandNameMapping, channel, resource, command, replyTo, singletonMap(Message.ID, "999"));
 
     dispatcher.messageHandler(message);
 
     verify(target).reserveCredit(any(CommandMessage.class), any(PathVariables.class));
     verify(messageProducer).send(any(), any());
     verifyNoMoreInteractions(messageProducer, target);
+
+    verify(commandNameMapping).commandToExternalCommandType(command);
+    verify(commandNameMapping).externalCommandTypeToCommandClassName(externalName);
+    verifyNoMoreInteractions(commandNameMapping);
   }
 }

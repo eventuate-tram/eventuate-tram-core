@@ -2,6 +2,7 @@ package io.eventuate.tram.testing.commands;
 
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.DefaultCommandNameMapping;
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
@@ -61,14 +62,15 @@ public class CommandMessageHandlerUnitTestSupport {
             (destination, message) -> {
               CommandMessageHandlerUnitTestSupport.this.replyDestination = destination;
               CommandMessageHandlerUnitTestSupport.this.replyMessage = message;
-            });
+            },
+            new DefaultCommandNameMapping());
 
     dispatcher.initialize();
     producer = new CommandProducerImpl((destination, message) -> {
       String id = idGenerator.generateId().toString();
       message.getHeaders().put(Message.ID, id);
       dispatcher.messageHandler(message);
-    });
+    }, new DefaultCommandNameMapping());
 
     return this;
   }

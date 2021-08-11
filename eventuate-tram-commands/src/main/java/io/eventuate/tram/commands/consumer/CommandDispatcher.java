@@ -1,6 +1,8 @@
 package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.common.json.mapper.JSonMapper;
+import io.eventuate.tram.commands.common.CommandMessageHeaders;
+import io.eventuate.tram.commands.common.CommandNameMapping;
 import io.eventuate.tram.commands.common.Failure;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
@@ -27,15 +29,17 @@ public class CommandDispatcher {
   private MessageConsumer messageConsumer;
 
   private MessageProducer messageProducer;
+  private CommandNameMapping commandNameMapping;
 
   public CommandDispatcher(String commandDispatcherId,
                            CommandHandlers commandHandlers,
                            MessageConsumer messageConsumer,
-                           MessageProducer messageProducer) {
+                           MessageProducer messageProducer, CommandNameMapping commandNameMapping) {
     this.commandDispatcherId = commandDispatcherId;
     this.commandHandlers = commandHandlers;
     this.messageConsumer = messageConsumer;
     this.messageProducer = messageProducer;
+    this.commandNameMapping = commandNameMapping;
   }
 
   @PostConstruct
@@ -47,6 +51,9 @@ public class CommandDispatcher {
 
   public void messageHandler(Message message) {
     logger.trace("Received message {} {}", commandDispatcherId, message);
+
+    message.setHeader(CommandMessageHeaders.COMMAND_TYPE,
+            commandNameMapping.externalCommandTypeToCommandClassName(message.getRequiredHeader(CommandMessageHeaders.COMMAND_TYPE)));
 
     Optional<CommandHandler> possibleMethod = commandHandlers.findTargetMethod(message);
     if (!possibleMethod.isPresent()) {

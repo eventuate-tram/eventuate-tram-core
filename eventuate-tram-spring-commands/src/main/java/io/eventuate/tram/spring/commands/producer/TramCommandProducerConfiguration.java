@@ -1,5 +1,6 @@
 package io.eventuate.tram.spring.commands.producer;
 
+import io.eventuate.tram.commands.common.CommandNameMapping;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
 import io.eventuate.tram.messaging.common.ChannelMapping;
@@ -11,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 public class TramCommandProducerConfiguration {
 
   @Bean
-  public CommandProducer commandProducer(MessageProducer messageProducer, ChannelMapping channelMapping) {
-    return new CommandProducerImpl(messageProducer);
+  public CommandProducer commandProducer(MessageProducer messageProducer, ChannelMapping channelMapping, CommandNameMapping commandNameMapping) {
+    return new CommandProducerImpl(messageProducer, commandNameMapping);
   }
 
 }

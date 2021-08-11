@@ -1,6 +1,7 @@
 package io.eventuate.tram.reactive.commands.producer;
 
 import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.CommandNameMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import reactor.core.publisher.Mono;
@@ -12,9 +13,11 @@ import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMess
 public class ReactiveCommandProducerImpl implements ReactiveCommandProducer {
 
   private ReactiveMessageProducer messageProducer;
+  private CommandNameMapping commandNameMapping;
 
-  public ReactiveCommandProducerImpl(ReactiveMessageProducer messageProducer) {
+  public ReactiveCommandProducerImpl(ReactiveMessageProducer messageProducer, CommandNameMapping commandNameMapping) {
     this.messageProducer = messageProducer;
+    this.commandNameMapping = commandNameMapping;
   }
 
   @Override
@@ -24,7 +27,7 @@ public class ReactiveCommandProducerImpl implements ReactiveCommandProducer {
 
   @Override
   public Mono<String> send(String channel, String resource, Command command, String replyTo, Map<String, String> headers) {
-    Message message = makeMessage(channel, resource, command, replyTo, headers);
+    Message message = makeMessage(commandNameMapping, channel, resource, command, replyTo, headers);
 
     return messageProducer.send(channel, message).map(Message::getId);
   }
