@@ -7,6 +7,7 @@ SCRIPTS="
 ./build-and-test-all-mssql-polling-activemq.sh
 ./build-and-test-all-postgres-wal-rabbitmq.sh
 ./build-and-test-all-mysql-binlog-redis.sh
+./test-reactive-postgres-access.sh
 "
 
 

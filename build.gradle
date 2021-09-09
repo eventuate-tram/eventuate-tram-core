@@ -87,6 +87,11 @@ dockerCompose {
         useComposeFiles = ["docker-compose-mssql-polling-activemq.yml"]
     }
 
+    postgreswalkafka {
+        projectName = null
+        useComposeFiles = ["docker-compose-postgres-wal-kafka.yml"]
+    }
+
     postgreswalrabbitmq {
         projectName = null
         useComposeFiles = ["docker-compose-postgres-wal-rabbitmq.yml"]

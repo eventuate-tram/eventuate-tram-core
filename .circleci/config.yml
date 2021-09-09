@@ -119,6 +119,35 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
+  test-reactive-postgres-access:
+    machine: true
+    working_directory: ~/eventuate-tram-core
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - eventuate-tram-core-{{ checksum "gradle.properties" }}
+            - eventuate-tram-core-
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./test-reactive-postgres-access.sh
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit ~/container-logs ~/container-logs
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   deploy-artifacts:
     machine: true
     working_directory: ~/eventuate-tram-core
@@ -145,6 +174,7 @@ workflows:
       - build-and-test-all-mysql-binlog-redis
       - build-and-test-all-postgres-wal-rabbitmq
       - build-and-test-all-mssql-polling-activemq
+      - test-reactive-postgres-access
       - deploy-artifacts:
           context:
             - publish
@@ -153,3 +183,4 @@ workflows:
             - build-and-test-all-mysql-binlog-redis
             - build-and-test-all-postgres-wal-rabbitmq
             - build-and-test-all-mssql-polling-activemq
+            - test-reactive-postgres-access
