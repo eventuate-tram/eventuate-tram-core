@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMessage;
 import static java.util.Collections.singletonMap;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class CommandDispatcherTest {

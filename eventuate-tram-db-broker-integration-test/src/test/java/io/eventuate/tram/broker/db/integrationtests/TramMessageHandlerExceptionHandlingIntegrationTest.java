@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static io.eventuate.util.test.async.Eventually.eventually;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
