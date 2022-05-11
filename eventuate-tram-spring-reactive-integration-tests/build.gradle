@@ -14,7 +14,7 @@ dependencies {
 
 test {
     def profile = System.env['SPRING_PROFILES_ACTIVE']
-    if (profile != null && profile != "" && (!profile.toLowerCase().contains("mysql") || profile.toLowerCase().contains("redis"))) {
+    if (profile != null && profile != "" && (!profile.toLowerCase().contains('postgres') || profile.toLowerCase().contains('rabbit')) && (!profile.toLowerCase().contains("mysql") || profile.toLowerCase().contains("redis"))) {
         exclude '**/**'
     }
 }
