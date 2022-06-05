@@ -30,7 +30,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
         maven { url "https://repo.spring.io/milestone" }
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
@@ -39,6 +38,7 @@ allprojects {
     if (!project.name.endsWith("-bom")) {
 
       dependencies {
+
           testCompile "junit:junit:4.12"
           testCompile "org.mockito:mockito-core:2.23.4"
       }
