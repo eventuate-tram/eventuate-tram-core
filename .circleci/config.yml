@@ -1,151 +1,25 @@
-version: 2
-jobs:
-  build-and-test-all-mysql-binlog-kafka:
-    machine: true
-    working_directory: ~/eventuate-tram-core
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
-      - run:
-          command: |
-            java -version
-            TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-mysql-binlog-kafka.sh
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit ~/container-logs ~/container-logs
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
-            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
-            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-and-test-all-postgres-wal-rabbitmq:
-    machine: true
-    working_directory: ~/eventuate-tram-core
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-postgres-wal-rabbitmq.sh
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit ~/container-logs ~/container-logs
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
-            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
-            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-and-test-all-mysql-binlog-redis:
-    machine: true
-    working_directory: ~/eventuate-tram-core
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-mysql-binlog-redis.sh
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit ~/container-logs ~/container-logs
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
-            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
-            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-and-test-all-mssql-polling-activemq:
-    machine: true
-    working_directory: ~/eventuate-tram-core
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./build-and-test-all-mssql-polling-activemq.sh
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit ~/container-logs ~/container-logs
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
-            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
-            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  deploy-artifacts:
-    machine: true
-    working_directory: ~/eventuate-tram-core
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-tram-core-{{ checksum "gradle.properties" }}
-            - eventuate-tram-core-
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-tram-core-{{ checksum "gradle.properties" }}
-      - run:
-          name: Publish artifacts
-          command: |
-            TERM=dumb ./deploy-artifacts.sh
+version: 2.1
+orbs:
+  eventuate-gradle-build-and-test: "eventuate_io/eventuate-gradle-build-and-test@0.1.0"
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build-and-test-all-mysql-binlog-kafka
-      - build-and-test-all-mysql-binlog-redis
-      - build-and-test-all-postgres-wal-rabbitmq
-      - build-and-test-all-mssql-polling-activemq
-      - deploy-artifacts:
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: build-and-test-all-mysql-binlog-kafka
+          script: ./build-and-test-all-mysql-binlog-kafka.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: build-and-test-all-mysql-binlog-redis
+          script: ./build-and-test-all-mysql-binlog-redis.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: build-and-test-all-postgres-wal-rabbitmq
+          script: ./build-and-test-all-postgres-wal-rabbitmq.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: build-and-test-all-mssql-polling-activemq
+          script: ./build-and-test-all-mssql-polling-activemq.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: deploy-artifacts
+          script: ./deploy-artifacts.sh
           context:
             - publish
           requires:
