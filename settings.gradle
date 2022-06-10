@@ -1,3 +1,5 @@
+rootProject.name="eventuate-tram-core"
+
 include 'eventuate-tram-messaging-producer-common'
 include 'eventuate-tram-reactive-messaging-producer-common'
 include 'eventuate-tram-spring-messaging-producer-common'
