@@ -8,7 +8,7 @@ DROP Table IF Exists received_messages;
 DROP Table IF Exists offset_store;
 
 CREATE TABLE message (
-  id VARCHAR(767) PRIMARY KEY,
+  id VARCHAR(255) PRIMARY KEY,
   destination VARCHAR(1000) NOT NULL,
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
@@ -19,8 +19,8 @@ CREATE TABLE message (
 CREATE INDEX message_published_idx ON message(published, id);
 
 CREATE TABLE received_messages (
-  consumer_id VARCHAR(767),
-  message_id VARCHAR(767),
+  consumer_id VARCHAR(255),
+  message_id VARCHAR(255),
   PRIMARY KEY(consumer_id, message_id),
   creation_time BIGINT
 );
