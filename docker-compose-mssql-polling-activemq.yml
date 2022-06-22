@@ -1,7 +1,7 @@
 version: '3'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.2.4
+    image: eventuateio/eventuate-zookeeper:$EVENTUATE_COMMON_VERSION
     ports:
       - 2181:2181
     environment:

@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramEventIntegrationTestConfiguration.class)
@@ -29,6 +32,9 @@ public class ReactiveTramEventIntegrationTest {
 
   @Autowired
   private ReactiveTramAdditionalTestEventConsumer additionalTestEventConsumer;
+
+  @Autowired
+  private TransactionalOperator transactionalOperator;
 
   private String aggregateId;
   private String payload;
@@ -47,10 +53,14 @@ public class ReactiveTramEventIntegrationTest {
 
   @Test
   public void shouldSendAndReceiveEvent() throws InterruptedException {
-    domainEventPublisher
-            .publish(testEventConsumer.getAggregateType(), aggregateId, Collections.singletonList(new TestEvent(payload)))
+    String id = domainEventPublisher
+            .publish(testEventConsumer.getAggregateType(), aggregateId, new TestEvent(payload))
+            .cache()
+            .as(transactionalOperator::transactional)
+            .map(Message::getId)
             .block();
 
+    assertNotNull("should have message id", id);
     TestEvent event = testEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
 
     Assert.assertEquals(payload, event.getPayload());

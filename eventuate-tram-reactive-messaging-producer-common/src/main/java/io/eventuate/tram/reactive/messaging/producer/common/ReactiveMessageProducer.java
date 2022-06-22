@@ -23,6 +23,7 @@ public class ReactiveMessageProducer {
     this.messageInterceptors = messageInterceptors;
     this.channelMapping = channelMapping;
     this.implementation = implementation;
+    
   }
 
   private void preSend(Message message) {
