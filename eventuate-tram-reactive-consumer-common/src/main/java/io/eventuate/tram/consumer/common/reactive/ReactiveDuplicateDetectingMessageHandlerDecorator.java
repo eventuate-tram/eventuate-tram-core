@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 public class ReactiveDuplicateDetectingMessageHandlerDecorator implements ReactiveMessageHandlerDecorator {
 
-  private ReactiveDuplicateMessageDetector duplicateMessageDetector;
+  private final ReactiveDuplicateMessageDetector duplicateMessageDetector;
 
   public ReactiveDuplicateDetectingMessageHandlerDecorator(ReactiveDuplicateMessageDetector duplicateMessageDetector) {
     this.duplicateMessageDetector = duplicateMessageDetector;
@@ -15,7 +15,7 @@ public class ReactiveDuplicateDetectingMessageHandlerDecorator implements Reacti
 
   @Override
   public Publisher<?> accept(SubscriberIdAndMessage subscriberIdAndMessage,
-                           ReactiveMessageHandlerDecoratorChain decoratorChain) {
+                             ReactiveMessageHandlerDecoratorChain decoratorChain) {
 
       return duplicateMessageDetector.doWithMessage(subscriberIdAndMessage,
               Mono.defer(() -> Mono.from(decoratorChain.next(subscriberIdAndMessage))));

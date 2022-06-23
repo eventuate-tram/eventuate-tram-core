@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":eventuate-tram-reactive-consumer-common")
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+}
