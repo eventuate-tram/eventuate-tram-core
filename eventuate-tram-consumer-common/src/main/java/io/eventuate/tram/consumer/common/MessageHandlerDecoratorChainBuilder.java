@@ -9,14 +9,7 @@ import java.util.function.Consumer;
 public class MessageHandlerDecoratorChainBuilder {
 
 
-  private List<MessageHandlerDecorator> handlers = new LinkedList<>();
-
-  public static MessageHandlerDecoratorChainBuilder startingWith(MessageHandlerDecorator smh) {
-    MessageHandlerDecoratorChainBuilder b = new MessageHandlerDecoratorChainBuilder();
-    b.add(smh);
-    return b;
-
-  }
+  private final List<MessageHandlerDecorator> handlers = new LinkedList<>();
 
   private void add(MessageHandlerDecorator smh) {
     this.handlers.add(smh);

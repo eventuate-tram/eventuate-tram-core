@@ -11,8 +11,8 @@ import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMess
 
 public class CommandProducerImpl implements CommandProducer {
 
-  private MessageProducer messageProducer;
-  private CommandNameMapping commandNameMapping;
+  private final MessageProducer messageProducer;
+  private final CommandNameMapping commandNameMapping;
 
   public CommandProducerImpl(MessageProducer messageProducer, CommandNameMapping commandNameMapping) {
     this.messageProducer = messageProducer;
@@ -22,6 +22,11 @@ public class CommandProducerImpl implements CommandProducer {
   @Override
   public String send(String channel, Command command, String replyTo, Map<String, String> headers) {
     return send(channel, null, command, replyTo, headers);
+  }
+
+  @Override
+  public String sendNotification(String channel, Command command, Map<String, String> headers) {
+    return send(channel, null, command, null, headers);
   }
 
   @Override

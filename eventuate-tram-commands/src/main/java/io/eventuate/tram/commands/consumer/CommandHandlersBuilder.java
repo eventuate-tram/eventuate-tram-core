@@ -8,13 +8,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CommandHandlersBuilder {
   private String channel;
   private Optional<String> resource = Optional.empty();
 
-  private List<CommandHandler> handlers = new ArrayList<>();
+  private final List<CommandHandler> handlers = new ArrayList<>();
 
   public static CommandHandlersBuilder fromChannel(String channel) {
     return new CommandHandlersBuilder().andFromChannel(channel);
@@ -65,6 +66,15 @@ public class CommandHandlersBuilder {
   public <C> CommandHandlersBuilder onMessage(Class<C> commandClass,
                                               Function<CommandMessage<C>, Message> handler) {
     this.handlers.add(new CommandHandler(channel, resource, commandClass, (c, pv) -> Collections.singletonList(handler.apply(c))));
+    return this;
+  }
+
+  public <C> CommandHandlersBuilder onMessage(Class<C> commandClass,
+                                              Consumer<CommandMessage<C>> handler) {
+    this.handlers.add(new CommandHandler(channel, resource, commandClass, (c, pv) -> {
+      handler.accept(c);
+      return Collections.emptyList();
+    }));
     return this;
   }
 

@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 
 public class DecoratedMessageHandlerFactory {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
-  private List<MessageHandlerDecorator> decorators;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final List<MessageHandlerDecorator> decorators;
 
   public DecoratedMessageHandlerFactory(List<MessageHandlerDecorator> decorators) {
     decorators.sort(Comparator.comparingInt(MessageHandlerDecorator::getOrder));
@@ -21,9 +21,9 @@ public class DecoratedMessageHandlerFactory {
   }
 
   public Consumer<SubscriberIdAndMessage> decorate(MessageHandler mh) {
-    MessageHandlerDecoratorChainBuilder builder = MessageHandlerDecoratorChainBuilder.startingWith(decorators.get(0));
+    MessageHandlerDecoratorChainBuilder builder = new MessageHandlerDecoratorChainBuilder();
 
-    for (MessageHandlerDecorator mhd : decorators.subList(1, decorators.size()))
+    for (MessageHandlerDecorator mhd : decorators)
       builder = builder.andThen(mhd);
 
     MessageHandlerDecoratorChain chain = builder.andFinally((smh) -> {

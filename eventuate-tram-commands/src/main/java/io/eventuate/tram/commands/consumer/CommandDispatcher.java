@@ -80,11 +80,7 @@ public class CommandDispatcher {
       return;
     }
 
-    if (replies != null) {
-      sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel());
-    } else {
-      logger.trace("Null replies - not publishing");
-    }
+    sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel());
   }
 
   protected List<Message> invoke(CommandHandler commandHandler, CommandMessage cm, Map<String, String> pathVars) {
@@ -92,18 +88,26 @@ public class CommandDispatcher {
   }
 
   private void sendReplies(Map<String, String> correlationHeaders, List<Message> replies, Optional<String> defaultReplyChannel) {
-    for (Message reply : replies)
-      messageProducer.send(destination(defaultReplyChannel),
+
+    if (!defaultReplyChannel.isPresent()) {
+      if (!replies.isEmpty()) {
+        throw new RuntimeException("Replies to send but not replyTo channel");
+      }
+      return;
+    }
+
+    if (replies.isEmpty())
+      logger.trace("Null replies - not publishing");
+
+    String replyChannel = defaultReplyChannel.get();
+
+    for (Message reply : replies) {
+      messageProducer.send(replyChannel,
               MessageBuilder
                       .withMessage(reply)
                       .withExtraHeaders("", correlationHeaders)
                       .build());
-  }
-
-  private String destination(Optional<String> defaultReplyChannel) {
-    return defaultReplyChannel.orElseGet(() -> {
-      throw new RuntimeException();
-    });
+    }
   }
 
   private void handleException(CommandHandlerParams commandHandlerParams,
