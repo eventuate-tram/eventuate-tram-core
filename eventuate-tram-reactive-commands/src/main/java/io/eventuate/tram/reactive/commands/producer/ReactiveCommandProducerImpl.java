@@ -12,8 +12,8 @@ import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMess
 
 public class ReactiveCommandProducerImpl implements ReactiveCommandProducer {
 
-  private ReactiveMessageProducer messageProducer;
-  private CommandNameMapping commandNameMapping;
+  private final ReactiveMessageProducer messageProducer;
+  private final CommandNameMapping commandNameMapping;
 
   public ReactiveCommandProducerImpl(ReactiveMessageProducer messageProducer, CommandNameMapping commandNameMapping) {
     this.messageProducer = messageProducer;
@@ -23,6 +23,11 @@ public class ReactiveCommandProducerImpl implements ReactiveCommandProducer {
   @Override
   public Mono<String> send(String channel, Command command, String replyTo, Map<String, String> headers) {
     return send(channel, null, command, replyTo, headers);
+  }
+
+  @Override
+  public Mono<String> sendNotification(String channel, Command command, Map<String, String> headers) {
+    return send(channel, null, command, null, headers);
   }
 
   @Override

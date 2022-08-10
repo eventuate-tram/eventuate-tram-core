@@ -1,50 +1,70 @@
 package io.eventuate.tram.reactive.commands.consumer;
 
 
+import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.DefaultCommandNameMapping;
 import io.eventuate.tram.commands.consumer.CommandHandlerParams;
 import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.producer.CommandMessageFactory;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.tools.agent.ReactorDebugAgent;
 
+import java.util.Collections;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ReactiveCommandDispatcherTest {
+  static {
+    ReactorDebugAgent.init();
+  }
 
-  private ReactiveMessageConsumer messageConsumer = mock(ReactiveMessageConsumer.class);
-  private ReactiveMessageProducer messageProducer = mock(ReactiveMessageProducer.class);
+  @Mock
+  private ReactiveMessageConsumer messageConsumer;
+  @Mock
+  private ReactiveMessageProducer messageProducer;
 
   private ReactiveCommandDispatcher reactiveCommandDispatcher;
 
+  @Mock
   private ReactiveCommandHandlers commandHandlers;
+  @Mock
   private ReactiveCommandHandler commandHandler;
+
+  private final String replyToChannel = "a-reply-to-channel";
+
+  private final Message replyMessage = MessageBuilder.withPayload("reply-payload").build();
 
   @Before
   public void init() {
-    commandHandler = mock(ReactiveCommandHandler.class);
     when(commandHandler.getCommandClass()).thenReturn(Object.class);
-    commandHandlers = mock(ReactiveCommandHandlers.class);
     when(commandHandlers.findTargetMethod(any())).thenReturn(Optional.of(commandHandler));
+    when(messageProducer.send(any(), any())).thenReturn(Mono.just(replyMessage));
   }
 
   @Test
   public void testHandlerInvocation() {
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
 
+    when(commandHandler.invokeMethod(any(), any())).thenReturn(Mono.just(replyMessage));
+
     invokeMessageHandler();
 
     verify(commandHandler).invokeMethod(any(), any());
+    verify(messageProducer).send(any(), any());
   }
 
   @Test
@@ -65,6 +85,31 @@ public class ReactiveCommandDispatcherTest {
   }
 
   private void invokeMessageHandler() {
-    reactiveCommandDispatcher.messageHandler(MessageBuilder.withPayload("{}").withHeader("ID", "id").build());
+    Publisher<?> source = reactiveCommandDispatcher.messageHandler(makeMessage(replyToChannel));
+    assertNotNull(source);
+
+    Mono.from(source).block();
+  }
+
+  private Message makeMessage(String replyToChannel) {
+    Message message = CommandMessageFactory.makeMessage(new DefaultCommandNameMapping(), "CommandChannel", null, new SomeCommand(), replyToChannel, Collections.emptyMap());
+    message.setHeader(Message.ID, "123");
+
+    return message;
+  }
+
+  @Test
+  public void shouldDispatchNotification() {
+    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
+
+    when(commandHandler.invokeMethod(any(), any())).thenReturn(Mono.empty());
+
+    Mono.from(reactiveCommandDispatcher.messageHandler(makeMessage(null))).block();
+
+    verify(commandHandler).invokeMethod(any(), any());
+    verifyNoMoreInteractions(messageProducer);
+  }
+
+  private class SomeCommand implements Command {
   }
 }

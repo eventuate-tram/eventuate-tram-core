@@ -5,6 +5,7 @@ import io.eventuate.tram.commands.consumer.CommandMessage;
 import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.messaging.common.Message;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class ReactiveCommandHandlersBuilder {
   private String channel;
   private Optional<String> resource = Optional.empty();
 
-  private List<ReactiveCommandHandler> handlers = new ArrayList<>();
+  private final List<ReactiveCommandHandler> handlers = new ArrayList<>();
 
   public static ReactiveCommandHandlersBuilder fromChannel(String channel) {
     return new ReactiveCommandHandlersBuilder().andFromChannel(channel);
@@ -47,6 +48,13 @@ public class ReactiveCommandHandlersBuilder {
     BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler =
             (c, pv) -> handler.apply(c);
 
+    return onMessage(commandClass, convertedHandler);
+  }
+
+  public <C> ReactiveCommandHandlersBuilder onNotification(Class<C> commandClass,
+                                                      Function<CommandMessage<C>, Publisher<Void>> handler) {
+
+    BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler = (c, pv) -> Mono.from(handler.apply(c)).flatMap(x -> Mono.<Message>empty());
     return onMessage(commandClass, convertedHandler);
   }
 

@@ -12,7 +12,6 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -22,15 +21,15 @@ import static java.util.Collections.singletonList;
 
 public class ReactiveCommandDispatcher {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private String commandDispatcherId;
+  private final String commandDispatcherId;
 
-  private ReactiveCommandHandlers commandHandlers;
+  private final ReactiveCommandHandlers commandHandlers;
 
-  private ReactiveMessageConsumer messageConsumer;
+  private final ReactiveMessageConsumer messageConsumer;
 
-  private ReactiveMessageProducer messageProducer;
+  private final ReactiveMessageProducer messageProducer;
 
   public ReactiveCommandDispatcher(String commandDispatcherId,
                                    ReactiveCommandHandlers commandHandlers,
@@ -63,7 +62,7 @@ public class ReactiveCommandDispatcher {
     Flux<Message> replies;
 
     try {
-      CommandMessage cm = new CommandMessage(message.getId(), commandHandlerParams.getCommand(), commandHandlerParams.getCorrelationHeaders(), message);
+      CommandMessage<?> cm = new CommandMessage<>(message.getId(), commandHandlerParams.getCommand(), commandHandlerParams.getCorrelationHeaders(), message);
       replies = Flux.from(invoke(m, cm, commandHandlerParams));
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
@@ -72,23 +71,17 @@ public class ReactiveCommandDispatcher {
       return handleException(commandHandlerParams, m, e, commandHandlerParams.getDefaultReplyChannel());
     }
 
-    if (replies != null) {
-      return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel());
-    } else {
-      return Mono.empty();
-    }
+    return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel()).then();
   }
 
   protected Publisher<Message> invoke(ReactiveCommandHandler m,
-                                 CommandMessage cm,
+                                      CommandMessage<?> cm,
                                  CommandHandlerParams commandHandlerParams) {
     return m.invokeMethod(cm, commandHandlerParams.getPathVars());
   }
 
   private String destination(Optional<String> defaultReplyChannel) {
-    return defaultReplyChannel.orElseGet(() -> {
-      throw new RuntimeException();
-    });
+    return defaultReplyChannel.orElseThrow(RuntimeException::new);
   }
 
   private Flux<Message> handleException(CommandHandlerParams commandHandlerParams,

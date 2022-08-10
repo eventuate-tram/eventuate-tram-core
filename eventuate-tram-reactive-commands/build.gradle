@@ -5,4 +5,10 @@ dependencies {
     compile project(":eventuate-tram-reactive-consumer-common")
 
     compile "io.projectreactor:reactor-core:$reactorVersion"
+
+    testImplementation project(":eventuate-tram-reactive-in-memory")
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testImplementation "io.projectreactor:reactor-tools:$reactorVersion"
+
+
 }
