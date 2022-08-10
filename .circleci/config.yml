@@ -6,24 +6,42 @@ workflows:
   build-test-and-deploy:
     jobs:
       - eventuate-gradle-build-and-test/build-and-test:
-          name: build-and-test-all-mysql-binlog-kafka
+          name: mysql-binlog-kafka
           script: ./build-and-test-all-mysql-binlog-kafka.sh
       - eventuate-gradle-build-and-test/build-and-test:
-          name: build-and-test-all-mysql-binlog-redis
+          name: mysql-binlog-redis
           script: ./build-and-test-all-mysql-binlog-redis.sh
       - eventuate-gradle-build-and-test/build-and-test:
-          name: build-and-test-all-postgres-wal-rabbitmq
+          name: postgres-wal-rabbitmq
           script: ./build-and-test-all-postgres-wal-rabbitmq.sh
       - eventuate-gradle-build-and-test/build-and-test:
-          name: build-and-test-all-mssql-polling-activemq
+          name: mssql-polling-activemq
           script: ./build-and-test-all-mssql-polling-activemq.sh
+
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: mysql-binlog-kafka-dbid
+          script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-kafka.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: mysql-binlog-redis-dbid
+          script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-redis.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: postgres-wal-rabbitmq-dbid
+          script: TEST_DB_ID=yes ./build-and-test-all-postgres-wal-rabbitmq.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: mssql-polling-activemq-dbid
+          script: TEST_DB_ID=yes ./build-and-test-all-mssql-polling-activemq.sh
+
       - eventuate-gradle-build-and-test/build-and-test:
           name: deploy-artifacts
           script: ./deploy-artifacts.sh
           context:
             - publish
           requires:
-            - build-and-test-all-mysql-binlog-kafka
-            - build-and-test-all-mysql-binlog-redis
-            - build-and-test-all-postgres-wal-rabbitmq
-            - build-and-test-all-mssql-polling-activemq
+            - mysql-binlog-kafka
+            - mysql-binlog-redis
+            - postgres-wal-rabbitmq
+            - mssql-polling-activemq
+            - mysql-binlog-kafka-dbid
+            - mysql-binlog-redis-dbid
+            - postgres-wal-rabbitmq-dbid
+            - mssql-polling-activemq-dbid
