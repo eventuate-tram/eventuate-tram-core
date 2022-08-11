@@ -1,3 +1,3 @@
 #! /bin/bash -e
 
-./gradlew  publishEventuateArtifacts
+./gradlew --parallel publishEventuateArtifacts
