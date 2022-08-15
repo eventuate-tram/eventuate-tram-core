@@ -8,5 +8,6 @@ dependencies {
 
     testCompile project(":eventuate-tram-in-memory")
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testCompile project(":eventuate-tram-test-util")
 
 }

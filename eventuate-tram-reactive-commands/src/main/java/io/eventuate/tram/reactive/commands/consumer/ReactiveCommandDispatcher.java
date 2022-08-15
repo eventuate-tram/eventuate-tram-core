@@ -2,8 +2,7 @@ package io.eventuate.tram.reactive.commands.consumer;
 
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.tram.commands.common.Failure;
-import io.eventuate.tram.commands.consumer.CommandHandlerParams;
-import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.*;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
@@ -58,12 +57,13 @@ public class ReactiveCommandDispatcher {
     ReactiveCommandHandler m = possibleMethod.get();
 
     CommandHandlerParams commandHandlerParams = new CommandHandlerParams(message, m.getCommandClass(), m.getResource());
+    CommandReplyToken commandReplyToken = new CommandReplyToken(commandHandlerParams.getCorrelationHeaders(), commandHandlerParams.getDefaultReplyChannel().orElse(null));
 
     Flux<Message> replies;
 
     try {
       CommandMessage<?> cm = new CommandMessage<>(message.getId(), commandHandlerParams.getCommand(), commandHandlerParams.getCorrelationHeaders(), message);
-      replies = Flux.from(invoke(m, cm, commandHandlerParams));
+      replies = Flux.from(invoke(m, cm, commandHandlerParams, commandReplyToken));
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
@@ -76,8 +76,8 @@ public class ReactiveCommandDispatcher {
 
   protected Publisher<Message> invoke(ReactiveCommandHandler m,
                                       CommandMessage<?> cm,
-                                 CommandHandlerParams commandHandlerParams) {
-    return m.invokeMethod(cm, commandHandlerParams.getPathVars());
+                                      CommandHandlerParams commandHandlerParams, CommandReplyToken commandReplyToken) {
+    return m.invokeMethod(new CommandHandlerArgs(cm, new PathVariables(commandHandlerParams.getPathVars()), commandReplyToken));
   }
 
   private String destination(Optional<String> defaultReplyChannel) {

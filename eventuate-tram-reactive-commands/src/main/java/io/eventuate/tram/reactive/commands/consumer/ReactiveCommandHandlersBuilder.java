@@ -1,6 +1,8 @@
 package io.eventuate.tram.reactive.commands.consumer;
 
 
+import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.consumer.CommandHandlerArgs;
 import io.eventuate.tram.commands.consumer.CommandMessage;
 import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.messaging.common.Message;
@@ -33,25 +35,21 @@ public class ReactiveCommandHandlersBuilder {
     return this;
   }
 
-  public <C> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
-                                                      BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> handler) {
+  public <C extends Command> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
+                                                                      BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> handler) {
 
-    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, handler));
-
+    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, CommandHandlerArgs.makeFn(handler)));
     return this;
   }
 
 
-  public <C> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
+  public <C extends Command> ReactiveCommandHandlersBuilder onMessage(Class<C> commandClass,
                                                       Function<CommandMessage<C>, Publisher<Message>> handler) {
 
-    BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler =
-            (c, pv) -> handler.apply(c);
-
-    return onMessage(commandClass, convertedHandler);
+    return onMessage(commandClass, (c, pv) -> handler.apply(c));
   }
 
-  public <C> ReactiveCommandHandlersBuilder onNotification(Class<C> commandClass,
+  public <C extends Command> ReactiveCommandHandlersBuilder onNotification(Class<C> commandClass,
                                                       Function<CommandMessage<C>, Publisher<Void>> handler) {
 
     BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler = (c, pv) -> Mono.from(handler.apply(c)).flatMap(x -> Mono.<Message>empty());

@@ -1,13 +1,13 @@
 package io.eventuate.tram.commands.consumer;
 
+import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.CommandMessageHeaders;
 import io.eventuate.tram.commands.common.paths.ResourcePath;
 import io.eventuate.tram.commands.common.paths.ResourcePathPattern;
 import io.eventuate.tram.messaging.common.Message;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
 public class AbstractCommandHandler<RESULT> {
@@ -15,15 +15,15 @@ public class AbstractCommandHandler<RESULT> {
   private final String channel;
   private final Optional<String> resource;
   private final Class commandClass;
-  private final BiFunction<CommandMessage<Object>, PathVariables, RESULT> handler;
+  private final Function<CommandHandlerArgs<Command>, RESULT> handler;
 
-  public <C> AbstractCommandHandler(String channel, Optional<String> resource,
+  public <C extends Command> AbstractCommandHandler(String channel, Optional<String> resource,
                                     Class<C> commandClass,
-                                    BiFunction<CommandMessage<C>, PathVariables, RESULT> handler) {
+                                    Function<CommandHandlerArgs<C>, RESULT> handler) {
     this.channel = channel;
     this.resource = resource;
     this.commandClass = commandClass;
-    this.handler = (cm, pv) -> handler.apply((CommandMessage<C>) cm, pv);
+    this.handler = (CommandHandlerArgs<Command> args) -> handler.apply((CommandHandlerArgs<C>)args);
   }
 
   public String getChannel() {
@@ -57,7 +57,7 @@ public class AbstractCommandHandler<RESULT> {
     return resource;
   }
 
-  public RESULT invokeMethod(CommandMessage commandMessage, Map<String, String> pathVars) {
-    return (RESULT) handler.apply(commandMessage, new PathVariables(pathVars));
+  public RESULT invokeMethod(CommandHandlerArgs commandHandlerArgs) {
+    return (RESULT) handler.apply(commandHandlerArgs);
   }
 }

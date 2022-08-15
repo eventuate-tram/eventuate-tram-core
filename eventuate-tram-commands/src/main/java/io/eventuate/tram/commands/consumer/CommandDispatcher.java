@@ -7,7 +7,6 @@ import io.eventuate.tram.commands.common.Failure;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
-import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,17 +27,19 @@ public class CommandDispatcher {
 
   private MessageConsumer messageConsumer;
 
-  private MessageProducer messageProducer;
   private CommandNameMapping commandNameMapping;
+
+  private final CommandReplyProducer commandReplyProducer;
 
   public CommandDispatcher(String commandDispatcherId,
                            CommandHandlers commandHandlers,
                            MessageConsumer messageConsumer,
-                           MessageProducer messageProducer, CommandNameMapping commandNameMapping) {
+                           CommandNameMapping commandNameMapping,
+                           CommandReplyProducer commandReplyProducer) {
     this.commandDispatcherId = commandDispatcherId;
     this.commandHandlers = commandHandlers;
     this.messageConsumer = messageConsumer;
-    this.messageProducer = messageProducer;
+    this.commandReplyProducer = commandReplyProducer;
     this.commandNameMapping = commandNameMapping;
   }
 
@@ -63,6 +64,7 @@ public class CommandDispatcher {
     CommandHandler m = possibleMethod.get();
 
     CommandHandlerParams commandHandlerParams = new CommandHandlerParams(message, m.getCommandClass(), m.getResource());
+    CommandReplyToken commandReplyToken = new CommandReplyToken(commandHandlerParams.getCorrelationHeaders(), commandHandlerParams.getDefaultReplyChannel().orElse(null));
 
     List<Message> replies;
     try {
@@ -71,7 +73,7 @@ public class CommandDispatcher {
               commandHandlerParams.getCorrelationHeaders(),
               message);
 
-      replies = invoke(m, cm, commandHandlerParams.getPathVars());
+      replies = invoke(m, cm, commandHandlerParams.getPathVars(), commandReplyToken);
       logger.trace("Generated replies {} {} {}", commandDispatcherId, message, replies);
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
@@ -80,34 +82,11 @@ public class CommandDispatcher {
       return;
     }
 
-    sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel());
+    commandReplyProducer.sendReplies(commandReplyToken, replies);
   }
 
-  protected List<Message> invoke(CommandHandler commandHandler, CommandMessage cm, Map<String, String> pathVars) {
-    return commandHandler.invokeMethod(cm, pathVars);
-  }
-
-  private void sendReplies(Map<String, String> correlationHeaders, List<Message> replies, Optional<String> defaultReplyChannel) {
-
-    if (!defaultReplyChannel.isPresent()) {
-      if (!replies.isEmpty()) {
-        throw new RuntimeException("Replies to send but not replyTo channel");
-      }
-      return;
-    }
-
-    if (replies.isEmpty())
-      logger.trace("Null replies - not publishing");
-
-    String replyChannel = defaultReplyChannel.get();
-
-    for (Message reply : replies) {
-      messageProducer.send(replyChannel,
-              MessageBuilder
-                      .withMessage(reply)
-                      .withExtraHeaders("", correlationHeaders)
-                      .build());
-    }
+  protected List<Message> invoke(CommandHandler commandHandler, CommandMessage cm, Map<String, String> pathVars, CommandReplyToken commandReplyToken) {
+    return commandHandler.invokeMethod(new CommandHandlerArgs(cm, new PathVariables(pathVars), commandReplyToken));
   }
 
   private void handleException(CommandHandlerParams commandHandlerParams,
@@ -122,6 +101,6 @@ public class CommandDispatcher {
             .map(handler -> handler.invoke(cause))
             .orElseGet(() -> singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build()));
 
-    sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, defaultReplyChannel);
+    commandReplyProducer.sendReplies(new CommandReplyToken(commandHandlerParams.getCorrelationHeaders(), defaultReplyChannel.orElse(null)), replies);
   }
 }

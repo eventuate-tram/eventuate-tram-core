@@ -7,10 +7,9 @@ import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.CommandReplyProducer;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
-import io.eventuate.tram.events.common.DomainEvent;
-import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
@@ -40,7 +39,11 @@ public class CommandMessageHandlerUnitTestSupport {
   }
 
   public CommandMessageHandlerUnitTestSupport commandHandlers(CommandHandlers commandHandlers) {
-    this.dispatcher = new CommandDispatcher("mockCommandDispatcher-" + System.currentTimeMillis(),
+      final io.eventuate.tram.messaging.producer.MessageProducer messageProducer = (destination, message) -> {
+          CommandMessageHandlerUnitTestSupport.this.replyDestination = destination;
+          CommandMessageHandlerUnitTestSupport.this.replyMessage = message;
+      };
+      this.dispatcher = new CommandDispatcher("mockCommandDispatcher-" + System.currentTimeMillis(),
             commandHandlers,
             new MessageConsumer() {
               @Override
@@ -59,11 +62,7 @@ public class CommandMessageHandlerUnitTestSupport {
 
               }
             },
-            (destination, message) -> {
-              CommandMessageHandlerUnitTestSupport.this.replyDestination = destination;
-              CommandMessageHandlerUnitTestSupport.this.replyMessage = message;
-            },
-            new DefaultCommandNameMapping());
+              new DefaultCommandNameMapping(), new CommandReplyProducer(messageProducer));
 
     dispatcher.initialize();
     producer = new CommandProducerImpl((destination, message) -> {

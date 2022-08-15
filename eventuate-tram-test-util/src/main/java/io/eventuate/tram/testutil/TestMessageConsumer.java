@@ -2,21 +2,24 @@ package io.eventuate.tram.testutil;
 
 import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.util.test.async.Eventually;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestMessageConsumer implements MessageHandler {
 
-  private LinkedBlockingDeque<Message> messages = new LinkedBlockingDeque<>();
+  private final LinkedBlockingDeque<Message> messages = new LinkedBlockingDeque<>();
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
-  private String replyChannel;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final String replyChannel;
 
   public TestMessageConsumer(String replyChannel) {
     this.replyChannel = replyChannel;
@@ -42,5 +45,19 @@ public class TestMessageConsumer implements MessageHandler {
 
   public void assertHasReplyTo(String messageId) {
     Eventually.eventually(() -> assertTrue(containsReplyTo(messageId)));
+  }
+
+  public static TestMessageConsumer subscribeTo(MessageConsumer messageConsumer, String replyTo) {
+    TestMessageConsumer testMessageConsumer = new TestMessageConsumer(replyTo);
+    messageConsumer.subscribe("subscriberId", Collections.singleton(replyTo), testMessageConsumer);
+    return testMessageConsumer;
+  }
+
+  public void assertContainsMessage(Message message) {
+    for (Message m : messages.toArray(new Message[0])) {
+      if (m.getHeader(Message.ID).equals(message.getHeader(Message.ID)))
+        return;
+    }
+    fail("Does not contain message: " + message);
   }
 }

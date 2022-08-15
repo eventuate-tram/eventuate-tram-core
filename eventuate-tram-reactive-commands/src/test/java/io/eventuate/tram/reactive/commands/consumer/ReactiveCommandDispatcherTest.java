@@ -3,8 +3,7 @@ package io.eventuate.tram.reactive.commands.consumer;
 
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.DefaultCommandNameMapping;
-import io.eventuate.tram.commands.consumer.CommandHandlerParams;
-import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.*;
 import io.eventuate.tram.commands.producer.CommandMessageFactory;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.common.Message;
@@ -59,11 +58,11 @@ public class ReactiveCommandDispatcherTest {
   public void testHandlerInvocation() {
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
 
-    when(commandHandler.invokeMethod(any(), any())).thenReturn(Mono.just(replyMessage));
+    when(commandHandler.invokeMethod(any())).thenReturn(Mono.just(replyMessage));
 
     invokeMessageHandler();
 
-    verify(commandHandler).invokeMethod(any(), any());
+    verify(commandHandler).invokeMethod(any());
     verify(messageProducer).send(any(), any());
   }
 
@@ -73,15 +72,15 @@ public class ReactiveCommandDispatcherTest {
 
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer) {
       @Override
-      protected Publisher<Message> invoke(ReactiveCommandHandler m, CommandMessage cm, CommandHandlerParams commandHandlerParams) {
-        return alternativeCommandHandler.invokeMethod(cm, commandHandlerParams.getPathVars());
+      protected Publisher<Message> invoke(ReactiveCommandHandler m, CommandMessage cm, CommandHandlerParams commandHandlerParams, CommandReplyToken commandReplyToken) {
+        return alternativeCommandHandler.invokeMethod(new CommandHandlerArgs<>(cm, new PathVariables(commandHandlerParams.getPathVars()), commandReplyToken));
       }
     };
 
     invokeMessageHandler();
 
-    verify(alternativeCommandHandler).invokeMethod(any(), any());
-    verify(commandHandler, never()).invokeMethod(any(), any());
+    verify(alternativeCommandHandler).invokeMethod(any());
+    verify(commandHandler, never()).invokeMethod(any());
   }
 
   private void invokeMessageHandler() {
@@ -102,11 +101,11 @@ public class ReactiveCommandDispatcherTest {
   public void shouldDispatchNotification() {
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
 
-    when(commandHandler.invokeMethod(any(), any())).thenReturn(Mono.empty());
+    when(commandHandler.invokeMethod(any())).thenReturn(Mono.empty());
 
     Mono.from(reactiveCommandDispatcher.messageHandler(makeMessage(null))).block();
 
-    verify(commandHandler).invokeMethod(any(), any());
+    verify(commandHandler).invokeMethod(any());
     verifyNoMoreInteractions(messageProducer);
   }
 

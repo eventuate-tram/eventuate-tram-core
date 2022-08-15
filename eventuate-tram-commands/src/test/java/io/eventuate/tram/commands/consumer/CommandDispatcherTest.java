@@ -95,8 +95,7 @@ public class CommandDispatcherTest {
     dispatcher = new CommandDispatcher(commandDispatcherId,
             defineCommandHandlers(target),
             messageConsumer,
-            messageProducer,
-            commandNameMapping);
+            commandNameMapping, new CommandReplyProducer(messageProducer));
 
   }
 
