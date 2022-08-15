@@ -4,6 +4,7 @@ package io.eventuate.tram.reactive.commands.consumer;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.consumer.CommandHandlerArgs;
 import io.eventuate.tram.commands.consumer.CommandMessage;
+import io.eventuate.tram.commands.consumer.CommandReplyToken;
 import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.messaging.common.Message;
 import org.reactivestreams.Publisher;
@@ -52,9 +53,16 @@ public class ReactiveCommandHandlersBuilder {
   public <C extends Command> ReactiveCommandHandlersBuilder onNotification(Class<C> commandClass,
                                                       Function<CommandMessage<C>, Publisher<Void>> handler) {
 
-    BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler = (c, pv) -> Mono.from(handler.apply(c)).flatMap(x -> Mono.<Message>empty());
+    BiFunction<CommandMessage<C>, PathVariables, Publisher<Message>> convertedHandler = (c, pv) -> Mono.from(handler.apply(c)).then(Mono.empty());
     return onMessage(commandClass, convertedHandler);
   }
+
+  public <C extends Command> ReactiveCommandHandlersBuilder onComplexMessage(Class<C> commandClass,
+                                                                     BiFunction<CommandMessage<C>, CommandReplyToken, Publisher<Void>> handler) {
+    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, args -> Mono.from(handler.apply(args.getCommandMessage(), args.getCommandReplyInfo())).then(Mono.empty())));
+    return this;
+  }
+
 
   public ReactiveCommandHandlers build() {
     return new ReactiveCommandHandlers(handlers);

@@ -33,8 +33,6 @@ public class ReactiveCommandDispatcherTest {
 
   @Mock
   private ReactiveMessageConsumer messageConsumer;
-  @Mock
-  private ReactiveMessageProducer messageProducer;
 
   private ReactiveCommandDispatcher reactiveCommandDispatcher;
 
@@ -46,17 +44,23 @@ public class ReactiveCommandDispatcherTest {
   private final String replyToChannel = "a-reply-to-channel";
 
   private final Message replyMessage = MessageBuilder.withPayload("reply-payload").build();
+  @Mock
+  private ReactiveMessageProducer messageProducer;
+
+  private ReactiveCommandReplyProducer commandReplyProducer;
 
   @Before
   public void init() {
     when(commandHandler.getCommandClass()).thenReturn(Object.class);
     when(commandHandlers.findTargetMethod(any())).thenReturn(Optional.of(commandHandler));
     when(messageProducer.send(any(), any())).thenReturn(Mono.just(replyMessage));
+
+    this.commandReplyProducer = new ReactiveCommandReplyProducer(messageProducer);
   }
 
   @Test
   public void testHandlerInvocation() {
-    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
+    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, commandReplyProducer);
 
     when(commandHandler.invokeMethod(any())).thenReturn(Mono.just(replyMessage));
 
@@ -70,7 +74,7 @@ public class ReactiveCommandDispatcherTest {
   public void testAlternativeHandlerInvocation() {
     ReactiveCommandHandler alternativeCommandHandler = mock(ReactiveCommandHandler.class);
 
-    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer) {
+    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, commandReplyProducer) {
       @Override
       protected Publisher<Message> invoke(ReactiveCommandHandler m, CommandMessage cm, CommandHandlerParams commandHandlerParams, CommandReplyToken commandReplyToken) {
         return alternativeCommandHandler.invokeMethod(new CommandHandlerArgs<>(cm, new PathVariables(commandHandlerParams.getPathVars()), commandReplyToken));
@@ -99,7 +103,7 @@ public class ReactiveCommandDispatcherTest {
 
   @Test
   public void shouldDispatchNotification() {
-    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, messageProducer);
+    reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, commandReplyProducer);
 
     when(commandHandler.invokeMethod(any())).thenReturn(Mono.empty());
 

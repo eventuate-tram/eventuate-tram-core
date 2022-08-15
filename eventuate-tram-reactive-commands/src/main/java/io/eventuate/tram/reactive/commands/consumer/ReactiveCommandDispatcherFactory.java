@@ -1,21 +1,20 @@
 package io.eventuate.tram.reactive.commands.consumer;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
-import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 
 public class ReactiveCommandDispatcherFactory {
 
   private final ReactiveMessageConsumer messageConsumer;
-  private final ReactiveMessageProducer messageProducer;
+  private final ReactiveCommandReplyProducer commandReplyProducer;
 
   public ReactiveCommandDispatcherFactory(ReactiveMessageConsumer messageConsumer,
-                                          ReactiveMessageProducer messageProducer) {
+                                          ReactiveCommandReplyProducer commandReplyProducer) {
     this.messageConsumer = messageConsumer;
-    this.messageProducer = messageProducer;
+    this.commandReplyProducer = commandReplyProducer;
   }
 
   public ReactiveCommandDispatcher make(String commandDispatcherId,
                                         ReactiveCommandHandlers commandHandlers) {
-    return new ReactiveCommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, messageProducer);
+    return new ReactiveCommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, commandReplyProducer);
   }
 }

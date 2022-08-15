@@ -12,8 +12,8 @@ import javax.inject.Singleton;
 @Factory
 public class TramCommandConsumerFactory {
   @Singleton
-  public CommandDispatcherFactory commandDispatcherFactory(MessageConsumer messageConsumer, MessageProducer messageProducer, CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
-    return new CommandDispatcherFactory(messageConsumer, messageProducer, commandNameMapping, commandReplyProducer);
+  public CommandDispatcherFactory commandDispatcherFactory(MessageConsumer messageConsumer, CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
+    return new CommandDispatcherFactory(messageConsumer, commandNameMapping, commandReplyProducer);
   }
 
   @Singleton

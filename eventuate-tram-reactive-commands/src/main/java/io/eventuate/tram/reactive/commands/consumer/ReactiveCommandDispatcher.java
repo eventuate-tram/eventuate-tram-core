@@ -6,14 +6,12 @@ import io.eventuate.tram.commands.consumer.*;
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
-import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Collections.singletonList;
@@ -27,17 +25,17 @@ public class ReactiveCommandDispatcher {
   private final ReactiveCommandHandlers commandHandlers;
 
   private final ReactiveMessageConsumer messageConsumer;
+  private final ReactiveCommandReplyProducer commandReplyProducer;
 
-  private final ReactiveMessageProducer messageProducer;
 
   public ReactiveCommandDispatcher(String commandDispatcherId,
                                    ReactiveCommandHandlers commandHandlers,
                                    ReactiveMessageConsumer messageConsumer,
-                                   ReactiveMessageProducer messageProducer) {
+                                   ReactiveCommandReplyProducer commandReplyProducer) {
     this.commandDispatcherId = commandDispatcherId;
     this.commandHandlers = commandHandlers;
     this.messageConsumer = messageConsumer;
-    this.messageProducer = messageProducer;
+    this.commandReplyProducer = commandReplyProducer;
   }
 
   @PostConstruct
@@ -68,10 +66,10 @@ public class ReactiveCommandDispatcher {
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
       logger.error("Generated error", e);
-      return handleException(commandHandlerParams, m, e, commandHandlerParams.getDefaultReplyChannel());
+      return handleException(m, e, commandReplyToken);
     }
 
-    return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, commandHandlerParams.getDefaultReplyChannel()).then();
+    return commandReplyProducer.sendReplies(commandReplyToken, replies).then();
   }
 
   protected Publisher<Message> invoke(ReactiveCommandHandler m,
@@ -80,14 +78,9 @@ public class ReactiveCommandDispatcher {
     return m.invokeMethod(new CommandHandlerArgs(cm, new PathVariables(commandHandlerParams.getPathVars()), commandReplyToken));
   }
 
-  private String destination(Optional<String> defaultReplyChannel) {
-    return defaultReplyChannel.orElseThrow(RuntimeException::new);
-  }
-
-  private Flux<Message> handleException(CommandHandlerParams commandHandlerParams,
-                                                   ReactiveCommandHandler reactiveCommandHandler,
-                                                   Throwable cause,
-                                                   Optional<String> defaultReplyChannel) {
+  private Flux<Message> handleException(ReactiveCommandHandler reactiveCommandHandler,
+                                        Throwable cause,
+                                        CommandReplyToken commandReplyToken) {
 
     Optional<ReactiveCommandExceptionHandler> exceptionHandler =
             commandHandlers.findExceptionHandler(reactiveCommandHandler, cause);
@@ -99,20 +92,7 @@ public class ReactiveCommandDispatcher {
                     .map(eh -> Flux.from(eh.invoke(cause)))
                     .orElse(Flux.fromIterable(singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build())));
 
-    return sendReplies(commandHandlerParams.getCorrelationHeaders(), replies, defaultReplyChannel);
+    return commandReplyProducer.sendReplies(commandReplyToken, replies);
   }
 
-  private Flux<Message> sendReplies(Map<String, String> correlationHeaders,
-                                          Flux<Message> replies,
-                                          Optional<String> defaultReplyChannel) {
-    return replies
-            .flatMap(reply -> {
-              Message transformedReply = MessageBuilder
-                      .withMessage(reply)
-                      .withExtraHeaders("", correlationHeaders)
-                      .build();
-
-              return messageProducer.send(destination(defaultReplyChannel), transformedReply);
-            });
-  }
 }

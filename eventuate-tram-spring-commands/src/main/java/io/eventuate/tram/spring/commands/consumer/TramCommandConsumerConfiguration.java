@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 public class TramCommandConsumerConfiguration {
 
   @Bean
-  public CommandDispatcherFactory commandDispatcherFactory(MessageConsumer messageConsumer, MessageProducer messageProducer, CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
-    return new CommandDispatcherFactory(messageConsumer, messageProducer, commandNameMapping, commandReplyProducer);
+  public CommandDispatcherFactory commandDispatcherFactory(MessageConsumer messageConsumer, CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
+    return new CommandDispatcherFactory(messageConsumer, commandNameMapping, commandReplyProducer);
   }
 
   @Bean

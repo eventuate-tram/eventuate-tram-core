@@ -21,13 +21,13 @@ public class CommandDispatcher {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private String commandDispatcherId;
+  private final String commandDispatcherId;
 
-  private CommandHandlers commandHandlers;
+  private final CommandHandlers commandHandlers;
 
-  private MessageConsumer messageConsumer;
+  private final MessageConsumer messageConsumer;
 
-  private CommandNameMapping commandNameMapping;
+  private final CommandNameMapping commandNameMapping;
 
   private final CommandReplyProducer commandReplyProducer;
 
@@ -78,7 +78,7 @@ public class CommandDispatcher {
     } catch (Exception e) {
       logger.error("Generated error {} {} {}", commandDispatcherId, message, e.getClass().getName());
       logger.error("Generated error", e);
-      handleException(commandHandlerParams, m, e, commandHandlerParams.getDefaultReplyChannel());
+      handleException(m, e, commandReplyToken);
       return;
     }
 
@@ -89,10 +89,9 @@ public class CommandDispatcher {
     return commandHandler.invokeMethod(new CommandHandlerArgs(cm, new PathVariables(pathVars), commandReplyToken));
   }
 
-  private void handleException(CommandHandlerParams commandHandlerParams,
-                               CommandHandler commandHandler,
+  private void handleException(CommandHandler commandHandler,
                                Throwable cause,
-                               Optional<String> defaultReplyChannel) {
+                               CommandReplyToken commandReplyToken) {
     Optional<CommandExceptionHandler> m = commandHandlers.findExceptionHandler(commandHandler, cause);
 
     logger.info("Handler for {} is {}", cause.getClass(), m);
@@ -101,6 +100,6 @@ public class CommandDispatcher {
             .map(handler -> handler.invoke(cause))
             .orElseGet(() -> singletonList(MessageBuilder.withPayload(JSonMapper.toJson(new Failure())).build()));
 
-    commandReplyProducer.sendReplies(new CommandReplyToken(commandHandlerParams.getCorrelationHeaders(), defaultReplyChannel.orElse(null)), replies);
+    commandReplyProducer.sendReplies(commandReplyToken, replies);
   }
 }

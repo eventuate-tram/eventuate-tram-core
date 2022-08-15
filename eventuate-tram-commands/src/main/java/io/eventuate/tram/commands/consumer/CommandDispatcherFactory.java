@@ -2,19 +2,16 @@ package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.tram.commands.common.CommandNameMapping;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import io.eventuate.tram.messaging.producer.MessageProducer;
 
 public class CommandDispatcherFactory {
 
   private final MessageConsumer messageConsumer;
-  private final MessageProducer messageProducer;
   private final CommandNameMapping commandNameMapping;
-  private CommandReplyProducer commandReplyProducer;
+  private final CommandReplyProducer commandReplyProducer;
 
   public CommandDispatcherFactory(MessageConsumer messageConsumer,
-                                  MessageProducer messageProducer, CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
+                                  CommandNameMapping commandNameMapping, CommandReplyProducer commandReplyProducer) {
     this.messageConsumer = messageConsumer;
-    this.messageProducer = messageProducer;
     this.commandNameMapping = commandNameMapping;
     this.commandReplyProducer = commandReplyProducer;
   }

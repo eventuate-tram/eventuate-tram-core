@@ -50,7 +50,7 @@ public abstract class AbstractCommandDispatchingTests {
 
         CommandHandlers commandHandlers = defineCommandHandlers();
         commandReplyProducer = new CommandReplyProducer(messageProducer);
-        CommandDispatcherFactory commandDispatcherFactory = new CommandDispatcherFactory(messageConsumer, messageProducer, commandNameMapping, commandReplyProducer);
+        CommandDispatcherFactory commandDispatcherFactory = new CommandDispatcherFactory(messageConsumer, commandNameMapping, commandReplyProducer);
         CommandDispatcher commandDispatcher = commandDispatcherFactory.make("subscriberId", commandHandlers);
         commandDispatcher.initialize();
     }
