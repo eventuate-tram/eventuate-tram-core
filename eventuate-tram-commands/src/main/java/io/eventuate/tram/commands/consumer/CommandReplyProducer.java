@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +19,10 @@ public class CommandReplyProducer {
 
     public CommandReplyProducer(MessageProducer messageProducer) {
         this.messageProducer = messageProducer;
+    }
+
+    public List<Message> sendReplies(CommandReplyToken commandReplyToken, Message... replies) {
+        return sendReplies(commandReplyToken, Arrays.asList(replies));
     }
 
     public List<Message> sendReplies(CommandReplyToken commandReplyToken, List<Message> replies) {

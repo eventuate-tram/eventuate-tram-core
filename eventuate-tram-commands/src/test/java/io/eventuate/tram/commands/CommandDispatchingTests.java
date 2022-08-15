@@ -53,9 +53,9 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
     }
 
     @Spy
-    protected CommandDispatchingTests.CommandDispatcherTestTarget target = new CommandDispatchingTests.CommandDispatcherTestTarget();
+    protected CommandDispatcherTarget target = new CommandDispatcherTarget();
 
-    static class CommandDispatcherTestTarget {
+    static class CommandDispatcherTarget {
 
 
         public Message handleCommand(CommandMessage<TestCommand> cm) {
@@ -89,9 +89,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
             verifyNoMoreInteractions(target);
         });
 
-        eventually(() -> {
-            testMessageConsumer.assertHasReplyTo(messageId);
-        });
+        eventually(() -> testMessageConsumer.assertHasReplyTo(messageId));
 
     }
 
@@ -102,7 +100,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
         assertNotNull(messageId);
 
 
-        CommandReplyToken cri = eventuallyReturning(() -> {
+        CommandReplyToken crt = eventuallyReturning(() -> {
             ArgumentCaptor<CommandMessage<TestComplexCommand>> cmCaptor = ArgumentCaptor.forClass(CommandMessage.class);
             ArgumentCaptor<CommandReplyToken> replyInfoCaptor = ArgumentCaptor.forClass(CommandReplyToken.class);
 
@@ -112,7 +110,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
             return replyInfoCaptor.getValue();
         });
 
-        List<Message> replies = commandReplyProducer.sendReplies(cri, Collections.singletonList(withSuccess()));
+        List<Message> replies = commandReplyProducer.sendReplies(crt, withSuccess());
 
         eventually(() -> {
             testMessageConsumer.assertHasReplyTo(messageId);
