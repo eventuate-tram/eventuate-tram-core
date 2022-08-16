@@ -55,14 +55,14 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
     @Spy
     protected CommandDispatcherTarget target = new CommandDispatcherTarget();
 
-    static class CommandDispatcherTarget {
+    private static class CommandDispatcherTarget {
 
 
         public Message handleCommand(CommandMessage<TestCommand> cm) {
             return withSuccess();
         }
 
-        public void handleComplexCommand(CommandMessage<TestComplexCommand> cm, CommandReplyToken replyInfo) {
+        public void handleComplexCommand(CommandMessage<TestComplexCommand> cm, CommandReplyToken replyToken) {
         }
 
     }

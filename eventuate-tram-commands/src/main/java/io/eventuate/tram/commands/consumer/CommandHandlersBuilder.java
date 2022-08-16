@@ -79,7 +79,7 @@ public class CommandHandlersBuilder {
 
   private <C extends Command> Function<CommandHandlerArgs<C>, List<Message>> makeFn(BiConsumer<CommandMessage<C>, CommandReplyToken> handler) {
     return args -> {
-      handler.accept(args.getCommandMessage(), args.getCommandReplyInfo());
+      handler.accept(args.getCommandMessage(), args.getCommandReplyToken());
       return Collections.emptyList();
     };
   }

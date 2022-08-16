@@ -28,7 +28,7 @@ public class CommandHandlerArgs<CommandType extends Command> {
         return pathVars;
     }
 
-    public CommandReplyToken getCommandReplyInfo() {
+    public CommandReplyToken getCommandReplyToken() {
         return commandReplyToken;
     }
 

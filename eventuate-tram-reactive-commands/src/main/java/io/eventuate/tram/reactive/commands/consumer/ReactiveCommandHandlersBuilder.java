@@ -59,7 +59,7 @@ public class ReactiveCommandHandlersBuilder {
 
   public <C extends Command> ReactiveCommandHandlersBuilder onComplexMessage(Class<C> commandClass,
                                                                      BiFunction<CommandMessage<C>, CommandReplyToken, Publisher<Void>> handler) {
-    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, args -> Mono.from(handler.apply(args.getCommandMessage(), args.getCommandReplyInfo())).then(Mono.empty())));
+    this.handlers.add(new ReactiveCommandHandler(channel, resource, commandClass, args -> Mono.from(handler.apply(args.getCommandMessage(), args.getCommandReplyToken())).then(Mono.empty())));
     return this;
   }
 

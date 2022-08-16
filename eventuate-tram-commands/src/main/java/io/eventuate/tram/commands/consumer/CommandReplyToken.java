@@ -11,6 +11,10 @@ public class CommandReplyToken {
         this.replyChannel = replyChannel;
     }
 
+    private CommandReplyToken() {
+        // For ObjectMapper
+    }
+
     public Map<String, String> getReplyHeaders() {
         return replyHeaders;
     }
