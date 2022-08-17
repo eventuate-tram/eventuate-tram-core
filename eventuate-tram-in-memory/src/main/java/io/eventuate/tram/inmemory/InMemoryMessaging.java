@@ -11,16 +11,16 @@ import io.eventuate.tram.messaging.producer.common.MessageProducerImpl;
 
 import java.util.Collections;
 
-public class InMemoryMessagingFactory {
+public class InMemoryMessaging {
     public final MessageConsumer messageConsumer;
     public final MessageProducer messageProducer;
 
-    public InMemoryMessagingFactory(MessageProducer messageProducer, MessageConsumer messageConsumer) {
+    public InMemoryMessaging(MessageProducer messageProducer, MessageConsumer messageConsumer) {
         this.messageConsumer = messageConsumer;
         this.messageProducer = messageProducer;
     }
 
-    public static InMemoryMessagingFactory make() {
+    public static InMemoryMessaging make() {
 
         InMemoryMessageConsumer inMemoryMessageConsumer = new InMemoryMessageConsumer();
         EventuateTransactionSynchronizationManager eventuateTransactionSynchronizationManager = new EventuateTransactionSynchronizationManager() {
@@ -41,6 +41,6 @@ public class InMemoryMessagingFactory {
 
         MessageConsumer messageConsumer = new MessageConsumerImpl(channelMapping, inMemoryMessageConsumer, new DecoratedMessageHandlerFactory(Collections.emptyList()));
 
-        return new InMemoryMessagingFactory(messageProducer, messageConsumer);
+        return new InMemoryMessaging(messageProducer, messageConsumer);
     }
 }

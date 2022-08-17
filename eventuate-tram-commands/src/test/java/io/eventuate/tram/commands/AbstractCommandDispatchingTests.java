@@ -1,13 +1,13 @@
 package io.eventuate.tram.commands;
 
 import io.eventuate.tram.commands.consumer.CommandHandlers;
-import io.eventuate.tram.inmemory.InMemoryMessagingFactory;
+import io.eventuate.tram.inmemory.InMemoryMessaging;
 import org.junit.Before;
 
 public abstract class AbstractCommandDispatchingTests {
 
-    protected final InMemoryMessagingFactory inMemoryMessagingFactory = InMemoryMessagingFactory.make();
-    protected InMemoryCommandsFactory inMemoryCommandsFactory;
+    protected final InMemoryMessaging inMemoryMessaging = InMemoryMessaging.make();
+    protected InMemoryCommands inMemoryCommands;
     protected String channel = "myChannel";
 
 
@@ -16,7 +16,7 @@ public abstract class AbstractCommandDispatchingTests {
 
         CommandHandlers commandHandlers = defineCommandHandlers();
 
-        inMemoryCommandsFactory = InMemoryCommandsFactory.make(commandHandlers, inMemoryMessagingFactory);
+        inMemoryCommands = InMemoryCommands.make(commandHandlers, inMemoryMessaging);
     }
 
     public abstract CommandHandlers defineCommandHandlers();

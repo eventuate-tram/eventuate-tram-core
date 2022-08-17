@@ -7,25 +7,25 @@ import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.commands.consumer.CommandReplyProducer;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
-import io.eventuate.tram.inmemory.InMemoryMessagingFactory;
+import io.eventuate.tram.inmemory.InMemoryMessaging;
 
-public class InMemoryCommandsFactory {
+public class InMemoryCommands {
     public final CommandProducer commandProducer;
     public final CommandReplyProducer commandReplyProducer;
 
-    public InMemoryCommandsFactory(CommandProducer commandProducer, CommandReplyProducer commandReplyProducer) {
+    public InMemoryCommands(CommandProducer commandProducer, CommandReplyProducer commandReplyProducer) {
         this.commandProducer = commandProducer;
         this.commandReplyProducer = commandReplyProducer;
     }
 
-    public static InMemoryCommandsFactory make(CommandHandlers commandHandlers, InMemoryMessagingFactory inMemoryMessagingFactory) {
+    public static InMemoryCommands make(CommandHandlers commandHandlers, InMemoryMessaging inMemoryMessaging) {
         DefaultCommandNameMapping commandNameMapping = new DefaultCommandNameMapping();
-        CommandProducer commandProducer = new CommandProducerImpl(inMemoryMessagingFactory.messageProducer, commandNameMapping);
+        CommandProducer commandProducer = new CommandProducerImpl(inMemoryMessaging.messageProducer, commandNameMapping);
 
-        CommandReplyProducer commandReplyProducer = new CommandReplyProducer(inMemoryMessagingFactory.messageProducer);
-        CommandDispatcherFactory commandDispatcherFactory = new CommandDispatcherFactory(inMemoryMessagingFactory.messageConsumer, commandNameMapping, commandReplyProducer);
+        CommandReplyProducer commandReplyProducer = new CommandReplyProducer(inMemoryMessaging.messageProducer);
+        CommandDispatcherFactory commandDispatcherFactory = new CommandDispatcherFactory(inMemoryMessaging.messageConsumer, commandNameMapping, commandReplyProducer);
         CommandDispatcher commandDispatcher = commandDispatcherFactory.make("subscriberId", commandHandlers);
         commandDispatcher.initialize();
-        return new InMemoryCommandsFactory(commandProducer, commandReplyProducer);
+        return new InMemoryCommands(commandProducer, commandReplyProducer);
     }
 }

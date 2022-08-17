@@ -52,7 +52,7 @@ public class NotificationTests extends AbstractCommandDispatchingTests {
     @Test
     public void testSendingNotification() {
 
-        String messageId = inMemoryCommandsFactory.commandProducer.sendNotification(channel, new TestNotification(), Collections.emptyMap());
+        String messageId = inMemoryCommands.commandProducer.sendNotification(channel, new TestNotification(), Collections.emptyMap());
         assertNotNull(messageId);
 
         Eventually.eventually(() -> {
