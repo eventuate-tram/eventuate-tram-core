@@ -49,7 +49,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
     @Override
     public void setup() {
         super.setup();
-        testMessageConsumer = TestMessageConsumer.subscribeTo(messageConsumer, replyTo);
+        testMessageConsumer = TestMessageConsumer.subscribeTo(inMemoryMessagingFactory.messageConsumer, replyTo);
     }
 
     @Spy
@@ -81,7 +81,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
     @Test
     public void testSendingCommand() {
 
-        String messageId = commandProducer.send(channel, new TestCommand(), replyTo, Collections.emptyMap());
+        String messageId = inMemoryCommandsFactory.commandProducer.send(channel, new TestCommand(), replyTo, Collections.emptyMap());
         assertNotNull(messageId);
 
         eventually(() -> {
@@ -96,7 +96,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
     @Test
     public void testSendingComplexCommand() {
 
-        String messageId = commandProducer.send(channel, new TestComplexCommand(), replyTo, Collections.emptyMap());
+        String messageId = inMemoryCommandsFactory.commandProducer.send(channel, new TestComplexCommand(), replyTo, Collections.emptyMap());
         assertNotNull(messageId);
 
 
@@ -110,7 +110,7 @@ public class CommandDispatchingTests extends AbstractCommandDispatchingTests {
             return replyInfoCaptor.getValue();
         });
 
-        List<Message> replies = commandReplyProducer.sendReplies(crt, withSuccess());
+        List<Message> replies = inMemoryCommandsFactory.commandReplyProducer.sendReplies(crt, withSuccess());
 
         eventually(() -> {
             testMessageConsumer.assertHasReplyTo(messageId);
