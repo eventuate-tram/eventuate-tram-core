@@ -4,11 +4,12 @@ import io.eventuate.tram.commands.common.CommandNameMapping;
 import io.eventuate.tram.commands.consumer.CommandDispatcherFactory;
 import io.eventuate.tram.commands.consumer.CommandReplyProducer;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(TramCommandReplyProducerConfiguration.class)
 public class TramCommandConsumerConfiguration {
 
   @Bean
@@ -16,8 +17,4 @@ public class TramCommandConsumerConfiguration {
     return new CommandDispatcherFactory(messageConsumer, commandNameMapping, commandReplyProducer);
   }
 
-  @Bean
-  public CommandReplyProducer commandReplyProducer(MessageProducer messageProducer) {
-    return new CommandReplyProducer(messageProducer);
-  }
 }
