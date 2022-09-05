@@ -13,6 +13,7 @@ CREATE TABLE message (
   headers VARCHAR(1000) NOT NULL,
   payload VARCHAR(1000) NOT NULL,
   published SMALLINT DEFAULT 0,
+  message_partition SMALLINT,
   creation_time BIGINT
 );
 

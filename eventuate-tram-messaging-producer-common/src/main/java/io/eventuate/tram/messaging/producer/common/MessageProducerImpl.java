@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public final class MessageProducerImpl implements MessageProducer {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -41,6 +42,8 @@ public final class MessageProducerImpl implements MessageProducer {
     implementation.setMessageIdIfNecessary(message);
     message.getHeaders().put(Message.DESTINATION, channelMapping.transform(destination));
     message.getHeaders().put(Message.DATE, HttpDateHeaderFormatUtil.nowAsHttpDateString());
+    if (message.getHeaders().get(Message.PARTITION_ID) == null)
+      message.getHeaders().put(Message.PARTITION_ID, UUID.randomUUID().toString());
   }
 
   protected void send(Message message) {

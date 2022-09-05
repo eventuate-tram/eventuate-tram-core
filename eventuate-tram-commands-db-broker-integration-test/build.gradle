@@ -6,7 +6,11 @@ dependencies {
     compile project(":eventuate-tram-spring-commands")
 
     testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
+
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+
+    testCompile "io.netty:netty-resolver-dns:4.1.79.Final"
+
 }
 
 test {

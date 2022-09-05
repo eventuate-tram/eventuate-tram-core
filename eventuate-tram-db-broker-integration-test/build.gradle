@@ -3,8 +3,20 @@ dependencies {
     compile project(":eventuate-tram-integration-test-common")
     compile project(":eventuate-tram-spring-messaging")
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+
     testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
+
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+
+
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
+
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation "org.assertj:assertj-core:$assertjVersion"
+
+    testCompile "io.netty:netty-resolver-dns:4.1.79.Final"
 
 }
 
@@ -13,5 +25,10 @@ test {
     if (testCustomDBVariable != 'true') {
         exclude '**/TramIntegrationCustomDBTest**'
     }
+
+    if (System.env['BROKER'] != null && System.env['BROKER'] != 'kafka') {
+        exclude '**/MultipleOutboxTramIntegrationTest**'
+    }
+
     forkEvery 1
 }
