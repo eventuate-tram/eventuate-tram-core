@@ -1,5 +1,6 @@
 package io.eventuate.tram.broker.db.integrationtests;
 
+import io.eventuate.cdc.testcontainers.EventuateCdcContainer;
 import io.eventuate.common.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;

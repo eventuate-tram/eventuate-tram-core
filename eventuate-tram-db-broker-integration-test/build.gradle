@@ -6,6 +6,8 @@ dependencies {
 
     testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
 
+    testCompile "io.eventuate.cdc:eventuate-cdc-testcontainers:$eventuateCdcVersion"
+
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
     testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"

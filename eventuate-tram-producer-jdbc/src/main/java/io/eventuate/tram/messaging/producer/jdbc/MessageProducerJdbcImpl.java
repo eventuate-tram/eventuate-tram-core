@@ -8,10 +8,10 @@ import io.eventuate.tram.messaging.producer.common.MessageProducerImplementation
 
 public class MessageProducerJdbcImpl implements MessageProducerImplementation {
 
-  private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
-  private IdGenerator idGenerator;
+  private final EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
+  private final IdGenerator idGenerator;
 
-  private EventuateSchema eventuateSchema;
+  private final EventuateSchema eventuateSchema;
 
 
   public MessageProducerJdbcImpl(EventuateCommonJdbcOperations eventuateCommonJdbcOperations,
