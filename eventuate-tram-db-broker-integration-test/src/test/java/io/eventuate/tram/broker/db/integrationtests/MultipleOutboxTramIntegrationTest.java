@@ -27,7 +27,11 @@ public class MultipleOutboxTramIntegrationTest extends AbstractTramIntegrationTe
                     .withNetworkAliases("mysql")
                     .withEnv("EVENTUATE_OUTBOX_TABLES", Integer.toString(OUTBOX_TABLES))
                     .withReuse(true);
+    static {
+        if (System.getenv("EVENTUATE_OUTBOX_ID") != null)
+            mysql.withEnv("USE_DB_ID", "true");
 
+    }
 
     public static EventuateZookeeperContainer zookeeper = new EventuateZookeeperContainer().withReuse(true)
             .withNetwork(network)
