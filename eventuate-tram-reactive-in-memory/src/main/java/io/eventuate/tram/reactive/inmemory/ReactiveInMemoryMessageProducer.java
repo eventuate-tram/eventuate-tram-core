@@ -39,7 +39,7 @@ public class ReactiveInMemoryMessageProducer implements ReactiveMessageProducerI
   @Override
   public Mono<Message> send(Message message) {
     if (!message.getHeader(Message.ID).isPresent())
-      message.setHeader(Message.ID, applicationIdGenerator.genId(null).asString());
+      message.setHeader(Message.ID, applicationIdGenerator.genId(null, null).asString());
     messageConsumer.dispatchMessage(message);
     return Mono.just(message);
   }

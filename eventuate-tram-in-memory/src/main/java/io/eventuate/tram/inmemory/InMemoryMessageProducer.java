@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 public class InMemoryMessageProducer implements MessageProducerImplementation {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final InMemoryMessageConsumer messageConsumer;
-  private EventuateTransactionSynchronizationManager eventuateTransactionSynchronizationManager;
+  private final EventuateTransactionSynchronizationManager eventuateTransactionSynchronizationManager;
 
-  private ApplicationIdGenerator applicationIdGenerator = new ApplicationIdGenerator();
+  private final ApplicationIdGenerator applicationIdGenerator = new ApplicationIdGenerator();
 
   public InMemoryMessageProducer(InMemoryMessageConsumer messageConsumer,
                                  EventuateTransactionSynchronizationManager eventuateTransactionSynchronizationManager) {
@@ -35,7 +35,7 @@ public class InMemoryMessageProducer implements MessageProducerImplementation {
 
   @Override
   public void setMessageIdIfNecessary(Message message) {
-    message.setHeader(Message.ID, applicationIdGenerator.genId(null).asString());
+    message.setHeader(Message.ID, applicationIdGenerator.genId(null, null).asString());
   }
 
   @Override
