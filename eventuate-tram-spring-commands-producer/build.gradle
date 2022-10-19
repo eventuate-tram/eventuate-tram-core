@@ -1,7 +1,0 @@
-
-dependencies {
-    compile project(":eventuate-tram-commands")
-    compile project(":eventuate-tram-spring-messaging")
-
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-}
