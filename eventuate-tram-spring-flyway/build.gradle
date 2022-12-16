@@ -1,0 +1,8 @@
+dependencies {
+    implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation "org.flywaydb:flyway-mysql:$flywayVersion"
+
+    implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    implementation "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    implementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
+}

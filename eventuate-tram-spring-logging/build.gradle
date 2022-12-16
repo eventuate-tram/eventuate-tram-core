@@ -1,0 +1,4 @@
+dependencies {
+    implementation project(":eventuate-tram-messaging")
+    implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
+}

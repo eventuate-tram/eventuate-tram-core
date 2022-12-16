@@ -17,14 +17,12 @@ import org.springframework.cloud.contract.spec.internal.BodyMatcher;
 import org.springframework.cloud.contract.spec.internal.BodyMatchers;
 import org.springframework.cloud.contract.spec.internal.Header;
 import org.springframework.cloud.contract.stubrunner.BatchStubRunner;
-import org.springframework.cloud.contract.stubrunner.StubConfiguration;
 import org.springframework.cloud.contract.verifier.util.*;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,35 +46,34 @@ public class EventuateTramRoutesConfigurer {
 
   @PostConstruct
   public void initialize() {
-    Map<StubConfiguration, Collection<Contract>> contracts = batchStubRunner
-            .getContracts();
-    for (Collection<Contract> list : contracts.values()) {
-      for (Contract it : list) {
-        if (it.getInput() != null
-                && it.getInput().getMessageFrom() != null
-                && it.getOutputMessage() != null
-                && it.getOutputMessage().getSentTo() != null) {
-          String inputClientValue = it.getInput().getMessageFrom().getClientValue();
-          String outputClientValue = it.getOutputMessage().getSentTo().getClientValue();
+    for (Collection<Contract> contracts : batchStubRunner.getContracts().values()) {
+      for (Contract contract : contracts) {
+        if (isCommandMessageContract(contract)) {
 
-          messageConsumer.subscribe("Route-" + it.getLabel() + System.currentTimeMillis() + "." + idCounter++,
-                  Collections.singleton(inputClientValue), (message) -> {
-            if (satisfies(message, it)) {
-              process(message, it).ifPresent(m -> messageProducer.send(outputClientValue, m));
-            }
-          });
+          String commandChannel = contract.getInput().getMessageFrom().getClientValue();
+          String replyToChannel = contract.getOutputMessage().getSentTo().getClientValue();
 
-//          from(inputClientValue)
-//                  .filter(new StubRunnerCamelPredicate(it))
-//                  .process(new StubRunnerCamelProcessor(it))
-//                  .to(outputClientValue);
+          messageConsumer.subscribe("Route-" + contract.getLabel() + System.currentTimeMillis() + "." + idCounter++,
+                  Collections.singleton(commandChannel),
+                  message -> {
+                    if (satisfies(message, contract)) {
+                      messageProducer.send(replyToChannel, makeReply(message, contract));
+                    }
+                  });
         }
       }
     }
 
   }
 
-  private Optional<Message> process(Message message, Contract groovyDsl) {
+  private static boolean isCommandMessageContract(Contract contract) {
+    return contract.getInput() != null
+            && contract.getInput().getMessageFrom() != null
+            && contract.getOutputMessage() != null
+            && contract.getOutputMessage().getSentTo() != null;
+  }
+
+  private Message makeReply(Message message, Contract groovyDsl) {
     MessageBuilder messageBuilder = MessageBuilder
             .withPayload(BodyExtractor
                     .extractStubValueFrom(groovyDsl.getOutputMessage().getBody()));
@@ -87,7 +84,7 @@ public class EventuateTramRoutesConfigurer {
     }
     messageBuilder.withExtraHeaders("", correlationHeaders(message.getHeaders()));
 
-    return Optional.of(messageBuilder.build());
+    return messageBuilder.build();
   }
 
   private Map<String, String> correlationHeaders(Map<String, String> headers) {
@@ -105,22 +102,26 @@ public class EventuateTramRoutesConfigurer {
       logger.info("Headers don't match {} {} ", groovyDsl.getLabel(), message);
       return false;
     }
-    BodyMatchers matchers = groovyDsl.getInput().getBodyMatchers();
-    Object dslBody = MapConverter.getStubSideValues(groovyDsl.getInput().getMessageBody());
-    Object matchingInputMessage = JsonToJsonPathsConverter
-            .removeMatchingJsonPaths(dslBody, matchers);
-    JsonPaths jsonPaths = JsonToJsonPathsConverter
-            .transformToJsonPathWithStubsSideValuesAndNoArraySizeCheck(
-                    matchingInputMessage);
+    return bodyMatches(message, groovyDsl);
+  }
+
+  private boolean bodyMatches(Message message, Contract groovyDsl) {
     DocumentContext parsedJson = JsonPath.parse(message.getPayload());
+
+    BodyMatchers matchers = groovyDsl.getInput().getBodyMatchers();
+
+    Object dslBody = MapConverter.getStubSideValues(groovyDsl.getInput().getMessageBody());
+    Object matchingInputMessage = JsonToJsonPathsConverter.removeMatchingJsonPaths(dslBody, matchers);
+    JsonPaths jsonPaths = JsonToJsonPathsConverter.transformToJsonPathWithStubsSideValuesAndNoArraySizeCheck(matchingInputMessage);
+
     boolean matches = true;
     for (MethodBufferingJsonVerifiable path : jsonPaths) {
       matches &= matchesJsonPath(parsedJson, path.jsonPath());
     }
     logger.info("jsonPaths match {} {} {} ", groovyDsl.getLabel(), matches, message);
 
-    if (matchers != null && matchers.hasMatchers()) {
-      for (BodyMatcher matcher : matchers.jsonPathMatchers()) {
+    if (matches && matchers != null && matchers.hasMatchers()) {
+      for (BodyMatcher matcher : matchers.matchers()) {
         String jsonPath = JsonToJsonPathsConverter.convertJsonPathAndRegexToAJsonPath(matcher, dslBody);
         matches &= matchesJsonPath(parsedJson, jsonPath);
       }
@@ -141,13 +142,13 @@ public class EventuateTramRoutesConfigurer {
   private boolean headersMatch(Message message, Contract groovyDsl) {
     Map<String, String> headers = message.getHeaders();
     boolean matches = true;
-    for (Header it : groovyDsl.getInput().getMessageHeaders().getEntries()) {
-      String name = it.getName();
-      Object value = it.getClientValue();
+    for (Header contractHeader : groovyDsl.getInput().getMessageHeaders().getEntries()) {
+      String name = contractHeader.getName();
+      Object value = contractHeader.getClientValue();
       Object valueInHeader = headers.get(name);
-      matches &= value instanceof Pattern ?
-              ((Pattern) value).matcher(valueInHeader.toString()).matches() :
+      matches &= value instanceof Pattern ? ((Pattern) value).matcher(valueInHeader.toString()).matches() :
               valueInHeader != null && valueInHeader.equals(value);
+      logger.info("matches {} name {} pattern? {} headerValue {} value {}", matches, name, value instanceof Pattern, valueInHeader, value);
     }
     return matches;
   }

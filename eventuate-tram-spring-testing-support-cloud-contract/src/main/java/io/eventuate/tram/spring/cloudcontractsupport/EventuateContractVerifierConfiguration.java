@@ -10,14 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class EventuateContractVerifierConfiguration {
 
   @Bean
-  public MessageVerifier eventuateTramMessageVerifier() {
-
+  public EventuateTramMessageVerifier newEventuateTramMessageVerifier() {
     return new EventuateTramMessageVerifier();
   }
 
   @Bean
-  public ContractVerifierMessaging<Message> eventuateContractVerifierMessaging(MessageVerifier<Message> exchange) {
-    return new EventuateContractVerifierMessaging(exchange);
+  public ContractVerifierMessaging<Message> contractVerifierEventuateMessaging(MessageVerifier<Message> exchange) {
+    return new ContractVerifierEventuateMessaging(exchange);
   }
-
 }

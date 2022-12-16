@@ -81,4 +81,7 @@ include 'eventuate-tram-spring-reactive-events-starter'
 include 'eventuate-tram-spring-commands-starter'
 include 'eventuate-tram-spring-reactive-integration-tests'
 include 'eventuate-tram-spring-reactive-optimistic-locking'
+include 'eventuate-tram-spring-flyway'
+include 'eventuate-tram-spring-logging'
+
 include 'eventuate-tram-bom'

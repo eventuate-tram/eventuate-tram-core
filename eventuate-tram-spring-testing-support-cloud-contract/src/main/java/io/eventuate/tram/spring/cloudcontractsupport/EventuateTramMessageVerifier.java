@@ -5,8 +5,10 @@ import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.contract.verifier.converter.YamlContract;
 import org.springframework.cloud.contract.verifier.messaging.MessageVerifier;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,19 +21,10 @@ public class EventuateTramMessageVerifier implements MessageVerifier<Message> {
 
   @Autowired
   private MessageProducer messageProducer;
-
   @Autowired
   private MessageConsumer messageConsumer;
 
-  @Override
-  public void send(Message message, String destination) {
-    throw new UnsupportedOperationException();
-  }
-
   private ConcurrentHashMap<String, LinkedBlockingQueue<Message>> messagesByDestination = new ConcurrentHashMap<>();
-
-  public EventuateTramMessageVerifier() {
-  }
 
   @PostConstruct
   public void subscribe() {
@@ -46,32 +39,31 @@ public class EventuateTramMessageVerifier implements MessageVerifier<Message> {
   }
 
   @Override
-  public <T> void send(T payload, Map<String, Object> headers, String destination) {
-    String p = (String) payload;
-    MessageBuilder mb = MessageBuilder.withPayload(p);
-
-    headers.forEach((key, value) -> {
-      mb.withHeader(key, (String) value);
-    });
-
-    messageProducer.send(destination, mb.build());
-  }
-
-  @Override
-  public Message receive(String destination, long timeout, TimeUnit timeUnit) {
+  public Message receive(String destination, long timeout, TimeUnit timeUnit, @Nullable YamlContract contract) {
     Message m;
     try {
       m = getForDestination(destination).poll(timeout, timeUnit);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    if (m == null)
-      return null;
     return m;
   }
 
   @Override
-  public Message receive(String destination) {
+  public Message receive(String destination, YamlContract contract) {
     return receive(destination, 5, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public void send(Message message, String destination, @Nullable YamlContract contract) {
+    messageProducer.send(destination, message);
+  }
+
+  @Override
+  public <T> void send(T payload, Map<String, Object> headers, String destination, @Nullable YamlContract contract) {
+    MessageBuilder messageBuilder = MessageBuilder.withPayload(payload.toString());
+    headers.forEach((name, value) -> messageBuilder.withHeader(name, value.toString()));
+    messageProducer.send(destination, messageBuilder.build());
+
   }
 }
