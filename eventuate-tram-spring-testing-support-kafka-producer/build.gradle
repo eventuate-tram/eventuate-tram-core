@@ -1,0 +1,7 @@
+dependencies {
+
+    implementation project(":eventuate-tram-spring-commands")
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
+
+
+}
