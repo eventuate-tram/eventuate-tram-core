@@ -14,6 +14,8 @@ public class DomainEventDispatcherFactory {
   }
 
   public DomainEventDispatcher make(String eventDispatcherId, DomainEventHandlers domainEventHandlers) {
-    return new DomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
+    DomainEventDispatcher domainEventDispatcher = new DomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
+    domainEventDispatcher.initialize();
+    return domainEventDispatcher;
   }
 }

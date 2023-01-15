@@ -5,7 +5,6 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -26,7 +25,6 @@ public class MyReplyConsumer {
     this.replyChannel = replyChannel;
   }
 
-  @PostConstruct
   public void subscribe() {
     messageConsumer.subscribe(getClass().getName(), singleton(channelMapping.transform(replyChannel)), this::handler);
   }

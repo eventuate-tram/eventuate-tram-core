@@ -15,6 +15,8 @@ public class ReactiveCommandDispatcherFactory {
 
   public ReactiveCommandDispatcher make(String commandDispatcherId,
                                         ReactiveCommandHandlers commandHandlers) {
-    return new ReactiveCommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, commandReplyProducer);
+    ReactiveCommandDispatcher reactiveCommandDispatcher = new ReactiveCommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, commandReplyProducer);
+    reactiveCommandDispatcher.initialize();
+    return reactiveCommandDispatcher;
   }
 }

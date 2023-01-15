@@ -14,6 +14,8 @@ public class ReactiveDomainEventDispatcherFactory {
   }
 
   public ReactiveDomainEventDispatcher make(String eventDispatcherId, ReactiveDomainEventHandlers domainEventHandlers) {
-    return new ReactiveDomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
+    ReactiveDomainEventDispatcher reactiveDomainEventDispatcher = new ReactiveDomainEventDispatcher(eventDispatcherId, domainEventHandlers, messageConsumer, domainEventNameMapping);
+    reactiveDomainEventDispatcher.initialize();
+    return reactiveDomainEventDispatcher;
   }
 }

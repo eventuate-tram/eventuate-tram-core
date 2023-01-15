@@ -9,7 +9,6 @@ import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 public class DomainEventDispatcher {
@@ -29,7 +28,6 @@ public class DomainEventDispatcher {
     this.domainEventNameMapping = domainEventNameMapping;
   }
 
-  @PostConstruct
   public void initialize() {
     logger.info("Initializing domain event dispatcher");
     messageConsumer.subscribe(eventDispatcherId, domainEventHandlers.getAggregateTypesAndEvents(), this::messageHandler);
