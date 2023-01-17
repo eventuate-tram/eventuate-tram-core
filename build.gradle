@@ -24,9 +24,6 @@ apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
 
 allprojects {
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
     repositories {
         mavenCentral()
         maven { url "https://repo.spring.io/milestone" }
@@ -45,6 +42,13 @@ allprojects {
     }
 }
 
+subprojects { project ->
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(project.ext.get("springBootVersion").startsWith("3") ? 17 : 8));
+        }
+    }
+}
 
 gradle.projectsEvaluated {
     task aggregateJavaDocs(type: Javadoc) {
