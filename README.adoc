@@ -248,7 +248,7 @@ The https://github.com/eventuate-tram/eventuate-tram-core-examples-basic[Eventua
 Contributions are welcome.
 = An Eventuate project
 
-<img class="img-responsive" src="https://eventuate.io/i/logo.gif">
+image::https://eventuate.io/i/logo.gif[]
 
 This project is part of http://eventuate.io[Eventuate], which is a microservices collaboration platform.
 
