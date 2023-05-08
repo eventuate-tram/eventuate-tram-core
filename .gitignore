@@ -9,3 +9,4 @@ out
 .settings
 bin
 .DS_Store
+.java-version

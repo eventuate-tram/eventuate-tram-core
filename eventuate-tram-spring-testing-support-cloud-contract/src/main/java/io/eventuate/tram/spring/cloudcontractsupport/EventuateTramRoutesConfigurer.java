@@ -11,6 +11,7 @@ import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.spec.Contract;
 import org.springframework.cloud.contract.spec.internal.BodyMatcher;
@@ -19,14 +20,13 @@ import org.springframework.cloud.contract.spec.internal.Header;
 import org.springframework.cloud.contract.stubrunner.BatchStubRunner;
 import org.springframework.cloud.contract.verifier.util.*;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EventuateTramRoutesConfigurer {
+public class EventuateTramRoutesConfigurer implements InitializingBean {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,7 +44,6 @@ public class EventuateTramRoutesConfigurer {
 
   private int idCounter;
 
-  @PostConstruct
   public void initialize() {
     for (Collection<Contract> contracts : batchStubRunner.getContracts().values()) {
       for (Contract contract : contracts) {
@@ -151,5 +150,10 @@ public class EventuateTramRoutesConfigurer {
       logger.info("matches {} name {} pattern? {} headerValue {} value {}", matches, name, value instanceof Pattern, valueInHeader, value);
     }
     return matches;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    initialize();
   }
 }

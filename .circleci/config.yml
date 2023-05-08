@@ -9,6 +9,9 @@ workflows:
           name: mysql-binlog-kafka
           script: ./build-and-test-all-mysql-binlog-kafka.sh
       - eventuate-gradle-build-and-test/build-and-test:
+          name: mysql-binlog-kafka-spring-boot-3
+          script: ./build-and-test-all-mysql-kafka-spring-boot-3.sh
+      - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-redis
           script: ./build-and-test-all-mysql-binlog-redis.sh
       - eventuate-gradle-build-and-test/build-and-test:
@@ -21,6 +24,9 @@ workflows:
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-kafka-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-kafka.sh
+      - eventuate-gradle-build-and-test/build-and-test:
+          name: mysql-binlog-kafka-dbid-spring-boot3
+          script: TEST_DB_ID=yes ./build-and-test-all-mysql-kafka-spring-boot-3.sh
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-redis-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-redis.sh
@@ -38,10 +44,12 @@ workflows:
             - publish
           requires:
             - mysql-binlog-kafka
+            - mysql-binlog-kafka-spring-boot-3
             - mysql-binlog-redis
             - postgres-wal-rabbitmq
             - mssql-polling-activemq
             - mysql-binlog-kafka-dbid
+            - mysql-binlog-kafka-dbid-spring-boot3
             - mysql-binlog-redis-dbid
             - postgres-wal-rabbitmq-dbid
             - mssql-polling-activemq-dbid

@@ -1,10 +1,9 @@
+import io.restassured.RestAssured;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import com.jayway.restassured.RestAssured;
 
 public class WaitForCdc extends DefaultTask {
 

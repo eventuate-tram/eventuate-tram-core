@@ -18,6 +18,8 @@ public class CommandDispatcherFactory {
 
   public CommandDispatcher make(String commandDispatcherId,
                                 CommandHandlers commandHandlers) {
-    return new CommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, commandNameMapping, commandReplyProducer);
+    CommandDispatcher commandDispatcher = new CommandDispatcher(commandDispatcherId, commandHandlers, messageConsumer, commandNameMapping, commandReplyProducer);
+    commandDispatcher.initialize();
+    return commandDispatcher;
   }
 }

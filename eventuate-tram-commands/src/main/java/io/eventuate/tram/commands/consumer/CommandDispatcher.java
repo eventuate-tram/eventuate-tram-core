@@ -10,7 +10,6 @@ import io.eventuate.tram.messaging.producer.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +42,6 @@ public class CommandDispatcher {
     this.commandNameMapping = commandNameMapping;
   }
 
-  @PostConstruct
   public void initialize() {
     messageConsumer.subscribe(commandDispatcherId,
             commandHandlers.getChannels(),

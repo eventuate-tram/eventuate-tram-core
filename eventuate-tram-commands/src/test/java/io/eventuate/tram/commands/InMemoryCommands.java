@@ -25,7 +25,6 @@ public class InMemoryCommands {
         CommandReplyProducer commandReplyProducer = new CommandReplyProducer(inMemoryMessaging.messageProducer);
         CommandDispatcherFactory commandDispatcherFactory = new CommandDispatcherFactory(inMemoryMessaging.messageConsumer, commandNameMapping, commandReplyProducer);
         CommandDispatcher commandDispatcher = commandDispatcherFactory.make("subscriberId", commandHandlers);
-        commandDispatcher.initialize();
         return new InMemoryCommands(commandProducer, commandReplyProducer);
     }
 }

@@ -29,13 +29,11 @@ import org.springframework.context.annotation.Import;
         TramCommandConsumerConfiguration.class
 })
 public class TramCommandsDBBrokerIntegrationTestConfiguration {
-
-
+  
   @Bean
   public TramCommandsDBBrokerIntegrationData tramCommandsAndEventsIntegrationData() {
     return new TramCommandsDBBrokerIntegrationData();
-}
-
+  }
 
   @Bean
   public ChannelMapping channelMapping(TramCommandsDBBrokerIntegrationData data) {
@@ -51,14 +49,12 @@ public class TramCommandsDBBrokerIntegrationTestConfiguration {
     return commandDispatcherFactory.make("customerCommandDispatcher", target.defineCommandHandlers());
   }
 
-
   @Bean
   public MyTestCommandHandler myTestCommandHandler() {
     return Mockito.spy(new MyTestCommandHandler());
   }
 
-
-  @Bean
+  @Bean(initMethod = "subscribe")
   public MyReplyConsumer myReplyConsumer(MessageConsumer messageConsumer) {
     return new MyReplyConsumer(messageConsumer, "ReplyTo");
   }

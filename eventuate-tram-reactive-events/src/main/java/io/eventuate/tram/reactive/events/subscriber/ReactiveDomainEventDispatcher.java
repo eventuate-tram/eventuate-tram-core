@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 public class ReactiveDomainEventDispatcher {
@@ -36,7 +35,6 @@ public class ReactiveDomainEventDispatcher {
     this.domainEventNameMapping = domainEventNameMapping;
   }
 
-  @PostConstruct
   public void initialize() {
     logger.info("Initializing reactive domain event dispatcher");
     messageConsumer.subscribe(eventDispatcherId, domainEventHandlers.getAggregateTypesAndEvents(), this::messageHandler);

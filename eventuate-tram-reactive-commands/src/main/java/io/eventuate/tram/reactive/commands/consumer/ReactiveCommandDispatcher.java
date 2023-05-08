@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 import static java.util.Collections.singletonList;
@@ -38,7 +37,6 @@ public class ReactiveCommandDispatcher {
     this.commandReplyProducer = commandReplyProducer;
   }
 
-  @PostConstruct
   public void initialize() {
     messageConsumer.subscribe(commandDispatcherId, commandHandlers.getChannels(), this::messageHandler);
   }

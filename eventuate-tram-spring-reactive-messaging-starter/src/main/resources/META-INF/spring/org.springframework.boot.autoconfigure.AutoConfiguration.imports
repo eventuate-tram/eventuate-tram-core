@@ -1,0 +1,2 @@
+io.eventuate.tram.spring.reactive.messaging.autoconfigure.EventuateTramReactiveKafkaMessageConsumerAutoConfiguration
+io.eventuate.tram.spring.reactive.messaging.autoconfigure.ReactiveTramMessageProducerJdbcAutoConfiguration

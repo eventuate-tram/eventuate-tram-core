@@ -61,6 +61,7 @@ public class ReactiveCommandDispatcherTest {
   @Test
   public void testHandlerInvocation() {
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, commandReplyProducer);
+    reactiveCommandDispatcher.initialize();
 
     when(commandHandler.invokeMethod(any())).thenReturn(Mono.just(replyMessage));
 
@@ -80,6 +81,7 @@ public class ReactiveCommandDispatcherTest {
         return alternativeCommandHandler.invokeMethod(new CommandHandlerArgs<>(cm, new PathVariables(commandHandlerParams.getPathVars()), commandReplyToken));
       }
     };
+    reactiveCommandDispatcher.initialize();
 
     invokeMessageHandler();
 
@@ -104,6 +106,7 @@ public class ReactiveCommandDispatcherTest {
   @Test
   public void shouldDispatchNotification() {
     reactiveCommandDispatcher = new ReactiveCommandDispatcher("", commandHandlers, messageConsumer, commandReplyProducer);
+    reactiveCommandDispatcher.initialize();
 
     when(commandHandler.invokeMethod(any())).thenReturn(Mono.empty());
 
