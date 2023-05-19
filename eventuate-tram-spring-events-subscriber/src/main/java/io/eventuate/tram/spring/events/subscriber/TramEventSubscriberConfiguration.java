@@ -11,6 +11,6 @@ public class TramEventSubscriberConfiguration {
 
   @Bean
   public DomainEventDispatcherFactory domainEventDispatcherFactory(MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
-    return new SpringDomainEventDispatcherFactory(messageConsumer, domainEventNameMapping);
+    return new DomainEventDispatcherFactory(messageConsumer, domainEventNameMapping);
   }
 }
