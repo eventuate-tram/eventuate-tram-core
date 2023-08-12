@@ -10,10 +10,10 @@ import io.eventuate.tram.consumer.jdbc.SqlTableBasedDuplicateMessageDetector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@AutoConfiguration
 @Import(EventuateCommonJdbcOperationsConfiguration.class)
 @ConditionalOnMissingBean(DuplicateMessageDetector.class)
 public class TramConsumerJdbcAutoConfiguration {

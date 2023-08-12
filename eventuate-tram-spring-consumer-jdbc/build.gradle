@@ -1,5 +1,7 @@
 
 dependencies {
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+
     compile project(":eventuate-tram-consumer-jdbc")
 
     compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"

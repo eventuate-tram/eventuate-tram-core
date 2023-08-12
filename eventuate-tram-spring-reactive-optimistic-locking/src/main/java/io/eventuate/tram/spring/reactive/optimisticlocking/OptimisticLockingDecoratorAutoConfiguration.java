@@ -1,9 +1,9 @@
 package io.eventuate.tram.spring.reactive.optimisticlocking;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@AutoConfiguration
 @Import(OptimisticLockingDecoratorConfiguration.class)
 public class OptimisticLockingDecoratorAutoConfiguration {
 }

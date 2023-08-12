@@ -4,10 +4,10 @@ import io.eventuate.tram.consumer.activemq.EventuateTramActiveMQMessageConsumerC
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnClass(EventuateTramActiveMQMessageConsumerConfiguration.class)
 @ConditionalOnMissingBean(MessageConsumerImplementation.class)
 @Import(EventuateTramActiveMQMessageConsumerConfiguration.class)
