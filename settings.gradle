@@ -57,7 +57,7 @@ include 'eventuate-tram-micronaut-commands'
 include 'eventuate-tram-test-util'
 include "eventuate-tram-testing-support"
 include "eventuate-tram-spring-testing-support-cloud-contract"
-//include "eventuate-tram-aggregate-domain-events"
+include "eventuate-tram-aggregate-domain-events"
 include 'eventuate-tram-consumer-kafka'
 include 'eventuate-tram-reactive-consumer-kafka'
 include 'eventuate-tram-spring-consumer-kafka'
