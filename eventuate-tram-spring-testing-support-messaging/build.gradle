@@ -1,0 +1,14 @@
+
+dependencies {
+    compileOnly project(":eventuate-tram-events")
+    implementation project(":eventuate-tram-messaging")
+    implementation "io.eventuate.common:eventuate-common-json-mapper"
+    
+    compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    compileOnly "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+
+    implementation "com.jayway.jsonpath:json-path:2.6.0"
+    
+    implementation "org.hamcrest:hamcrest:2.2"
+    implementation "org.junit.jupiter:junit-jupiter-api:5.5.2"
+}

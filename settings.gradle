@@ -84,6 +84,7 @@ include 'eventuate-tram-spring-reactive-optimistic-locking'
 
 include 'eventuate-tram-spring-flyway'
 include 'eventuate-tram-spring-logging'
+include 'eventuate-tram-spring-testing-support-messaging'
 include 'eventuate-tram-spring-testing-support-kafka-producer'
 include 'eventuate-tram-spring-testing-support-outbox-commands'
 
