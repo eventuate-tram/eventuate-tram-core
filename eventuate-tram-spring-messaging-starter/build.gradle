@@ -1,6 +1,8 @@
 
 dependencies {
 
+    compile "io.eventuate.tram.core:eventuate-tram-messaging"
+
     compileOnly project(":eventuate-tram-spring-producer-jdbc")
     compileOnly project(":eventuate-tram-spring-consumer-kafka")
     compileOnly project(":eventuate-tram-consumer-activemq")
