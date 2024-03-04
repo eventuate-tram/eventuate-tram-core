@@ -40,9 +40,14 @@ public class AssertableMessageConsumer {
         return queues.get(destination);
     }
 
-    public AssertableMessage assertMessageReceived(String channel) throws InterruptedException {
+    public AssertableMessage assertMessageReceived(String channel)  {
         BlockingQueue<Message> queue = getMessageBlockingQueue(channel);
-        Message m = queue.poll(10, TimeUnit.SECONDS);
+        Message m;
+        try {
+            m = queue.poll(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         assertNotNull(m);
         return new AssertableMessage(m);
     }
