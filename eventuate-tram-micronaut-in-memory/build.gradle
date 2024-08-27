@@ -12,28 +12,28 @@ dependencyManagement {
 
 
 dependencies {
-    compile project(":eventuate-tram-in-memory")
-    testCompile project(":eventuate-tram-in-memory-test")
+    api project(":eventuate-tram-in-memory")
+    testImplementation project(":eventuate-tram-in-memory-test")
 
-    compile project(":eventuate-tram-micronaut-messaging")
-    compile project(":eventuate-tram-micronaut-consumer-common")
-    compile project(":eventuate-tram-micronaut-messaging-producer-common")
-    compile project(":eventuate-tram-micronaut-consumer-jdbc")
+    api project(":eventuate-tram-micronaut-messaging")
+    api project(":eventuate-tram-micronaut-consumer-common")
+    api project(":eventuate-tram-micronaut-messaging-producer-common")
+    api project(":eventuate-tram-micronaut-consumer-jdbc")
 
-    compile "io.eventuate.common:eventuate-common-micronaut-id:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-micronaut-in-memory-database:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-micronaut-id:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-micronaut-in-memory-database:$eventuateCommonVersion"
 
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
-    compile "io.micronaut:micronaut-inject"
-    compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-runtime"
+    api "io.micronaut:micronaut-inject"
+    api "io.micronaut:micronaut-validation"
+    api "io.micronaut:micronaut-runtime"
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-    testCompile "org.junit.jupiter:junit-jupiter-api"
-    testCompile "io.micronaut.test:micronaut-test-junit5"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine"
-    testRuntime 'io.micronaut.sql:micronaut-jdbc-hikari'
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "io.micronaut.test:micronaut-test-junit5"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly 'io.micronaut.sql:micronaut-jdbc-hikari'
 }
 
 // use JUnit 5 platform

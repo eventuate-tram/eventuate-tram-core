@@ -1,11 +1,11 @@
 
 dependencies {
-    compile project(":eventuate-tram-spring-consumer-common")
-    compile project(":eventuate-tram-spring-messaging")
-    compile project(":eventuate-tram-consumer-kafka")
+    api project(":eventuate-tram-spring-consumer-common")
+    api project(":eventuate-tram-spring-messaging")
+    api project(":eventuate-tram-consumer-kafka")
 
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
 }
 
 

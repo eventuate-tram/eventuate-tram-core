@@ -1,6 +1,6 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-messaging")
 
-    compile "org.slf4j:slf4j-api:1.7.18"
+    api "org.slf4j:slf4j-api:1.7.18"
 }

@@ -1,11 +1,11 @@
 
 dependencies {
-    compile project(":eventuate-tram-reactive-producer-jdbc")
+    api project(":eventuate-tram-reactive-producer-jdbc")
 
-    compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
 
-    testCompile project(":eventuate-tram-spring-consumer-kafka")
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation project(":eventuate-tram-spring-consumer-kafka")
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
 test {

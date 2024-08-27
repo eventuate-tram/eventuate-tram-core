@@ -1,12 +1,12 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging-producer-common")
+    api project(":eventuate-tram-messaging-producer-common")
 
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
 
 
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
 }
 

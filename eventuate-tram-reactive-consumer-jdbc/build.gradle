@@ -1,5 +1,5 @@
 
 dependencies {
-    compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
-    compile project(":eventuate-tram-reactive-consumer-common")
+    api "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
+    api project(":eventuate-tram-reactive-consumer-common")
 }

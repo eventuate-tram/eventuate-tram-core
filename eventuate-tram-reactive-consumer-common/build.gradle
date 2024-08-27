@@ -1,10 +1,10 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-messaging")
 
-    compile "io.projectreactor:reactor-core:$reactorVersion"
+    api "io.projectreactor:reactor-core:$reactorVersion"
 
-    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 }
 
 

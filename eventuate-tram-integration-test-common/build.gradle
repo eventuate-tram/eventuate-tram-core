@@ -1,7 +1,7 @@
 
 dependencies {
-    compile project(":eventuate-tram-spring-jdbc-kafka")
-    compile project(":eventuate-tram-jdbc-rabbitmq")
-    compile project(":eventuate-tram-jdbc-activemq")
-    compile project(":eventuate-tram-jdbc-redis")
+    api project(":eventuate-tram-spring-jdbc-kafka")
+    api project(":eventuate-tram-jdbc-rabbitmq")
+    api project(":eventuate-tram-jdbc-activemq")
+    api project(":eventuate-tram-jdbc-redis")
 }

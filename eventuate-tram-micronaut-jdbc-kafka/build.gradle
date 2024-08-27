@@ -1,9 +1,9 @@
 
 dependencies {
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-micronaut-consumer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-micronaut-consumer:$eventuateMessagingKafkaVersion"
 
-    compile project(":eventuate-tram-micronaut-producer-jdbc")
-    compile project(":eventuate-tram-micronaut-consumer-common")
-    compile project(":eventuate-tram-micronaut-consumer-jdbc")
-    compile project(":eventuate-tram-micronaut-consumer-kafka")
+    api project(":eventuate-tram-micronaut-producer-jdbc")
+    api project(":eventuate-tram-micronaut-consumer-common")
+    api project(":eventuate-tram-micronaut-consumer-jdbc")
+    api project(":eventuate-tram-micronaut-consumer-kafka")
 }

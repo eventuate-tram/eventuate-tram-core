@@ -13,15 +13,15 @@ dependencyManagement {
 }
 
 dependencies {
-    compile project (":eventuate-tram-micronaut-consumer-common")
-    compile project(":eventuate-tram-micronaut-messaging")
-    compile project(":eventuate-tram-consumer-kafka")
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-micronaut-consumer:$eventuateMessagingKafkaVersion"
+    api project (":eventuate-tram-micronaut-consumer-common")
+    api project(":eventuate-tram-micronaut-messaging")
+    api project(":eventuate-tram-consumer-kafka")
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-micronaut-consumer:$eventuateMessagingKafkaVersion"
 
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
-    compile "io.micronaut:micronaut-inject"
-    compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-runtime"
+    api "io.micronaut:micronaut-inject"
+    api "io.micronaut:micronaut-validation"
+    api "io.micronaut:micronaut-runtime"
 }

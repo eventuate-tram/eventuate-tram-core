@@ -1,8 +1,8 @@
 
 dependencies {
-    compile project(":eventuate-tram-events")
-    compile project(":eventuate-tram-spring-commands")
+    api project(":eventuate-tram-events")
+    api project(":eventuate-tram-spring-commands")
 
-    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    compile "junit:junit:4.12"
+    api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    api "junit:junit:4.12"
 }

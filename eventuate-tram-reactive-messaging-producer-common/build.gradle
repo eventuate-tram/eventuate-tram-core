@@ -1,8 +1,8 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-messaging")
 
-    compile "io.projectreactor:reactor-core:$reactorVersion"
+    api "io.projectreactor:reactor-core:$reactorVersion"
 
-    compile "org.slf4j:slf4j-api:1.7.18"
+    api "org.slf4j:slf4j-api:1.7.18"
 }

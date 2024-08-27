@@ -1,11 +1,11 @@
 
 dependencies {
-    compile "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-    compile project(":eventuate-tram-reactive-consumer-jdbc")
-    compile project(":eventuate-tram-reactive-consumer-common")
+    api "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api project(":eventuate-tram-reactive-consumer-jdbc")
+    api project(":eventuate-tram-reactive-consumer-common")
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
 test {

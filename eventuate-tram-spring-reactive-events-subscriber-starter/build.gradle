@@ -1,5 +1,5 @@
 
 dependencies {
-    compile project(":eventuate-tram-spring-reactive-messaging-starter")
-    compile project(":eventuate-tram-spring-reactive-events")
+    api project(":eventuate-tram-spring-reactive-messaging-starter")
+    api project(":eventuate-tram-spring-reactive-events")
 }

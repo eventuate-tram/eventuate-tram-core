@@ -1,10 +1,10 @@
 
 dependencies {
 
-    compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-commands")
-    compile "org.springframework.cloud:spring-cloud-starter-contract-verifier:$springCloudContractDependenciesVersion"
-    compile project(":eventuate-tram-spring-in-memory")
-    compile "org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractDependenciesVersion"
+    api project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-commands")
+    api "org.springframework.cloud:spring-cloud-starter-contract-verifier:$springCloudContractDependenciesVersion"
+    api project(":eventuate-tram-spring-in-memory")
+    api "org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractDependenciesVersion"
 
 }

@@ -1,6 +1,6 @@
 
 dependencies {
-    compile project (":eventuate-tram-messaging")
+    api project (":eventuate-tram-messaging")
 
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
 }

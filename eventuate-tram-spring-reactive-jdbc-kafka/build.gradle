@@ -1,9 +1,9 @@
 
 dependencies {
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
 
-    compile project(":eventuate-tram-spring-reactive-producer-jdbc")
-    compile project(":eventuate-tram-spring-reactive-consumer-common")
-    compile project(":eventuate-tram-spring-reactive-consumer-jdbc")
-    compile project(":eventuate-tram-spring-reactive-consumer-kafka")
+    api project(":eventuate-tram-spring-reactive-producer-jdbc")
+    api project(":eventuate-tram-spring-reactive-consumer-common")
+    api project(":eventuate-tram-spring-reactive-consumer-jdbc")
+    api project(":eventuate-tram-spring-reactive-consumer-kafka")
 }

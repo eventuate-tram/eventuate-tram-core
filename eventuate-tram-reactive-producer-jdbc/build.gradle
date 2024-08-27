@@ -1,6 +1,6 @@
 
 dependencies {
-    compile project(":eventuate-tram-reactive-messaging-producer-common")
-    compile "io.eventuate.common:eventuate-common-reactive-jdbc:$eventuateCommonVersion"
+    api project(":eventuate-tram-reactive-messaging-producer-common")
+    api "io.eventuate.common:eventuate-common-reactive-jdbc:$eventuateCommonVersion"
 }
 

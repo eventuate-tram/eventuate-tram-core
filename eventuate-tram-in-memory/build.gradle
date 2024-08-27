@@ -1,12 +1,12 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-consumer-common")
-    compile project(":eventuate-tram-messaging-producer-common")
+    api project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-consumer-common")
+    api project(":eventuate-tram-messaging-producer-common")
 
-    compile project(":eventuate-tram-consumer-jdbc")
+    api project(":eventuate-tram-consumer-jdbc")
 
-    compile "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
-    compile "com.h2database:h2:1.3.166"
-    compile "io.eventuate.common:eventuate-common-in-memory-database:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
+    api "com.h2database:h2:1.3.166"
+    api "io.eventuate.common:eventuate-common-in-memory-database:$eventuateCommonVersion"
 }

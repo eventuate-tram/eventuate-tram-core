@@ -1,10 +1,10 @@
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
 
-    compile project(":eventuate-tram-consumer-jdbc")
+    api project(":eventuate-tram-consumer-jdbc")
 
-    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

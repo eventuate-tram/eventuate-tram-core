@@ -1,9 +1,9 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-messaging")
 
-    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 
-    compile "javax.annotation:javax.annotation-api:1.3.2"
+    api "javax.annotation:javax.annotation-api:1.3.2"
 
 }

@@ -1,19 +1,19 @@
 
 dependencies {
-    compile project(":eventuate-tram-in-memory")
-    compile project(":eventuate-tram-common-spring-in-memory")
+    api project(":eventuate-tram-in-memory")
+    api project(":eventuate-tram-common-spring-in-memory")
 
-    compile project(":eventuate-tram-spring-messaging")
-    compile project(":eventuate-tram-spring-consumer-common")
-    compile project(":eventuate-tram-spring-messaging-producer-common")
-    compile project(":eventuate-tram-spring-consumer-jdbc")
+    api project(":eventuate-tram-spring-messaging")
+    api project(":eventuate-tram-spring-consumer-common")
+    api project(":eventuate-tram-spring-messaging-producer-common")
+    api project(":eventuate-tram-spring-consumer-jdbc")
 
-    compile "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-spring-in-memory-database:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-spring-in-memory-database:$eventuateCommonVersion"
 
 
-    testCompile project(":eventuate-tram-in-memory-test")
+    testImplementation project(":eventuate-tram-in-memory-test")
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
 }

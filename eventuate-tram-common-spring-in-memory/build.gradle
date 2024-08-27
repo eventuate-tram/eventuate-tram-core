@@ -1,5 +1,5 @@
 
 dependencies {
-    compile project(":eventuate-tram-in-memory")
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
+    api project(":eventuate-tram-in-memory")
+    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
 }

@@ -1,6 +1,6 @@
 
 dependencies {
-    compile project(":eventuate-tram-in-memory")
+    api project(":eventuate-tram-in-memory")
 
-    compile "junit:junit:4.12"
+    api "junit:junit:4.12"
 }

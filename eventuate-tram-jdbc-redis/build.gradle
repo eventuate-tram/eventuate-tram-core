@@ -1,9 +1,9 @@
 
 dependencies {
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-consumer:$eventuateMessagingRedisVersion"
+    api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-consumer:$eventuateMessagingRedisVersion"
 
-    compile project(":eventuate-tram-spring-consumer-common")
-    compile project(":eventuate-tram-spring-producer-jdbc")
-    compile project(":eventuate-tram-spring-consumer-jdbc")
-    compile project(":eventuate-tram-consumer-redis")
+    api project(":eventuate-tram-spring-consumer-common")
+    api project(":eventuate-tram-spring-producer-jdbc")
+    api project(":eventuate-tram-spring-consumer-jdbc")
+    api project(":eventuate-tram-consumer-redis")
 }

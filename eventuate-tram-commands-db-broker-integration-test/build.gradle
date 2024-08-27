@@ -1,15 +1,15 @@
 
 dependencies {
-    compile project(":eventuate-tram-producer-jdbc")
-    compile project(":eventuate-tram-spring-consumer-jdbc")
-    compile project(":eventuate-tram-integration-test-common")
-    compile project(":eventuate-tram-spring-commands")
+    api project(":eventuate-tram-producer-jdbc")
+    api project(":eventuate-tram-spring-consumer-jdbc")
+    api project(":eventuate-tram-integration-test-common")
+    api project(":eventuate-tram-spring-commands")
 
-    testCompile "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
+    testImplementation "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 
-    testCompile "io.netty:netty-resolver-dns:4.1.79.Final"
+    testImplementation "io.netty:netty-resolver-dns:4.1.79.Final"
 
 }
 

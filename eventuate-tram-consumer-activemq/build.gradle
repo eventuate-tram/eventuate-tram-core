@@ -1,9 +1,9 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-spring-consumer-common")
+    api project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-spring-consumer-common")
 
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
+    api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
 }
 
 

@@ -1,10 +1,10 @@
 
 dependencies {
 
-    compile project(":eventuate-tram-spring-consumer-common")
-    compile project(":eventuate-tram-spring-producer-jdbc")
-    compile project(":eventuate-tram-spring-consumer-jdbc")
-    compile project(":eventuate-tram-consumer-activemq")
+    api project(":eventuate-tram-spring-consumer-common")
+    api project(":eventuate-tram-spring-producer-jdbc")
+    api project(":eventuate-tram-spring-consumer-jdbc")
+    api project(":eventuate-tram-consumer-activemq")
 
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
+    api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
 }

@@ -1,9 +1,9 @@
 
 dependencies {
-    compile project(":eventuate-tram-messaging")
-    compile project(":eventuate-tram-consumer-common")
+    api project(":eventuate-tram-messaging")
+    api project(":eventuate-tram-consumer-common")
 
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
 }
 
 

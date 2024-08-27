@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":eventuate-tram-reactive-consumer-common")
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    api project(":eventuate-tram-reactive-consumer-common")
+    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

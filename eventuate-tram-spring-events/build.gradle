@@ -1,5 +1,5 @@
 
 dependencies {
-    compile project(":eventuate-tram-spring-events-publisher")
-    compile project(":eventuate-tram-spring-events-subscriber")
+    api project(":eventuate-tram-spring-events-publisher")
+    api project(":eventuate-tram-spring-events-subscriber")
 }
