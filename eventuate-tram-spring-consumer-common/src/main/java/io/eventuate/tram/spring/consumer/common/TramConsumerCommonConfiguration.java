@@ -5,6 +5,7 @@ import io.eventuate.tram.consumer.common.MessageConsumerImpl;
 import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
+import io.eventuate.tram.messaging.consumer.SubscriberMapping;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,7 +17,7 @@ public class TramConsumerCommonConfiguration {
   @Bean
   public MessageConsumer messageConsumer(MessageConsumerImplementation messageConsumerImplementation,
                                          ChannelMapping channelMapping,
-                                         DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
-    return new MessageConsumerImpl(channelMapping, messageConsumerImplementation, decoratedMessageHandlerFactory);
+                                         DecoratedMessageHandlerFactory decoratedMessageHandlerFactory, SubscriberMapping subscriberMapping) {
+    return new MessageConsumerImpl(channelMapping, messageConsumerImplementation, decoratedMessageHandlerFactory, subscriberMapping);
   }
 }

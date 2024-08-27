@@ -5,6 +5,7 @@ import io.eventuate.tram.consumer.common.MessageConsumerImpl;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.DefaultChannelMapping;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
+import io.eventuate.tram.messaging.consumer.DefaultSubscriberMapping;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.messaging.producer.common.MessageProducerImpl;
@@ -39,7 +40,9 @@ public class InMemoryMessaging {
         MessageProducer messageProducer = new MessageProducerImpl(new MessageInterceptor[0], channelMapping,
                 new InMemoryMessageProducer(inMemoryMessageConsumer, eventuateTransactionSynchronizationManager));
 
-        MessageConsumer messageConsumer = new MessageConsumerImpl(channelMapping, inMemoryMessageConsumer, new DecoratedMessageHandlerFactory(Collections.emptyList()));
+        MessageConsumer messageConsumer = new MessageConsumerImpl(channelMapping, inMemoryMessageConsumer,
+                        new DecoratedMessageHandlerFactory(Collections.emptyList()),
+                        new DefaultSubscriberMapping());
 
         return new InMemoryMessaging(messageProducer, messageConsumer);
     }

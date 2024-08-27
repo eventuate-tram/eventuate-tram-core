@@ -5,6 +5,7 @@ import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
+import io.eventuate.tram.messaging.consumer.SubscriberMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,16 +18,19 @@ public final class MessageConsumerImpl implements MessageConsumer {
 
   // This could be implemented as Around advice
 
-  private ChannelMapping channelMapping;
-  private MessageConsumerImplementation target;
-  private DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
+  private final ChannelMapping channelMapping;
+  private final MessageConsumerImplementation target;
+  private final DecoratedMessageHandlerFactory decoratedMessageHandlerFactory;
+  private final SubscriberMapping subscriberMapping;
 
   public MessageConsumerImpl(ChannelMapping channelMapping,
                                 MessageConsumerImplementation target,
-                                DecoratedMessageHandlerFactory decoratedMessageHandlerFactory) {
+                                DecoratedMessageHandlerFactory decoratedMessageHandlerFactory,
+                                SubscriberMapping subscriberMapping) {
     this.channelMapping = channelMapping;
     this.target = target;
     this.decoratedMessageHandlerFactory = decoratedMessageHandlerFactory;
+    this.subscriberMapping = subscriberMapping;
   }
 
   @Override
@@ -35,7 +39,7 @@ public final class MessageConsumerImpl implements MessageConsumer {
 
     Consumer<SubscriberIdAndMessage> decoratedHandler = decoratedMessageHandlerFactory.decorate(handler);
 
-    MessageSubscription messageSubscription = target.subscribe(subscriberId,
+    MessageSubscription messageSubscription = target.subscribe(subscriberMapping.toExternal(subscriberId),
             channels.stream().map(channelMapping::transform).collect(Collectors.toSet()),
             message -> decoratedHandler.accept(new SubscriberIdAndMessage(subscriberId, message)));
 
