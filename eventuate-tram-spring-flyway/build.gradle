@@ -5,4 +5,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
     implementation "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     implementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+
 }
