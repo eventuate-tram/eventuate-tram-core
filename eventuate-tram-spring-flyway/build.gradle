@@ -10,5 +10,6 @@ dependencies {
     testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    testRuntimeOnly "org.flywaydb:flyway-sqlserver:$flywayVersion"
 
 }
