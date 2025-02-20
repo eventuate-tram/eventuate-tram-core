@@ -5,4 +5,13 @@ dependencies {
     api project(":eventuate-tram-spring-commands-common")
 
     api "org.springframework.boot:spring-boot-starter:$springBootVersion"
+
+    testImplementation project(":eventuate-tram-spring-commands-starter")
+    testImplementation project(":eventuate-tram-test-util")
+    testImplementation project(":eventuate-tram-spring-in-memory")
+
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "io.eventuate.examples.common:eventuate-examples-common-money:$eventuateCommonExamplesVersion"
+
 }

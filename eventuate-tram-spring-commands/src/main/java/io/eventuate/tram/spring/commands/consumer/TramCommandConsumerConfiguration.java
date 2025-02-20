@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(TramCommandReplyProducerConfiguration.class)
+@Import({TramCommandReplyProducerConfiguration.class, AnnotationBasedCommandHandlerConfiguration.class})
 public class TramCommandConsumerConfiguration {
 
   @Bean

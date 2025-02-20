@@ -13,13 +13,13 @@ import java.util.Optional;
 
 public class DomainEventDispatcher {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final String eventDispatcherId;
-  private DomainEventHandlers domainEventHandlers;
-  private MessageConsumer messageConsumer;
+  private final DomainEventHandlers domainEventHandlers;
+  private final MessageConsumer messageConsumer;
 
-  private DomainEventNameMapping domainEventNameMapping;
+  private final DomainEventNameMapping domainEventNameMapping;
 
   public DomainEventDispatcher(String eventDispatcherId, DomainEventHandlers domainEventHandlers, MessageConsumer messageConsumer, DomainEventNameMapping domainEventNameMapping) {
     this.eventDispatcherId = eventDispatcherId;
@@ -56,5 +56,7 @@ public class DomainEventDispatcher {
 
   }
 
-
+  public DomainEventHandlers getDomainEventHandlers() {
+    return domainEventHandlers;
+  }
 }
