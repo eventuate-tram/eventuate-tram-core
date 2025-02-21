@@ -5,8 +5,10 @@ import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(AnnotationBasedEventsSubscriberConfiguration.class)
 public class TramEventSubscriberConfiguration {
 
   @Bean
