@@ -33,6 +33,10 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
     eventHandlers.add(new EventuateDomainEventHandlerInfo(bean, eventuateDomainEventHandler, method));
   }
 
+  public List<EventuateDomainEventHandlerInfo> getEventHandlers() {
+    return eventHandlers;
+  }
+
   @Override
   public void start() {
     logger.info("Starting EventuateDomainEventDispatcher");

@@ -37,6 +37,10 @@ public class EventuateCommandDispatcher implements SmartLifecycle {
     commandHandlers.add(new CommandHandlerInfo(bean, eventuateCommandHandler, method));
   }
 
+  public List<CommandHandlerInfo> getCommandHandlers() {
+    return commandHandlers;
+  }
+
   @Override
   public void start() {
     logger.info("Starting EventuateCommandDispatcher");

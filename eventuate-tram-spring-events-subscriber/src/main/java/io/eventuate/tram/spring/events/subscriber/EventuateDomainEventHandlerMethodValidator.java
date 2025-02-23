@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 /**
  * Validates that methods annotated with @EventuateDomainEventHandler follow the required conventions:
  * - Must be public
- * - Must have exactly one parameter of type DomainEventEnvelope<T extends DomainEvent>
+ * - Must have exactly one parameter of type DomainEventEnvelope&lt;T extends DomainEvent&gt;
  * - Must be in a concrete class
  */
 public class EventuateDomainEventHandlerMethodValidator {

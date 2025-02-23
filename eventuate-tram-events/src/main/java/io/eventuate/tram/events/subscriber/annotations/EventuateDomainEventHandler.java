@@ -7,22 +7,22 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for configuring event handlers in Eventuate Tram.
- * Methods annotated with @EventuateDomainEventHandler will be automatically registered
+ * Methods annotated with {@code @EventuateDomainEventHandler} will be automatically registered
  * as event handlers during application startup.
  *
  * The annotated method must be public and follow Eventuate Tram's event handler conventions.
  * The event type is inferred from the method's parameter type.
  *
  * Example usage:
- * {@code
- *   @EventuateDomainEventHandler(
+ * <pre>{@code
+ *   &#64;EventuateDomainEventHandler(
  *     subscriberId = "orderService",
  *     channel = "customerChannel"
  *   )
  *   public void handleCustomerEvent(CustomerEvent event) {
  *     // Handle the event
  *   }
- * }
+ * }</pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
