@@ -7,7 +7,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.MethodIntrospector;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EventuateDomainEventHandlerBeanPostProcessor implements BeanPostProcessor {
 
@@ -19,16 +21,19 @@ public class EventuateDomainEventHandlerBeanPostProcessor implements BeanPostPro
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    List<EventuateDomainEventHandlerInfo> commandHandlerInfos = eventHandlersFromBean(bean);
+    commandHandlerInfos.forEach(eventuateDomainEventDispatcher::registerHandlerMethod);
+    return bean;
+  }
+
+  public static List<EventuateDomainEventHandlerInfo> eventHandlersFromBean(Object bean) {
     Class<?> targetClass = AopUtils.getTargetClass(bean);
     Map<Method, EventuateDomainEventHandler> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
         (MethodIntrospector.MetadataLookup<EventuateDomainEventHandler>) method ->
             method.getAnnotation(EventuateDomainEventHandler.class));
-
-    annotatedMethods.forEach((method, eventuateDomainEventHandler) -> {
-      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, eventuateDomainEventHandler);
-      eventuateDomainEventDispatcher.registerHandlerMethod(bean, eventuateDomainEventHandler, method);
-    });
-
-    return bean;
+    return annotatedMethods.entrySet().stream()
+        .map( entry -> new EventuateDomainEventHandlerInfo(bean, entry.getValue(), entry.getKey()))
+        .collect(Collectors.toList());
   }
+
 }

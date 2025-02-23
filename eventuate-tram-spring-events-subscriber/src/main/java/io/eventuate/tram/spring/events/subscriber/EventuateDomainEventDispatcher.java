@@ -2,7 +2,6 @@ package io.eventuate.tram.spring.events.subscriber;
 
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.*;
-import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -27,10 +26,10 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
     this.domainEventDispatcherFactory = domainEventDispatcherFactory;
   }
 
-  public void registerHandlerMethod(Object bean, EventuateDomainEventHandler eventuateDomainEventHandler, Method method) {
-    logger.info("Registering event handler method: {}", method);
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, eventuateDomainEventHandler);
-    eventHandlers.add(new EventuateDomainEventHandlerInfo(bean, eventuateDomainEventHandler, method));
+  public void registerHandlerMethod(EventuateDomainEventHandlerInfo eventHandler) {
+    logger.info("Registering event handler method: {}", eventHandler);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(eventHandler.getMethod(), eventHandler.getEventuateDomainEventHandler());
+    eventHandlers.add(eventHandler);
   }
 
   public List<EventuateDomainEventHandlerInfo> getEventHandlers() {

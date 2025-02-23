@@ -2,7 +2,6 @@ package io.eventuate.tram.spring.commands.consumer;
 
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.consumer.*;
-import io.eventuate.tram.commands.consumer.annotations.EventuateCommandHandler;
 import io.eventuate.tram.commands.consumer.annotations.FailureReply;
 import io.eventuate.tram.commands.consumer.annotations.SuccessReply;
 import io.eventuate.tram.messaging.common.Message;
@@ -32,9 +31,9 @@ public class EventuateCommandDispatcher implements SmartLifecycle {
     this.commandDispatcherFactory = commandDispatcherFactory;
   }
 
-  public void registerHandlerMethod(Object bean, EventuateCommandHandler eventuateCommandHandler, Method method) {
-    logger.info("Registering command handler method: {}", method);
-    commandHandlers.add(new CommandHandlerInfo(bean, eventuateCommandHandler, method));
+  public void registerHandlerMethod(CommandHandlerInfo commandHandler) {
+    logger.info("Registering command handler method: {}", commandHandler);
+    commandHandlers.add(commandHandler);
   }
 
   public List<CommandHandlerInfo> getCommandHandlers() {

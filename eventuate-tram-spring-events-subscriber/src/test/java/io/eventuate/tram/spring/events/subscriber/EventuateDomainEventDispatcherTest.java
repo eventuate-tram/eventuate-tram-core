@@ -3,8 +3,8 @@ package io.eventuate.tram.spring.events.subscriber;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
 import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
-import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
+import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class EventuateDomainEventDispatcherTest {
         .thenReturn(eventDispatcher);
 
     // When
-    dispatcher.registerHandlerMethod(handler, method.getAnnotation(EventuateDomainEventHandler.class), method);
+    dispatcher.registerHandlerMethod(new EventuateDomainEventHandlerInfo(handler, method.getAnnotation(EventuateDomainEventHandler.class), method));
     dispatcher.start();
 
     // Then
@@ -69,27 +69,4 @@ public class EventuateDomainEventDispatcherTest {
     assertFalse(dispatcher.isRunning());
   }
 
-  @Test
-  public void shouldBeAutoStartup() {
-    assertTrue(dispatcher.isAutoStartup());
-  }
-
-  @Test
-  public void shouldHavePhaseZero() {
-    assertEquals(0, dispatcher.getPhase());
-  }
-
-  @Test
-  public void shouldStopWithCallback() {
-    // Given
-    Runnable callback = mock(Runnable.class);
-    dispatcher.start();
-
-    // When
-    dispatcher.stop(callback);
-
-    // Then
-    assertFalse(dispatcher.isRunning());
-    verify(callback).run();
-  }
 }

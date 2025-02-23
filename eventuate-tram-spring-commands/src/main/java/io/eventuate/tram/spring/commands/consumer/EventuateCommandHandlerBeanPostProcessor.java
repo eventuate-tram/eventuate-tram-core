@@ -7,7 +7,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.MethodIntrospector;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EventuateCommandHandlerBeanPostProcessor implements BeanPostProcessor {
 
@@ -19,12 +21,18 @@ public class EventuateCommandHandlerBeanPostProcessor implements BeanPostProcess
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    List<CommandHandlerInfo> commandHandlerInfos = commandHandlersFromBean(bean);
+    commandHandlerInfos.forEach(eventuateCommandDispatcher::registerHandlerMethod);
+    return bean;
+  }
+
+  public static List<CommandHandlerInfo> commandHandlersFromBean(Object bean) {
     Class<?> targetClass = AopUtils.getTargetClass(bean);
     Map<Method, EventuateCommandHandler> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
         (MethodIntrospector.MetadataLookup<EventuateCommandHandler>) method ->
             method.getAnnotation(EventuateCommandHandler.class));
-    annotatedMethods.forEach((method, eventuateCommandHandler)
-        -> eventuateCommandDispatcher.registerHandlerMethod(bean, eventuateCommandHandler, method));
-    return bean;
+    return annotatedMethods.entrySet().stream()
+        .map( entry -> new CommandHandlerInfo(bean, entry.getValue(), entry.getKey()))
+        .collect(Collectors.toList());
   }
 }
