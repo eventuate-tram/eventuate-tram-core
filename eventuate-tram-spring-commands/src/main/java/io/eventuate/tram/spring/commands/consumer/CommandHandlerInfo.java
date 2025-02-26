@@ -1,6 +1,8 @@
 package io.eventuate.tram.spring.commands.consumer;
 
+import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.consumer.annotations.EventuateCommandHandler;
+import io.eventuate.tram.common.TypeParameterExtractor;
 
 import java.lang.reflect.Method;
 
@@ -27,5 +29,20 @@ public final class CommandHandlerInfo {
     return method;
   }
 
+  public String getChannel() {
+    return eventuateCommandHandler.channel();
+  }
+
+  public Class<? extends Command> getCommandClass() {
+    return (Class<? extends Command>) TypeParameterExtractor.extractTypeParameter(method);
+  }
+
+  public Class<?> getTargetClass() {
+    return target.getClass();
+  }
+
+  public Class<?> getReturnType() {
+    return method.getReturnType();
+  }
 
 }

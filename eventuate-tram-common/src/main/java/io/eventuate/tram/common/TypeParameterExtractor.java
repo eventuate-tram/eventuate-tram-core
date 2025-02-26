@@ -1,14 +1,12 @@
-package io.eventuate.tram.spring.commands.consumer;
-
-import io.eventuate.tram.commands.common.Command;
+package io.eventuate.tram.common;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class CommandClassExtractor {
+public class TypeParameterExtractor {
 
-  public static Class<? extends Command> extractCommandClass(Method method) {
+  public static Class<?> extractTypeParameter(Method method) {
     Type[] parameterTypes = method.getGenericParameterTypes();
     if (parameterTypes.length == 0) {
       throw new IllegalArgumentException("Method must have at least one parameter");
@@ -30,13 +28,6 @@ public class CommandClassExtractor {
       throw new IllegalArgumentException("Type argument must be a class");
     }
 
-    Class<?> commandType = (Class<?>) typeArg;
-    if (!Command.class.isAssignableFrom(commandType)) {
-      throw new IllegalArgumentException("Command type must implement Command interface");
-    }
-
-    @SuppressWarnings("unchecked")
-    Class<? extends Command> result = (Class<? extends Command>) commandType;
-    return result;
+    return (Class<?>) typeArg;
   }
 }

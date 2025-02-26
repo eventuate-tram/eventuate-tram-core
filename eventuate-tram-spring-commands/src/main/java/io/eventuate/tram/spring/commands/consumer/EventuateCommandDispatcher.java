@@ -4,6 +4,7 @@ import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.consumer.*;
 import io.eventuate.tram.commands.consumer.annotations.FailureReply;
 import io.eventuate.tram.commands.consumer.annotations.SuccessReply;
+import io.eventuate.tram.common.TypeParameterExtractor;
 import io.eventuate.tram.messaging.common.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class EventuateCommandDispatcher implements SmartLifecycle {
   }
 
   private static Class<? extends Command> commandClass(Method method) {
-    return CommandClassExtractor.extractCommandClass(method);
+    return (Class<? extends Command>) TypeParameterExtractor.extractTypeParameter(method);
   }
 
   @Override

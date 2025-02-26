@@ -1,5 +1,7 @@
 package io.eventuate.tram.spring.events.subscriber;
 
+import io.eventuate.tram.common.TypeParameterExtractor;
+import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
 
 import java.lang.reflect.Method;
@@ -29,4 +31,18 @@ public final class EventuateDomainEventHandlerInfo {
   public Method getMethod() {
     return method;
   }
+
+  public String getChannel() {
+    return eventuateDomainEventHandler.channel();
+  }
+
+  public Class<? extends DomainEvent> getEventClass() {
+    return (Class<? extends DomainEvent>) TypeParameterExtractor.extractTypeParameter(method);
+  }
+
+  public Class<?> getTargetClass() {
+    return target.getClass();
+  }
+
+
 }
