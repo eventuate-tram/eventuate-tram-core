@@ -1,7 +1,6 @@
 package io.eventuate.tram.spring.commands.consumer;
 
 import io.eventuate.tram.commands.common.Command;
-import io.eventuate.tram.commands.consumer.annotations.EventuateCommandHandler;
 import io.eventuate.tram.common.TypeParameterExtractor;
 
 import java.lang.reflect.Method;
