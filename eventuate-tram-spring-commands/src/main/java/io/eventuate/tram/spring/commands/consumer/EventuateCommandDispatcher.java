@@ -45,7 +45,7 @@ public class EventuateCommandDispatcher implements SmartLifecycle {
   public void start() {
     logger.info("Starting EventuateCommandDispatcher");
     Map<String, List<CommandHandlerInfo>> groupedCommandHandlers = commandHandlers.stream()
-        .collect(Collectors.groupingBy(ch -> ch.getEventuateCommandHandler().subscriberId()));
+        .collect(Collectors.groupingBy(CommandHandlerInfo::getSubscriberId));
     this.dispatchers = groupedCommandHandlers.entrySet()
         .stream()
         .map(e -> commandDispatcherFactory
@@ -56,7 +56,7 @@ public class EventuateCommandDispatcher implements SmartLifecycle {
   }
 
   private static CommandHandlers makeCommandHandlers(List<CommandHandlerInfo> commandHandlers) {
-    Map<String, List<CommandHandlerInfo>> groupedByChannel = commandHandlers.stream().collect(Collectors.groupingBy(ch -> ch.getEventuateCommandHandler().channel()));
+    Map<String, List<CommandHandlerInfo>> groupedByChannel = commandHandlers.stream().collect(Collectors.groupingBy(CommandHandlerInfo::getChannel));
     AtomicReference<CommandHandlersBuilder> builder = new AtomicReference<>();
     groupedByChannel.forEach((channel, handlers) -> {
       builder.set(CommandHandlersBuilder.fromChannel(channel));

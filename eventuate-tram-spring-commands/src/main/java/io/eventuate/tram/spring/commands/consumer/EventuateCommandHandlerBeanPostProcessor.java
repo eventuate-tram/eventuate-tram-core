@@ -32,7 +32,10 @@ public class EventuateCommandHandlerBeanPostProcessor implements BeanPostProcess
         (MethodIntrospector.MetadataLookup<EventuateCommandHandler>) method ->
             method.getAnnotation(EventuateCommandHandler.class));
     return annotatedMethods.entrySet().stream()
-        .map( entry -> new CommandHandlerInfo(bean, entry.getValue(), entry.getKey()))
+        .map(entry -> {
+          EventuateCommandHandler annotation = entry.getValue();
+          return new CommandHandlerInfo(bean, annotation.subscriberId(), annotation.channel(), entry.getKey());
+        })
         .collect(Collectors.toList());
   }
 }

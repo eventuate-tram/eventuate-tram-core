@@ -8,12 +8,14 @@ import java.lang.reflect.Method;
 
 public final class CommandHandlerInfo {
   private final Object target;
-  private final EventuateCommandHandler eventuateCommandHandler;
+  private final String subscriberId;
+  private final String channel;
   private final Method method;
 
-  public CommandHandlerInfo(Object target, EventuateCommandHandler eventuateCommandHandler, Method method) {
+  public CommandHandlerInfo(Object target, String subscriberId, String channel, Method method) {
     this.target = target;
-    this.eventuateCommandHandler = eventuateCommandHandler;
+    this.subscriberId = subscriberId;
+    this.channel = channel;
     this.method = method;
   }
 
@@ -21,16 +23,16 @@ public final class CommandHandlerInfo {
     return target;
   }
 
-  public EventuateCommandHandler getEventuateCommandHandler() {
-    return eventuateCommandHandler;
+  public String getSubscriberId() {
+    return subscriberId;
+  }
+
+  public String getChannel() {
+    return channel;
   }
 
   public Method getMethod() {
     return method;
-  }
-
-  public String getChannel() {
-    return eventuateCommandHandler.channel();
   }
 
   public Class<? extends Command> getCommandClass() {
