@@ -1,5 +1,6 @@
 package io.eventuate.tram.spring.events.subscriber;
 
+import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -32,7 +33,7 @@ public class EventuateDomainEventHandlerBeanPostProcessor implements BeanPostPro
         (MethodIntrospector.MetadataLookup<EventuateDomainEventHandler>) method ->
             method.getAnnotation(EventuateDomainEventHandler.class));
     return annotatedMethods.entrySet().stream()
-        .map( entry -> new EventuateDomainEventHandlerInfo(bean, entry.getValue(), entry.getKey()))
+        .map(entry -> EventuateDomainEventHandlerInfo.make(bean, entry.getValue(), entry.getKey()))
         .collect(Collectors.toList());
   }
 

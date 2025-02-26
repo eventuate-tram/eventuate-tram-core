@@ -59,7 +59,7 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
     AtomicReference<DomainEventHandlersBuilder> builder = new AtomicReference<>();
     groupedByChannel.forEach((channel, handlers) -> {
       handlers.forEach(eh -> {
-        Class<? extends DomainEvent> eventClass = extractEventClass(eh.getMethod());
+        Class<? extends DomainEvent> eventClass = eh.getEventClass();
         if (builder.get() == null) {
           builder.set(DomainEventHandlersBuilder.forAggregateType(channel));
         } else {
@@ -75,31 +75,6 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
       });
     });
     return builder.get().build();
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Class<? extends DomainEvent> extractEventClass(Method method) {
-    Type[] parameterTypes = method.getGenericParameterTypes();
-    if (parameterTypes.length != 1 || !(parameterTypes[0] instanceof ParameterizedType)) {
-      throw new RuntimeException("Event handler method must have exactly one parameter of type DomainEventEnvelope<T extends DomainEvent>");
-    }
-
-    ParameterizedType parameterType = (ParameterizedType) parameterTypes[0];
-    if (!DomainEventEnvelope.class.equals(parameterType.getRawType())) {
-      throw new RuntimeException("Event handler method parameter must be of type DomainEventEnvelope<T extends DomainEvent>");
-    }
-
-    Type[] typeArguments = parameterType.getActualTypeArguments();
-    if (typeArguments.length != 1 || !(typeArguments[0] instanceof Class)) {
-      throw new RuntimeException("Invalid event type parameter");
-    }
-
-    Class<?> eventClass = (Class<?>) typeArguments[0];
-    if (!DomainEvent.class.isAssignableFrom(eventClass)) {
-      throw new RuntimeException("Event type must extend DomainEvent");
-    }
-
-    return (Class<? extends DomainEvent>) eventClass;
   }
 
   @Override
