@@ -56,6 +56,10 @@ public class DomainEventDispatcher {
 
   }
 
+  public String getEventDispatcherId() {
+    return eventDispatcherId;
+  }
+
   public DomainEventHandlers getDomainEventHandlers() {
     return domainEventHandlers;
   }
