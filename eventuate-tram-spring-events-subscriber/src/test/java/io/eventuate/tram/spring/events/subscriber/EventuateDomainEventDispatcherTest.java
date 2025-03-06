@@ -47,7 +47,8 @@ public class EventuateDomainEventDispatcherTest {
         .thenReturn(eventDispatcher);
 
     // When
-    dispatcher.registerHandlerMethod(EventuateDomainEventHandlerInfo.make(handler, method.getAnnotation(EventuateDomainEventHandler.class), method));
+    EventuateDomainEventHandler annotation = method.getAnnotation(EventuateDomainEventHandler.class);
+    dispatcher.registerHandlerMethod(EventuateDomainEventHandlerInfo.make(handler, annotation.subscriberId(), annotation.channel(), method));
     dispatcher.start();
 
     // Then

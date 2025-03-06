@@ -17,11 +17,14 @@ import java.lang.reflect.Type;
  */
 public class EventuateDomainEventHandlerMethodValidator {
 
-  public static void validateEventHandlerMethod(Method method, EventuateDomainEventHandler annotation) {
-    validateMethodIsPublic(method);
-    validateMethodParameters(method);
-    validateMethodDeclaringClass(method);
-    validateAnnotationAttributes(annotation);
+  public static void validateEventHandlerMethod(EventuateDomainEventHandlerInfo info) {
+    if (info == null) {
+      throw new EventuateDomainEventHandlerValidationException("EventuateDomainEventHandlerInfo cannot be null");
+    }
+    validateMethodIsPublic(info.getMethod());
+    validateMethodParameters(info.getMethod());
+    validateMethodDeclaringClass(info.getMethod());
+    validateHandlerAttributes(info.getSubscriberId(), info.getChannel());
   }
 
   private static void validateMethodIsPublic(Method method) {
@@ -70,11 +73,11 @@ public class EventuateDomainEventHandlerMethodValidator {
     }
   }
 
-  private static void validateAnnotationAttributes(EventuateDomainEventHandler annotation) {
-    if (annotation.subscriberId().trim().isEmpty()) {
+  private static void validateHandlerAttributes(String subscriberId, String channel) {
+    if (subscriberId == null || subscriberId.trim().isEmpty()) {
       throw new EventuateDomainEventHandlerValidationException("subscriberId must not be empty");
     }
-    if (annotation.channel().trim().isEmpty()) {
+    if (channel == null || channel.trim().isEmpty()) {
       throw new EventuateDomainEventHandlerValidationException("channel must not be empty");
     }
   }

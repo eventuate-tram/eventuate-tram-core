@@ -28,7 +28,7 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
 
   public void registerHandlerMethod(EventuateDomainEventHandlerInfo eventHandler) {
     logger.info("Registering event handler method: {}", eventHandler);
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(eventHandler.getMethod(), eventHandler.getEventuateDomainEventHandler());
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(eventHandler);
     eventHandlers.add(eventHandler);
   }
 
@@ -40,7 +40,7 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
   public void start() {
     logger.info("Starting EventuateDomainEventDispatcher");
     Map<String, List<EventuateDomainEventHandlerInfo>> groupedEventHandlers = eventHandlers.stream()
-        .collect(Collectors.groupingBy(eh -> eh.getEventuateDomainEventHandler().subscriberId()));
+        .collect(Collectors.groupingBy(EventuateDomainEventHandlerInfo::getSubscriberId));
 
     this.dispatchers = groupedEventHandlers.entrySet()
         .stream()
@@ -54,7 +54,7 @@ public class EventuateDomainEventDispatcher implements SmartLifecycle {
 
   private static DomainEventHandlers makeDomainEventHandlers(List<EventuateDomainEventHandlerInfo> eventHandlers) {
     Map<String, List<EventuateDomainEventHandlerInfo>> groupedByChannel = eventHandlers.stream()
-        .collect(Collectors.groupingBy(eh -> eh.getEventuateDomainEventHandler().channel()));
+        .collect(Collectors.groupingBy(EventuateDomainEventHandlerInfo::getChannel));
 
     AtomicReference<DomainEventHandlersBuilder> builder = new AtomicReference<>();
     groupedByChannel.forEach((channel, handlers) -> {

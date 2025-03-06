@@ -12,53 +12,58 @@ import java.lang.reflect.Type;
  */
 public final class EventuateDomainEventHandlerInfo {
   private final Object target;
-  private final EventuateDomainEventHandler eventuateDomainEventHandler;
+  private final String subscriberId;
+  private final String channel;
   private final Method method;
   private final Class<? extends DomainEvent> eventClass;
 
-  private EventuateDomainEventHandlerInfo(Object target, EventuateDomainEventHandler eventuateDomainEventHandler, Method method, Class<? extends DomainEvent> eventClass) {
+  private EventuateDomainEventHandlerInfo(Object target, String subscriberId, String channel, Method method, Class<? extends DomainEvent> eventClass) {
     this.target = target;
-    this.eventuateDomainEventHandler = eventuateDomainEventHandler;
+    this.subscriberId = subscriberId;
+    this.channel = channel;
     this.method = method;
     this.eventClass = eventClass;
   }
 
   @SuppressWarnings("unchecked")
-  public static EventuateDomainEventHandlerInfo make(Object target, EventuateDomainEventHandler eventuateDomainEventHandler, Method method) {
+  public static EventuateDomainEventHandlerInfo make(Object target, String subscriberId, String channel, Method method) {
     if (target == null) {
-      throw new IllegalArgumentException("target cannot be null");
+      throw new EventuateDomainEventHandlerValidationException("target cannot be null");
     }
-    if (eventuateDomainEventHandler == null) {
-      throw new IllegalArgumentException("eventuateDomainEventHandler cannot be null");
+    if (subscriberId == null || subscriberId.trim().isEmpty()) {
+      throw new EventuateDomainEventHandlerValidationException("subscriberId cannot be null or empty");
+    }
+    if (channel == null || channel.trim().isEmpty()) {
+      throw new EventuateDomainEventHandlerValidationException("channel cannot be null or empty");
     }
     if (method == null) {
-      throw new IllegalArgumentException("method cannot be null");
+      throw new EventuateDomainEventHandlerValidationException("method cannot be null");
     }
 
     Class<? extends DomainEvent> eventClass = extractEventClass(method);
 
-    return new EventuateDomainEventHandlerInfo(target, eventuateDomainEventHandler, method, eventClass);
+    return new EventuateDomainEventHandlerInfo(target, subscriberId, channel, method, eventClass);
   }
 
   @SuppressWarnings("unchecked")
   private static Class<? extends DomainEvent> extractEventClass(Method method) {
     if (method.getParameterCount() != 1) {
-      throw new IllegalArgumentException("Event handler method must have exactly one parameter");
+      throw new EventuateDomainEventHandlerValidationException("Event handler method must have exactly one parameter");
     }
 
     Type parameterType = method.getGenericParameterTypes()[0];
     if (!(parameterType instanceof ParameterizedType)) {
-      throw new IllegalArgumentException("Event handler method parameter must be parameterized DomainEventEnvelope");
+      throw new EventuateDomainEventHandlerValidationException("Event handler method parameter must be parameterized DomainEventEnvelope");
     }
 
     Type eventType = ((ParameterizedType) parameterType).getActualTypeArguments()[0];
     if (!(eventType instanceof Class)) {
-      throw new IllegalArgumentException("Event type parameter must be a class");
+      throw new EventuateDomainEventHandlerValidationException("Event type parameter must be a class");
     }
 
     Class<?> eventClass = (Class<?>) eventType;
     if (!DomainEvent.class.isAssignableFrom(eventClass)) {
-      throw new IllegalArgumentException("Event type must implement DomainEvent");
+      throw new EventuateDomainEventHandlerValidationException("Event type must implement DomainEvent");
     }
 
     return (Class<? extends DomainEvent>) eventClass;
@@ -68,16 +73,16 @@ public final class EventuateDomainEventHandlerInfo {
     return target;
   }
 
-  public EventuateDomainEventHandler getEventuateDomainEventHandler() {
-    return eventuateDomainEventHandler;
-  }
-
   public Method getMethod() {
     return method;
   }
 
+  public String getSubscriberId() {
+    return subscriberId;
+  }
+
   public String getChannel() {
-    return eventuateDomainEventHandler.channel();
+    return channel;
   }
 
   public Class<? extends DomainEvent> getEventClass() {

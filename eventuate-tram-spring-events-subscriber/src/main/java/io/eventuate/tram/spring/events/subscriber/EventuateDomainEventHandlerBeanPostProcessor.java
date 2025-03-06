@@ -33,7 +33,10 @@ public class EventuateDomainEventHandlerBeanPostProcessor implements BeanPostPro
         (MethodIntrospector.MetadataLookup<EventuateDomainEventHandler>) method ->
             method.getAnnotation(EventuateDomainEventHandler.class));
     return annotatedMethods.entrySet().stream()
-        .map(entry -> EventuateDomainEventHandlerInfo.make(bean, entry.getValue(), entry.getKey()))
+        .map(entry -> {
+          EventuateDomainEventHandler annotation = entry.getValue();
+          return EventuateDomainEventHandlerInfo.make(bean, annotation.subscriberId(), annotation.channel(), entry.getKey());
+        })
         .collect(Collectors.toList());
   }
 

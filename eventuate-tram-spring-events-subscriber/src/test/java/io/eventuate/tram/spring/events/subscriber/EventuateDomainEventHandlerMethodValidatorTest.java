@@ -7,8 +7,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.fail;
 
 public class EventuateDomainEventHandlerMethodValidatorTest {
 
@@ -38,82 +37,61 @@ public class EventuateDomainEventHandlerMethodValidatorTest {
     public void handleEvent(DomainEventEnvelope event) {}
   }
 
-  public static abstract class AbstractHandler {
-    @EventuateDomainEventHandler(subscriberId = "test", channel = "test")
-    public void handleEvent(DomainEventEnvelope<TestEvent> event) {}
-  }
-
   @Test
-  public void shouldValidateCorrectHandler() throws NoSuchMethodException {
+  public void shouldValidateCorrectHandler() throws Exception {
     Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("test");
+    ValidHandler handler = new ValidHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
     try {
-      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
     } catch (Exception e) {
       fail("Should not throw exception: " + e.getMessage());
     }
   }
 
   @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectNonPublicHandler() throws NoSuchMethodException {
+  public void shouldRejectNonPublicHandler() throws Exception {
     Method method = NonPublicHandler.class.getDeclaredMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("test");
+    NonPublicHandler handler = new NonPublicHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
   }
 
   @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectWrongParameterType() throws NoSuchMethodException {
+  public void shouldRejectWrongParameterType() throws Exception {
     Method method = WrongParameterTypeHandler.class.getMethod("handleEvent", TestEvent.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("test");
+    WrongParameterTypeHandler handler = new WrongParameterTypeHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
   }
 
   @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectRawType() throws NoSuchMethodException {
+  public void shouldRejectRawType() throws Exception {
     Method method = RawTypeHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("test");
+    RawTypeHandler handler = new RawTypeHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
   }
 
   @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectAbstractClass() throws NoSuchMethodException {
-    Method method = AbstractHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("test");
-
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
-  }
-
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectEmptySubscriberId() throws NoSuchMethodException {
+  public void shouldRejectEmptySubscriberId() throws Exception {
     Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("");
-    when(annotation.channel()).thenReturn("test");
+    ValidHandler handler = new ValidHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
   }
 
   @Test(expected = EventuateDomainEventHandlerValidationException.class)
-  public void shouldRejectEmptyChannel() throws NoSuchMethodException {
+  public void shouldRejectEmptyChannel() throws Exception {
     Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    EventuateDomainEventHandler annotation = mock(EventuateDomainEventHandler.class);
-    when(annotation.subscriberId()).thenReturn("test");
-    when(annotation.channel()).thenReturn("");
+    ValidHandler handler = new ValidHandler();
+    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(method, annotation);
+    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
   }
 }
