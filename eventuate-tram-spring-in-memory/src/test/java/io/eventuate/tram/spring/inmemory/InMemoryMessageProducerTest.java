@@ -3,20 +3,17 @@ package io.eventuate.tram.spring.inmemory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.inmemory.test.AbstractInMemoryMessageProducerTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.function.Consumer;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = InMemoryMessageProducerTest.InMemoryMessagingTestConfiguration.class)
 public class InMemoryMessageProducerTest extends AbstractInMemoryMessageProducerTest {
   @Configuration
@@ -35,7 +32,7 @@ public class InMemoryMessageProducerTest extends AbstractInMemoryMessageProducer
   private MessageConsumer messageConsumer;
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
   }

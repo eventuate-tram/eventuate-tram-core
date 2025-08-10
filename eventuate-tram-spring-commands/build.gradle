@@ -17,3 +17,6 @@ dependencies {
     testImplementation "io.eventuate.examples.common:eventuate-examples-common-money:$eventuateCommonExamplesVersion"
 
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

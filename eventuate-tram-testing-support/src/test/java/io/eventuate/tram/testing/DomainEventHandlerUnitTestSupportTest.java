@@ -4,10 +4,10 @@ import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.events.subscriber.DomainEventHandlersBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.eventuate.tram.testing.DomainEventHandlerUnitTestSupport.given;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.spy;
 
 public class DomainEventHandlerUnitTestSupportTest {
@@ -26,9 +26,8 @@ public class DomainEventHandlerUnitTestSupportTest {
         aggregate("MyAggregate", 101L).
         publishes(new MyEvent()).
         then().
-        expectEventHandlerInvoked(eventHandlers, MyEventHandlers::myEventHandler, (dee) -> {
-          assertEquals(Long.toString(101L), dee.getAggregateId());
-        })
+        expectEventHandlerInvoked(eventHandlers, MyEventHandlers::myEventHandler, (dee) ->
+          assertEquals(Long.toString(101L), dee.getAggregateId()))
     ;
 
   }

@@ -32,7 +32,7 @@ public class SqlTableBasedDuplicateMessageDetector implements DuplicateMessageDe
     try {
       String table = eventuateSchema.qualifyTable("received_messages");
 
-      eventuateJdbcStatementExecutor.update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)",
+      eventuateJdbcStatementExecutor.update("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)".formatted(
               table,
               currentTimeInMillisecondsSql),
               consumerId,

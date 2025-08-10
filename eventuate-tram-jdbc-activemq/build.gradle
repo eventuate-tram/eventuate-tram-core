@@ -8,3 +8,6 @@ dependencies {
 
     api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

@@ -2,7 +2,7 @@ package io.eventuate.tram.commands;
 
 import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.inmemory.InMemoryMessaging;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractCommandDispatchingTests {
 
@@ -11,7 +11,7 @@ public abstract class AbstractCommandDispatchingTests {
     protected String channel = "myChannel";
 
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         CommandHandlers commandHandlers = defineCommandHandlers();

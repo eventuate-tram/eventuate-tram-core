@@ -6,7 +6,7 @@ import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import io.micronaut.retry.annotation.Retryable;
 import io.micronaut.transaction.annotation.TransactionalAdvice;
 
-import javax.persistence.OptimisticLockException;
+import jakarta.persistence.OptimisticLockException;
 
 @TransactionalAdvice
 public class OptimisticLockingDecorator implements MessageHandlerDecorator {

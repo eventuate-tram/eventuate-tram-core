@@ -7,3 +7,6 @@ dependencies {
     api project(":eventuate-tram-spring-consumer-jdbc")
     api project(":eventuate-tram-consumer-redis")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

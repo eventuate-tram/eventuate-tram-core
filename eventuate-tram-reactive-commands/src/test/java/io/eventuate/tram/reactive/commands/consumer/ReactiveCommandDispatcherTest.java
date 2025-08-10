@@ -9,11 +9,13 @@ import io.eventuate.tram.consumer.common.reactive.ReactiveMessageConsumer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 import reactor.tools.agent.ReactorDebugAgent;
@@ -21,11 +23,12 @@ import reactor.tools.agent.ReactorDebugAgent;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@MockitoSettings(strictness = Strictness.WARN)
+@ExtendWith(MockitoExtension.class)
 public class ReactiveCommandDispatcherTest {
   static {
     ReactorDebugAgent.init();
@@ -49,7 +52,7 @@ public class ReactiveCommandDispatcherTest {
 
   private ReactiveCommandReplyProducer commandReplyProducer;
 
-  @Before
+  @BeforeEach
   public void init() {
     when(commandHandler.getCommandClass()).thenReturn(Object.class);
     when(commandHandlers.findTargetMethod(any())).thenReturn(Optional.of(commandHandler));

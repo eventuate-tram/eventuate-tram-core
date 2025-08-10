@@ -8,13 +8,11 @@ import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProdu
 import io.eventuate.tram.spring.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.spring.consumer.kafka.EventuateTramKafkaMessageConsumerConfiguration;
 import io.eventuate.tram.spring.messaging.common.TramMessagingCommonAutoConfiguration;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
 import java.time.Duration;
@@ -24,10 +22,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramIntegrationTest.Config.class)
 public class ReactiveTramIntegrationTest {
 
@@ -51,7 +48,7 @@ public class ReactiveTramIntegrationTest {
 
   @Test
   public void shouldReceiveMessage() throws InterruptedException {
-    String payload = String.format("\"%s\"", generateId());
+    String payload = "\"%s\"".formatted(generateId());
     String destination = generateId();
     String subscriberId = generateId();
 

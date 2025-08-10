@@ -11,8 +11,8 @@ import io.micronaut.context.annotation.Requires;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import javax.sql.DataSource;
 import java.util.Collections;
 

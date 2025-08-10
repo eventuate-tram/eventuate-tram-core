@@ -49,7 +49,7 @@ public class ReactiveDomainEventDispatcher {
 
     Optional<ReactiveDomainEventHandler> handler = domainEventHandlers.findTargetMethod(message);
 
-    if (!handler.isPresent()) {
+    if (handler.isEmpty()) {
       return Mono.empty();
     }
 

@@ -3,12 +3,12 @@ package io.eventuate.tram.micronaut.inmemory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.eventuate.tram.inmemory.test.AbstractInMemoryMessageProducerTest;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.micronaut.transaction.SynchronousTransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.sql.Connection;
 import java.util.function.Consumer;
 

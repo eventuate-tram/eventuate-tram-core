@@ -23,7 +23,7 @@ dependencies {
 }
 
 test {
-    def testCustomDBVariable = System.env['TEST_CUSTOM_DB']
+    def  testCustomDBVariable = System.env['TEST_CUSTOM_DB']
     if (testCustomDBVariable != 'true') {
         exclude '**/TramIntegrationCustomDBTest**'
     }
@@ -33,4 +33,5 @@ test {
     }
 
     forkEvery 1
+    useJUnitPlatform()
 }

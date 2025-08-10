@@ -24,7 +24,7 @@ public class ReactiveCommandHandlers {
   }
 
   public Optional<ReactiveCommandExceptionHandler> findExceptionHandler(ReactiveCommandHandler reactiveCommandHandler, Throwable cause) {
-    throw new UnsupportedOperationException(String.format("A command handler for command of type %s on channel %s threw an exception",
+    throw new UnsupportedOperationException("A command handler for command of type %s on channel %s threw an exception".formatted(
             reactiveCommandHandler.getCommandClass().getName(),
             reactiveCommandHandler.getChannel()),
             cause);

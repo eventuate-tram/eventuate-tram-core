@@ -42,7 +42,7 @@ public class DomainEventDispatcher {
 
     Optional<DomainEventHandler> handler = domainEventHandlers.findTargetMethod(message);
 
-    if (!handler.isPresent()) {
+    if (handler.isEmpty()) {
       return;
     }
 

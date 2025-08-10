@@ -3,3 +3,6 @@ dependencies {
     api project(":eventuate-tram-spring-reactive-events-publisher")
     api project(":eventuate-tram-spring-reactive-events-subscriber")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

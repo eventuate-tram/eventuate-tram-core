@@ -9,3 +9,6 @@ dependencies {
 
     testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

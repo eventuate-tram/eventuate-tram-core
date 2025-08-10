@@ -3,3 +3,6 @@ dependencies {
     compileOnly project(":eventuate-tram-spring-reactive-producer-jdbc")
     compileOnly project(":eventuate-tram-spring-reactive-consumer-kafka")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

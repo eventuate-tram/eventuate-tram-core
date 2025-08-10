@@ -1,14 +1,11 @@
 package io.eventuate.tram.broker.db.integrationtests;
 
 import io.eventuate.tram.messaging.common.ChannelMapping;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TramChannelMappingIntegrationTest.TramChannelMappingIntegrationTestConfiguration.class)
 public class TramChannelMappingIntegrationTest extends AbstractTramIntegrationTest {
 

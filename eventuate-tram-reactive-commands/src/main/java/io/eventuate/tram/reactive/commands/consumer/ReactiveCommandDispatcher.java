@@ -46,7 +46,7 @@ public class ReactiveCommandDispatcher {
 
     Optional<ReactiveCommandHandler> possibleMethod = commandHandlers.findTargetMethod(message);
 
-    if (!possibleMethod.isPresent()) {
+    if (possibleMethod.isEmpty()) {
       throw new RuntimeException("No method for " + message);
     }
 

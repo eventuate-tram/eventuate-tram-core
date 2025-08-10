@@ -7,3 +7,6 @@ dependencies {
     api project(":eventuate-tram-micronaut-consumer-jdbc")
     api project(":eventuate-tram-micronaut-consumer-kafka")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

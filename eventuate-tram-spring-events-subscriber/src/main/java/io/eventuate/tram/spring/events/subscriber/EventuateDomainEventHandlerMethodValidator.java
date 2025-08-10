@@ -30,7 +30,7 @@ public class EventuateDomainEventHandlerMethodValidator {
   private static void validateMethodIsPublic(Method method) {
     if (!Modifier.isPublic(method.getModifiers())) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s must be public", method));
+              "Event handler method %s must be public".formatted(method));
     }
   }
 
@@ -38,30 +38,30 @@ public class EventuateDomainEventHandlerMethodValidator {
     Type[] parameterTypes = method.getGenericParameterTypes();
     if (parameterTypes.length != 1) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s must have exactly one parameter", method));
+              "Event handler method %s must have exactly one parameter".formatted(method));
     }
 
     if (!(parameterTypes[0] instanceof ParameterizedType)) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s parameter must be of type DomainEventEnvelope<T extends DomainEvent>", method));
+              "Event handler method %s parameter must be of type DomainEventEnvelope<T extends DomainEvent>".formatted(method));
     }
 
     ParameterizedType parameterType = (ParameterizedType) parameterTypes[0];
     if (!DomainEventEnvelope.class.equals(parameterType.getRawType())) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s parameter must be of type DomainEventEnvelope<T extends DomainEvent>", method));
+              "Event handler method %s parameter must be of type DomainEventEnvelope<T extends DomainEvent>".formatted(method));
     }
 
     Type[] typeArguments = parameterType.getActualTypeArguments();
     if (typeArguments.length != 1 || !(typeArguments[0] instanceof Class)) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s has invalid event type parameter", method));
+              "Event handler method %s has invalid event type parameter".formatted(method));
     }
 
     Class<?> eventClass = (Class<?>) typeArguments[0];
     if (!DomainEvent.class.isAssignableFrom(eventClass)) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s event type must extend DomainEvent", method));
+              "Event handler method %s event type must extend DomainEvent".formatted(method));
     }
   }
 
@@ -69,7 +69,7 @@ public class EventuateDomainEventHandlerMethodValidator {
     Class<?> declaringClass = method.getDeclaringClass();
     if (Modifier.isAbstract(declaringClass.getModifiers()) || declaringClass.isInterface()) {
       throw new EventuateDomainEventHandlerValidationException(
-          String.format("Event handler method %s must be in a concrete class", method));
+              "Event handler method %s must be in a concrete class".formatted(method));
     }
   }
 

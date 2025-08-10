@@ -2,15 +2,16 @@ package io.eventuate.tram.integrationtest.common;
 
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.env.Profiles;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 public class MySqlBinlogKafkaCondition implements Condition {
   @Override
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    return !context.getEnvironment().acceptsProfiles("EventuatePolling") &&
-            !context.getEnvironment().acceptsProfiles("PostgresWal") &&
-            !context.getEnvironment().acceptsProfiles("ActiveMQ") &&
-            !context.getEnvironment().acceptsProfiles("RabbitMQ") &&
-            !context.getEnvironment().acceptsProfiles("Redis");
+    return !context.getEnvironment().acceptsProfiles(Profiles.of("EventuatePolling")) &&
+            !context.getEnvironment().acceptsProfiles(Profiles.of("PostgresWal")) &&
+            !context.getEnvironment().acceptsProfiles(Profiles.of("ActiveMQ")) &&
+            !context.getEnvironment().acceptsProfiles(Profiles.of("RabbitMQ")) &&
+            !context.getEnvironment().acceptsProfiles(Profiles.of("Redis"));
   }
 }

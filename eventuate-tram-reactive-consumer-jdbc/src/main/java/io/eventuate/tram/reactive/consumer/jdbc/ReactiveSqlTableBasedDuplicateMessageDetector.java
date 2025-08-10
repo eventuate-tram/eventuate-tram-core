@@ -34,9 +34,9 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
     String table = eventuateSchema.qualifyTable("received_messages");
 
     return jdbcStatementExecutor
-            .update(String.format("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)", table, currentTimeInMillisecondsSql),
-                    subscriberIdAndMessage.getSubscriberId(),
-                    subscriberIdAndMessage.getMessage().getId())
+        .update("insert into %s(consumer_id, message_id, creation_time) values(?, ?, %s)".formatted(table, currentTimeInMillisecondsSql),
+            subscriberIdAndMessage.getSubscriberId(),
+            subscriberIdAndMessage.getMessage().getId())
             .then(Mono.just(false))
             .onErrorResume(EventuateDuplicateKeyException.class, throwable -> Mono.just(true));
   }
@@ -44,10 +44,7 @@ public class ReactiveSqlTableBasedDuplicateMessageDetector implements ReactiveDu
   @Override
   public Publisher<?> doWithMessage(SubscriberIdAndMessage subscriberIdAndMessage, Publisher<?> processingFlow) {
     return Mono.defer(() -> isDuplicate(subscriberIdAndMessage)
-            .flatMap(dup -> {
-              if (dup) return Mono.empty();
-              else return Mono.from(processingFlow);
-            })).as(transactionalOperator::transactional);
+            .flatMap(dup -> dup ? Mono.empty() : Mono.from(processingFlow))).as(transactionalOperator::transactional);
 
   }
 }

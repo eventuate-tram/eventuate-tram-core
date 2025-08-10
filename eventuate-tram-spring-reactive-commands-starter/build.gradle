@@ -3,3 +3,6 @@ dependencies {
     api project(":eventuate-tram-spring-reactive-messaging-starter")
     api project(":eventuate-tram-spring-reactive-commands")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

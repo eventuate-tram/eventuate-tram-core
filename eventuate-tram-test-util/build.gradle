@@ -4,5 +4,9 @@ dependencies {
     api project(":eventuate-tram-spring-commands")
 
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    api "junit:junit:4.12"
+
+    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

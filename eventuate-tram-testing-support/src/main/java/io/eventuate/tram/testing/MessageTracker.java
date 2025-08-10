@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Subscribes to a specified set of channels
@@ -36,7 +36,7 @@ public class MessageTracker {
 
   private void validateChannel(String commandChannel) {
     if (!channels.contains(commandChannel))
-      throw new IllegalArgumentException(String.format("%s is not one of the specified channels: %s", commandChannel, channels));
+      throw new IllegalArgumentException("%s is not one of the specified channels: %s".formatted(commandChannel, channels));
   }
 
   public void reset() {
@@ -52,7 +52,7 @@ public class MessageTracker {
     Eventually.eventually(() -> {
       List<Message> messages = getMessages();
       if (messages.stream().noneMatch(m -> isCommandMessageOfType(m, expectedCommandClass)))
-        fail(String.format("Cannot find command message of type %s in %s", expectedCommandClass.getName(), messages));
+        fail("Cannot find command message of type %s in %s".formatted(expectedCommandClass.getName(), messages));
     });
   }
 
@@ -76,7 +76,7 @@ public class MessageTracker {
     Eventually.eventually(() -> {
       List<Message> messages = getMessages();
       if (messages.stream().noneMatch(m -> isEventMessageOfType(m, expectedDomainEventClass)))
-        fail(String.format("Cannot find domain eventmessage of type %s in %s", expectedDomainEventClass.getName(), messages));
+        fail("Cannot find domain eventmessage of type %s in %s".formatted(expectedDomainEventClass.getName(), messages));
     });
   }
 

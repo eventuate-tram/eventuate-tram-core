@@ -1,15 +1,12 @@
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version "1.1.7"
 }
-
-
 
 dependencyManagement {
     imports {
         mavenBom "io.micronaut:micronaut-bom:$micronautVersion"
     }
 }
-
 
 dependencies {
     api project(":eventuate-tram-in-memory")
@@ -28,6 +25,7 @@ dependencies {
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
     api "io.micronaut:micronaut-inject"
     api "io.micronaut:micronaut-validation"
+    implementation "jakarta.inject:jakarta.inject-api:2.0.1"
     api "io.micronaut:micronaut-runtime"
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
     testImplementation "org.junit.jupiter:junit-jupiter-api"

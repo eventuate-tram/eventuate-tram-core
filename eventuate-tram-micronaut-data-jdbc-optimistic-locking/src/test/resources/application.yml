@@ -6,8 +6,9 @@ datasources:
     driverClassName: com.mysql.cj.jdbc.Driver
 jpa:
   default:
-    packages-to-scan:
-      - 'io.eventuate.tram.jdbc.optimistic.locking.common.test'
+    entity-scan:
+      packages:
+        - 'io.eventuate.tram.jdbc.optimistic.locking.common.test'
     properties:
       hibernate:
         hbm2ddl:

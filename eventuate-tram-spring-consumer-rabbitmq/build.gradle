@@ -1,3 +1,6 @@
 dependencies {
     implementation project(":eventuate-tram-consumer-rabbitmq")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

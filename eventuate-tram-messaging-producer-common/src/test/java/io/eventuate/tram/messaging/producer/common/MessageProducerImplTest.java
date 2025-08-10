@@ -4,12 +4,12 @@ import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class MessageProducerImplTest {

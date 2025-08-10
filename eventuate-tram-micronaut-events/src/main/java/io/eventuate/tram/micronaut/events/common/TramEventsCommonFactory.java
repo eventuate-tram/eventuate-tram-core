@@ -5,7 +5,7 @@ import io.eventuate.tram.events.common.DomainEventNameMapping;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class TramEventsCommonFactory {

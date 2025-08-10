@@ -10,3 +10,4 @@ out
 bin
 .DS_Store
 .java-version
+.vscode

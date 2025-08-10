@@ -34,9 +34,18 @@ allprojects {
     if (!project.name.endsWith("-bom")) {
 
         dependencies {
+            if (!project.name.contains("-micronaut")) {
+                testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+                testRuntimeOnly "org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion"
+            }
+            
+            testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
+            testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
-          testImplementation "junit:junit:4.12"
-          testImplementation "org.mockito:mockito-core:2.23.4"
+            constraints {
+                annotationProcessor("io.micronaut.configuration:micronaut-openapi:1.5.3")
+                implementation("io.micronaut.configuration:micronaut-openapi:1.5.3")
+            }
       }
 
     }
@@ -45,7 +54,7 @@ allprojects {
 subprojects { project ->
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(project.ext.get("springBootVersion").startsWith("3") ? 17 : 8));
+            languageVersion.set(JavaLanguageVersion.of(17));
         }
     }
 }
@@ -95,4 +104,13 @@ dockerCompose {
         projectName = null
         useComposeFiles = ["docker-compose-postgres-wal-rabbitmq.yml"]
     }
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+task refreshAndBuildTestClasses(type: Exec) {
+    description = 'Refresh dependencies and compile test classes in parallel'
+    group = 'build'
+    commandLine './gradlew', '--refresh-dependencies', 'testClasses', '--parallel'
 }

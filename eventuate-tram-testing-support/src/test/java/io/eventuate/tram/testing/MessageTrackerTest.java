@@ -7,21 +7,18 @@ import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.spring.events.publisher.TramEventsPublisherConfiguration;
 import io.eventuate.tram.spring.inmemory.TramInMemoryConfiguration;
+import org.junit.jupiter.api.Test;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 import java.util.Set;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes=MessageTrackerTest.MessageTrackerTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class MessageTrackerTest {
 

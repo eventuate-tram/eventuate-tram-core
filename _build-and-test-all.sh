@@ -14,7 +14,7 @@ if [ -z "$TEST_DB_ID" ] ; then
 
   ${docker}Up
 
-  ./gradlew cleanTest build
+  ./gradlew build
 
   if [[ "${DATABASE}" == "mysql" ]] && [[ "${BROKER}" == "kafka" ]]; then
       ${docker}Down -P removeContainers=true
@@ -26,8 +26,8 @@ if [ -z "$TEST_DB_ID" ] ; then
 
       export TEST_CUSTOM_DB=true
 
-      ./gradlew cleanTest :eventuate-tram-db-broker-integration-test:test --tests "io.eventuate.tram.broker.db.integrationtests.TramIntegrationCustomDBTest"
-      ./gradlew cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.broker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
+      ./gradlew :eventuate-tram-db-broker-integration-test:cleanTest :eventuate-tram-db-broker-integration-test:test --tests "io.eventuate.tram.broker.db.integrationtests.TramIntegrationCustomDBTest"
+      ./gradlew :eventuate-tram-commands-db-broker-integration-test:cleanTest :eventuate-tram-commands-db-broker-integration-test:test --tests "io.eventuate.tram.commands.db.broker.integrationtests.TramCommandsDBBrokerIntegrationCustomDBTest"
   fi
 
 else
@@ -43,7 +43,7 @@ else
   unset EVENTUATE_DATABASE_SCHEMA
   ${docker}Up
 
-  ./gradlew cleanTest build
+  ./gradlew build
 fi
 
 ${docker}Down  -P removeContainers=true

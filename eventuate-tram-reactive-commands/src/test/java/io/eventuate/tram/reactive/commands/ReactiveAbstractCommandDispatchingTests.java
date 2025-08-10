@@ -15,7 +15,7 @@ import io.eventuate.tram.reactive.commands.producer.ReactiveCommandProducerImpl;
 import io.eventuate.tram.reactive.inmemory.ReactiveInMemoryMessageConsumer;
 import io.eventuate.tram.reactive.inmemory.ReactiveInMemoryMessageProducer;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Collections;
 
@@ -27,7 +27,7 @@ public abstract class ReactiveAbstractCommandDispatchingTests {
     protected ReactiveCommandReplyProducer commandReplyProducer;
     protected ReactiveMessageConsumer messageConsumer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ReactiveInMemoryMessageConsumer inMemoryMessageConsumer = new ReactiveInMemoryMessageConsumer();
 

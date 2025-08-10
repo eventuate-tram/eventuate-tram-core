@@ -12,8 +12,7 @@ import io.eventuate.tram.spring.reactive.commands.consumer.ReactiveTramCommandCo
 import io.eventuate.tram.spring.reactive.commands.producer.ReactiveTramCommandProducerConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumerConfiguration;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -29,10 +27,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramCommandIntegrationTest.Config.class)
 public class ReactiveTramCommandIntegrationTest {
 

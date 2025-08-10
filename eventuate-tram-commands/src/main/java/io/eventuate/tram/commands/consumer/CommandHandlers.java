@@ -24,7 +24,7 @@ public class CommandHandlers {
   }
 
   public Optional<CommandExceptionHandler> findExceptionHandler(CommandHandler commandHandler, Throwable cause) {
-    throw new UnsupportedOperationException(String.format("A command handler for command of type %s on channel %s threw an exception",
+    throw new UnsupportedOperationException("A command handler for command of type %s on channel %s threw an exception".formatted(
             commandHandler.getCommandClass().getName(),
             commandHandler.getChannel()),
             cause);

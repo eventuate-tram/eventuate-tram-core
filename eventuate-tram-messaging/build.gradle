@@ -1,4 +1,7 @@
 
 dependencies {
-    api "commons-lang:commons-lang:2.6"
+    api "org.apache.commons:commons-lang3:3.18.0"
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

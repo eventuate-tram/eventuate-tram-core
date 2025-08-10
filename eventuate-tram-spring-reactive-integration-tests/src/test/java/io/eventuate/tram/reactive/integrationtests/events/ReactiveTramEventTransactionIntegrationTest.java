@@ -2,19 +2,16 @@ package io.eventuate.tram.reactive.integrationtests.events;
 
 import io.eventuate.tram.reactive.integrationtests.IdSupplier;
 import io.eventuate.tram.spring.events.publisher.ReactiveDomainEventPublisher;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramEventIntegrationTestConfiguration.class)
 @DirtiesContext
 public class ReactiveTramEventTransactionIntegrationTest {
@@ -28,7 +25,7 @@ public class ReactiveTramEventTransactionIntegrationTest {
   private String aggregateId;
   private String payload;
 
-  @Before
+  @BeforeEach
   public void init() {
     aggregateId = IdSupplier.get();
     payload = IdSupplier.get();
@@ -43,6 +40,6 @@ public class ReactiveTramEventTransactionIntegrationTest {
     //event consumer will try to publish reply (TestEvent), but because of exception it should not be delivered (transaction rollback)
     TestEvent event = tramTestEventConsumer.getQueue().poll(5, TimeUnit.SECONDS);
 
-    Assert.assertNull(event);
+    Assertions.assertNull(event);
   }
 }

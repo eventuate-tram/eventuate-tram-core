@@ -5,3 +5,6 @@ dependencies {
     api project(":eventuate-tram-jdbc-activemq")
     api project(":eventuate-tram-jdbc-redis")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

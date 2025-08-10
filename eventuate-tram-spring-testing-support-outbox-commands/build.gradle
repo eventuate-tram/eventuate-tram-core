@@ -3,3 +3,6 @@ dependencies {
     implementation project(":eventuate-tram-commands")
     implementation "org.assertj:assertj-core:$assertjVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

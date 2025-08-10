@@ -6,13 +6,13 @@ import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.events.subscriber.DomainEventHandlers;
 import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class EventuateDomainEventDispatcherTest {
@@ -29,7 +29,7 @@ public class EventuateDomainEventDispatcherTest {
     public void handleEvent(DomainEventEnvelope<TestEvent> event) {}
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     domainEventDispatcherFactory = mock(DomainEventDispatcherFactory.class);
     dispatcher = new EventuateDomainEventDispatcher(domainEventDispatcherFactory);

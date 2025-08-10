@@ -1,5 +1,5 @@
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version "1.1.7"
 }
 
 
@@ -16,21 +16,26 @@ dependencies {
     api project(":eventuate-tram-optimistic-locking-common-test")
     api "io.eventuate.common:eventuate-common-micronaut-data-jdbc:$eventuateCommonVersion"
     api "io.micronaut.sql:micronaut-hibernate-jpa"
-    annotationProcessor "javax.persistence:javax.persistence-api:2.2"
+    implementation "jakarta.inject:jakarta.inject-api:2.0.1"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
     api("io.micronaut.data:micronaut-data-jdbc")
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    annotationProcessor "io.micronaut.data:micronaut-data-processor"
+    annotationProcessor "io.micronaut.sql:micronaut-hibernate-jpa"
     api "io.micronaut:micronaut-inject"
     api "io.micronaut:micronaut-validation"
     api "io.micronaut:micronaut-runtime"
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testAnnotationProcessor "io.micronaut.data:micronaut-data-processor"
+    testAnnotationProcessor "io.micronaut.sql:micronaut-hibernate-jpa"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "io.micronaut.test:micronaut-test-junit5"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testRuntimeOnly 'io.micronaut.sql:micronaut-jdbc-hikari'
 
-    testRuntimeOnly 'mysql:mysql-connector-java:8.0.21'
+    testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.33'
     testRuntimeOnly ('org.postgresql:postgresql:9.4-1200-jdbc41') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }

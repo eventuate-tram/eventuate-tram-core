@@ -6,4 +6,7 @@ dependencies {
     api "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
 

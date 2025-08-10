@@ -3,3 +3,6 @@ dependencies {
     api project(":eventuate-tram-in-memory")
     api "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

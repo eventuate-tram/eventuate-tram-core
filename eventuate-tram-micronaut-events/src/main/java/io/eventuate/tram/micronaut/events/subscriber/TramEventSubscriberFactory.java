@@ -5,7 +5,7 @@ import io.eventuate.tram.events.subscriber.DomainEventDispatcherFactory;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.micronaut.context.annotation.Factory;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class TramEventSubscriberFactory {

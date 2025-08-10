@@ -7,7 +7,7 @@ import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import io.micronaut.context.annotation.Factory;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class TramCommandProducerFactory {

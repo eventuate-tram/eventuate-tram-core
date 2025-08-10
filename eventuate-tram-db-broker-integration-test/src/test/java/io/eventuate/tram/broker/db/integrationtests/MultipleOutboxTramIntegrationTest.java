@@ -5,17 +5,14 @@ import io.eventuate.common.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.DockerHealthcheckWaitStrategy;
 
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TramIntegrationTestConfiguration.class, properties = {"eventuate.tram.outbox.partitioning.outbox.tables=8", "eventuate.tram.outbox.partitioning.message.partitions=4"})
 public class MultipleOutboxTramIntegrationTest extends AbstractTramIntegrationTest {
 

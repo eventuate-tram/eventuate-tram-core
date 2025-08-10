@@ -3,23 +3,20 @@ package io.eventuate.tram.reactive.integrationtests.events;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.reactive.integrationtests.IdSupplier;
 import io.eventuate.tram.spring.events.publisher.ReactiveDomainEventPublisher;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramEventIntegrationTestConfiguration.class)
 @DirtiesContext
 public class ReactiveTramEventIntegrationTest {
@@ -42,7 +39,7 @@ public class ReactiveTramEventIntegrationTest {
   private String additionalAggregateId;
   private String additionalPayload;
 
-  @Before
+  @BeforeEach
   public void init() {
     aggregateId = IdSupplier.get();
     payload = IdSupplier.get();
@@ -60,10 +57,10 @@ public class ReactiveTramEventIntegrationTest {
             .map(Message::getId)
             .block();
 
-    assertNotNull("should have message id", id);
+    assertNotNull(id, "should have message id");
     TestEvent event = testEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
 
-    Assert.assertEquals(payload, event.getPayload());
+    Assertions.assertEquals(payload, event.getPayload());
   }
 
   @Test
@@ -74,7 +71,7 @@ public class ReactiveTramEventIntegrationTest {
 
     TestEvent event = testEventConsumer.getQueue().poll(5, TimeUnit.SECONDS);
 
-    Assert.assertNull(event);
+    Assertions.assertNull(event);
   }
 
   @Test
@@ -86,11 +83,11 @@ public class ReactiveTramEventIntegrationTest {
             .publish()
             .block();
 
-    Assert.assertEquals(1, messages.size());
+    Assertions.assertEquals(1, messages.size());
 
     TestEvent event = testEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
 
-    Assert.assertEquals(payload, event.getPayload());
+    Assertions.assertEquals(payload, event.getPayload());
   }
 
   @Test
@@ -101,12 +98,12 @@ public class ReactiveTramEventIntegrationTest {
             .publish()
             .block();
 
-    Assert.assertEquals(2, messages.size());
+    Assertions.assertEquals(2, messages.size());
 
     TestEvent event = testEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
-    Assert.assertEquals(payload, event.getPayload());
+    Assertions.assertEquals(payload, event.getPayload());
 
     AdditionalTestEvent additionalEvent = additionalTestEventConsumer.getQueue().poll(10, TimeUnit.SECONDS);
-    Assert.assertEquals(additionalPayload, additionalEvent.getPayload());
+    Assertions.assertEquals(additionalPayload, additionalEvent.getPayload());
   }
 }

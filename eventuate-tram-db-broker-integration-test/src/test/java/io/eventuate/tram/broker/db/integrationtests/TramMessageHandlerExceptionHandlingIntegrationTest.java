@@ -6,13 +6,11 @@ import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.consumer.MessageSubscription;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +19,6 @@ import static io.eventuate.util.test.async.Eventually.eventually;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TramIntegrationTestConfiguration.class)
 public class TramMessageHandlerExceptionHandlingIntegrationTest  {
 

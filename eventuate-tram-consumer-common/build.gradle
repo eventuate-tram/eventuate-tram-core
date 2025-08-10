@@ -7,5 +7,8 @@ dependencies {
 
     testImplementation 'com.google.guava:guava:19.0'
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
 
 

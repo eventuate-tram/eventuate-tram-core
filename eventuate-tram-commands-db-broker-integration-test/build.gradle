@@ -14,9 +14,10 @@ dependencies {
 }
 
 test {
-    def testCustomDBVariable = System.env['TEST_CUSTOM_DB']
+    def  testCustomDBVariable = System.env['TEST_CUSTOM_DB']
     if (testCustomDBVariable != 'true') {
         exclude '**/TramCommandsDBBrokerIntegrationCustomDBTest**'
     }
     forkEvery 1
+    useJUnitPlatform()
 }

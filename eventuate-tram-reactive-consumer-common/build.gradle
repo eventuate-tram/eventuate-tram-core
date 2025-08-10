@@ -6,5 +6,8 @@ dependencies {
 
     api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
 
 

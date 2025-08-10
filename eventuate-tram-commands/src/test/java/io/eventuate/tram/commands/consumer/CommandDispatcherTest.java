@@ -8,20 +8,23 @@ import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.messaging.producer.MessageProducer;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static io.eventuate.tram.commands.producer.CommandMessageFactory.makeMessage;
 import static java.util.Collections.singletonMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@MockitoSettings(strictness = Strictness.WARN)
+@ExtendWith(MockitoExtension.class)
 public class CommandDispatcherTest {
 
   @Spy
@@ -84,7 +87,7 @@ public class CommandDispatcherTest {
 
   private String channel = "myChannel";
 
-  @Before
+  @BeforeEach
   public void setup() {
     when(commandNameMapping.commandToExternalCommandType(any(TestCommand.class))).thenReturn(externalCommandName);
     when(commandNameMapping.externalCommandTypeToCommandClassName(externalCommandName)).thenReturn(TestCommand.class.getName());

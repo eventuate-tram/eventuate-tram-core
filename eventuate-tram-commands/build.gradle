@@ -4,10 +4,11 @@ dependencies {
 
     api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 
-    api "javax.annotation:javax.annotation-api:1.3.2"
-
     testImplementation project(":eventuate-tram-in-memory")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation project(":eventuate-tram-test-util")
 
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

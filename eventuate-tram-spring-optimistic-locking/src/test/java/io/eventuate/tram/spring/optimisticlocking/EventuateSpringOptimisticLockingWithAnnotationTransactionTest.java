@@ -1,16 +1,13 @@
 package io.eventuate.tram.spring.optimisticlocking;
 
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = EventuateSpringOptimisticLockingWithAnnotationTransactionTest.Config.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class EventuateSpringOptimisticLockingWithAnnotationTransactionTest extends AbstractEventuateSpringOptimisticLockingTest {
 

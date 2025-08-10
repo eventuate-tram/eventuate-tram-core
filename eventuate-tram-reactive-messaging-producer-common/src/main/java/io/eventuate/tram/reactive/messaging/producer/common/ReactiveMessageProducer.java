@@ -51,8 +51,8 @@ public class ReactiveMessageProducer {
             .send(message)
             .doOnError(throwable -> {
               logger.error("Sending failed", throwable);
-              if (throwable instanceof RuntimeException) {
-                postSend(message, (RuntimeException) throwable);
+              if (throwable instanceof RuntimeException exception) {
+                postSend(message, exception);
               }
               throw new RuntimeException(throwable);
             })

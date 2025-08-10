@@ -1,3 +1,6 @@
 dependencies {
     implementation project(":eventuate-tram-consumer-activemq")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

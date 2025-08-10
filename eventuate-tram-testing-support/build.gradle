@@ -5,9 +5,13 @@ dependencies {
     api project(":eventuate-tram-spring-events")
 
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    api "junit:junit:4.12"
-    compileOnly "org.mockito:mockito-core:2.23.4"
+    compileOnly "org.mockito:mockito-core:$mockitoVersion"
+    implementation "org.junit.jupiter:junit-jupiter:$junitVersion"
 
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
     testImplementation project(":eventuate-tram-spring-in-memory")
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

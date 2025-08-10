@@ -9,8 +9,9 @@ dependencies {
 }
 
 test {
-    def profile = System.env['SPRING_PROFILES_ACTIVE']
+    def  profile = System.env['SPRING_PROFILES_ACTIVE']
     if (profile != null && profile != '' && !profile.toLowerCase().contains("mysql")) {
         exclude '**/ReactiveTramIntegrationTest**'
     }
+    useJUnitPlatform()
 }

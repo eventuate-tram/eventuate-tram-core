@@ -35,7 +35,7 @@ public class AbstractCommandHandler<RESULT> {
   }
 
   private boolean resourceMatches(Message message) {
-    return !resource.isPresent() || message.getHeader(CommandMessageHeaders.RESOURCE).map(m -> resourceMatches(m, resource.get())).orElse(false);
+    return resource.isEmpty() || message.getHeader(CommandMessageHeaders.RESOURCE).map(m -> resourceMatches(m, resource.get())).orElse(false);
   }
 
   private boolean commandTypeMatches(Message message) {

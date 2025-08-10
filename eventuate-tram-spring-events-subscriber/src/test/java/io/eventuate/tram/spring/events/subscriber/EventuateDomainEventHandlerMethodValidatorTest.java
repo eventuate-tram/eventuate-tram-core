@@ -3,11 +3,12 @@ package io.eventuate.tram.spring.events.subscriber;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.subscriber.DomainEventEnvelope;
 import io.eventuate.tram.events.subscriber.annotations.EventuateDomainEventHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EventuateDomainEventHandlerMethodValidatorTest {
 
@@ -50,48 +51,58 @@ public class EventuateDomainEventHandlerMethodValidatorTest {
     }
   }
 
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
+  @Test
   public void shouldRejectNonPublicHandler() throws Exception {
-    Method method = NonPublicHandler.class.getDeclaredMethod("handleEvent", DomainEventEnvelope.class);
-    NonPublicHandler handler = new NonPublicHandler();
-    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
+    assertThrows(EventuateDomainEventHandlerValidationException.class, () -> {
+      Method method = NonPublicHandler.class.getDeclaredMethod("handleEvent", DomainEventEnvelope.class);
+      NonPublicHandler handler = new NonPublicHandler();
+      EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+    });
   }
 
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
+  @Test
   public void shouldRejectWrongParameterType() throws Exception {
-    Method method = WrongParameterTypeHandler.class.getMethod("handleEvent", TestEvent.class);
-    WrongParameterTypeHandler handler = new WrongParameterTypeHandler();
-    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
+    assertThrows(EventuateDomainEventHandlerValidationException.class, () -> {
+      Method method = WrongParameterTypeHandler.class.getMethod("handleEvent", TestEvent.class);
+      WrongParameterTypeHandler handler = new WrongParameterTypeHandler();
+      EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+    });
   }
 
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
+  @Test
   public void shouldRejectRawType() throws Exception {
-    Method method = RawTypeHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    RawTypeHandler handler = new RawTypeHandler();
-    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
+    assertThrows(EventuateDomainEventHandlerValidationException.class, () -> {
+      Method method = RawTypeHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
+      RawTypeHandler handler = new RawTypeHandler();
+      EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+    });
   }
 
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
+  @Test
   public void shouldRejectEmptySubscriberId() throws Exception {
-    Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    ValidHandler handler = new ValidHandler();
-    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "", "test", method);
+    assertThrows(EventuateDomainEventHandlerValidationException.class, () -> {
+      Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
+      ValidHandler handler = new ValidHandler();
+      EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "", "test", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+    });
   }
 
-  @Test(expected = EventuateDomainEventHandlerValidationException.class)
+  @Test
   public void shouldRejectEmptyChannel() throws Exception {
-    Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
-    ValidHandler handler = new ValidHandler();
-    EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "", method);
+    assertThrows(EventuateDomainEventHandlerValidationException.class, () -> {
+      Method method = ValidHandler.class.getMethod("handleEvent", DomainEventEnvelope.class);
+      ValidHandler handler = new ValidHandler();
+      EventuateDomainEventHandlerInfo info = EventuateDomainEventHandlerInfo.make(handler, "test", "", method);
 
-    EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+      EventuateDomainEventHandlerMethodValidator.validateEventHandlerMethod(info);
+    });
   }
 }

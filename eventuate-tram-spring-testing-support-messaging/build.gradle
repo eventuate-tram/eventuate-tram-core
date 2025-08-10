@@ -12,3 +12,6 @@ dependencies {
     implementation "org.hamcrest:hamcrest:2.2"
     implementation "org.junit.jupiter:junit-jupiter-api:5.5.2"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

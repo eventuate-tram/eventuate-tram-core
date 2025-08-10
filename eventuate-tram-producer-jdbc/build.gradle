@@ -9,4 +9,7 @@ dependencies {
 
     api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
 

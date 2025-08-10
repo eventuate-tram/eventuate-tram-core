@@ -7,15 +7,13 @@ import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProdu
 import io.eventuate.tram.spring.messaging.producer.jdbc.reactive.ReactiveTramMessageProducerJdbcConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.common.ReactiveTramConsumerCommonConfiguration;
 import io.eventuate.tram.spring.reactive.consumer.kafka.EventuateTramReactiveKafkaMessageConsumerConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -23,7 +21,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ReactiveTramMessagingIntegrationTest.Config.class)
 public class ReactiveTramMessagingIntegrationTest {
 
@@ -45,7 +42,7 @@ public class ReactiveTramMessagingIntegrationTest {
   private String subscriberId;
   private String payload;
 
-  @Before
+  @BeforeEach
   public void init() {
     destination = IdSupplier.get();
     subscriberId = IdSupplier.get();
@@ -61,6 +58,6 @@ public class ReactiveTramMessagingIntegrationTest {
 
     messageProducer.send(destination, MessageBuilder.withPayload(payload).build()).block();
 
-    Assert.assertEquals(payload, messageQueue.poll(10, TimeUnit.SECONDS));
+    Assertions.assertEquals(payload, messageQueue.poll(10, TimeUnit.SECONDS));
   }
 }

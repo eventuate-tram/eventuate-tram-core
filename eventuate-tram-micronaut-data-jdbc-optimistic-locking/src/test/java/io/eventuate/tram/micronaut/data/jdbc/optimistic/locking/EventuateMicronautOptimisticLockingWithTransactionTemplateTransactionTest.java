@@ -1,10 +1,10 @@
 package io.eventuate.tram.micronaut.data.jdbc.optimistic.locking;
 
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityService;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @MicronautTest(transactional = false)
 public class EventuateMicronautOptimisticLockingWithTransactionTemplateTransactionTest extends AbstractEventuateMicronautOptimisticLockingTest {

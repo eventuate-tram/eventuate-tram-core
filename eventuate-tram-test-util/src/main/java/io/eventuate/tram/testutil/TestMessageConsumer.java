@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestMessageConsumer implements MessageHandler {
 

@@ -13,3 +13,6 @@ dependencies {
     testRuntimeOnly "org.flywaydb:flyway-sqlserver:$flywayVersion"
 
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

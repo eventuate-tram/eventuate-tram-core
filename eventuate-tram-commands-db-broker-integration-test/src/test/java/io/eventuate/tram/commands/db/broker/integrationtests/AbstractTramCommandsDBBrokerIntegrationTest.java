@@ -5,14 +5,14 @@ import io.eventuate.tram.commands.consumer.CommandMessage;
 import io.eventuate.tram.commands.consumer.PathVariables;
 import io.eventuate.tram.commands.producer.CommandProducer;
 import io.eventuate.tram.messaging.common.Message;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 

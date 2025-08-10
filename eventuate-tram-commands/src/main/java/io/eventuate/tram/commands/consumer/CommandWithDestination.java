@@ -1,7 +1,7 @@
 package io.eventuate.tram.commands.consumer;
 
 import io.eventuate.tram.commands.common.Command;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Collections;
 import java.util.Map;

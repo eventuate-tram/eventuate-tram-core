@@ -1,7 +1,7 @@
 package io.eventuate.tram.jdbc.optimistic.locking.common.test;
 
 import io.eventuate.tram.consumer.common.MessageHandlerDecorator;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +24,8 @@ public abstract class AbstractEventuateOptimisticLockingTest {
 
     countDownLatch.await();
 
-    Assert.assertTrue(attempts.get() > UPDATE_THREADS);
-    Assert.assertEquals(UPDATE_THREADS, testEntityService().getDataInTransaction(testEntityId));
+    Assertions.assertTrue(attempts.get() > UPDATE_THREADS);
+    Assertions.assertEquals(UPDATE_THREADS, testEntityService().getDataInTransaction(testEntityId));
   }
 
   public abstract MessageHandlerDecorator getOptimisticLockingDecorator();

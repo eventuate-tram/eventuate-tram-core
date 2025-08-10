@@ -4,8 +4,8 @@ import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityS
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
 import io.micronaut.transaction.annotation.TransactionalAdvice;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TestEntityServiceTransactionAnnotation extends AbstractTestEntityService {

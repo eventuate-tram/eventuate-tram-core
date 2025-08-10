@@ -2,7 +2,7 @@ package io.eventuate.tram.events.subscriber;
 
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.messaging.common.Message;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class DomainEventEnvelopeImpl<T extends DomainEvent> implements DomainEventEnvelope<T> {
 

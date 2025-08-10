@@ -13,3 +13,6 @@ dependencies {
     testImplementation project(":eventuate-tram-in-memory")
     testImplementation project(":eventuate-tram-spring-in-memory")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

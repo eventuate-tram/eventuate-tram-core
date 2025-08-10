@@ -5,28 +5,25 @@ import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetect
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Optional;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {EventuateSpringReactiveSqlTableBasedDuplicateMessageDetectorTest.Config.class}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class EventuateSpringReactiveSqlTableBasedDuplicateMessageDetectorTest {
 
   @Autowired
   private ReactiveDuplicateMessageDetector duplicateMessageDetector;
+  private SubscriberIdAndMessage subscriberIdAndMessage;
 
   @Configuration
   @EnableAutoConfiguration
@@ -34,18 +31,34 @@ public class EventuateSpringReactiveSqlTableBasedDuplicateMessageDetectorTest {
   public static class Config {
   }
 
-  @Test
-  public void shouldDetectDuplicate() {
+  @BeforeEach
+  public void setUp() {
     String consumerId = getClass().getName();
     String messageId = Long.toString(System.currentTimeMillis());
 
     Message message = new MessageImpl();
     message.setHeader(Message.ID, messageId);
 
-    SubscriberIdAndMessage subscriberIdAndMessage = new SubscriberIdAndMessage(consumerId, message);
+    subscriberIdAndMessage = new SubscriberIdAndMessage(consumerId, message);
+  }
 
+  @Test
+  public void shouldDetectDuplicate() {
     assertFalse(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block(Duration.ofSeconds(30)));
     assertTrue(duplicateMessageDetector.isDuplicate(subscriberIdAndMessage).block(Duration.ofSeconds(30)));
+  }
+  @Test
+
+  public void shouldInvokeHandlerOrNot() {
+    var result = Mono.from(duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, Mono.just("processed")))
+        .block(Duration.ofSeconds(30));
+
+    assertEquals("processed", result);
+
+    var result2 = Mono.from(duplicateMessageDetector.doWithMessage(subscriberIdAndMessage, Mono.just("processed")))
+        .block(Duration.ofSeconds(30));
+
+    assertNull(result2, "Expected no result for duplicate message processing");
   }
 
 }

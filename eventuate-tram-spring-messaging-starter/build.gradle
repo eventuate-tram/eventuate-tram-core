@@ -10,3 +10,6 @@ dependencies {
     compileOnly project(":eventuate-tram-consumer-redis")
 
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

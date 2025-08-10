@@ -4,5 +4,8 @@ dependencies {
 
     api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
 
 

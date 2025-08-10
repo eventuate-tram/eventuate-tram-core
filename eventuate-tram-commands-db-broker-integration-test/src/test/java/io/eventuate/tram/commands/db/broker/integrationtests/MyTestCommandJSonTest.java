@@ -1,7 +1,7 @@
 package io.eventuate.tram.commands.db.broker.integrationtests;
 
 import io.eventuate.common.json.mapper.JSonMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MyTestCommandJSonTest {
 

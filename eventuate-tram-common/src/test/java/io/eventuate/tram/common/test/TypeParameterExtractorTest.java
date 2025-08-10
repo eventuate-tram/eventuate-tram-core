@@ -1,11 +1,12 @@
 package io.eventuate.tram.common.test;
 
 import io.eventuate.tram.common.TypeParameterExtractor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TypeParameterExtractorTest {
 
@@ -28,10 +29,12 @@ public class TypeParameterExtractorTest {
         assertEquals(ReserveCreditCommand.class, commandClass);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailForMethodWithoutParameters() throws Exception {
+      assertThrows(IllegalArgumentException.class, () -> {
         Method method = getClass().getMethod("handleCommandWithoutGenericType", String.class);
         TypeParameterExtractor.extractTypeParameter(method);
+      });
     }
 
 }

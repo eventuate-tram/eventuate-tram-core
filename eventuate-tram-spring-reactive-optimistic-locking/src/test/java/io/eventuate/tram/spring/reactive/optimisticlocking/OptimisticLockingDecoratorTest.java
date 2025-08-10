@@ -2,13 +2,12 @@ package io.eventuate.tram.spring.reactive.optimisticlocking;
 
 import io.eventuate.tram.consumer.common.reactive.ReactiveMessageHandlerDecoratorChain;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Mono;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class OptimisticLockingDecoratorTest {

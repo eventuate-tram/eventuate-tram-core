@@ -5,7 +5,7 @@ import io.eventuate.tram.consumer.common.MessageConsumerImplementation;
 import io.eventuate.tram.consumer.kafka.EventuateTramKafkaMessageConsumer;
 import io.micronaut.context.annotation.Factory;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class EventuateTramKafkaMessageConsumerFactory {

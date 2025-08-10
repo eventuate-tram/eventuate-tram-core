@@ -7,7 +7,7 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class TransactionalNoopDuplicateMessageDetectorFactory {

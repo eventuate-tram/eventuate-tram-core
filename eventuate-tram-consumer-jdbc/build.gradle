@@ -1,6 +1,9 @@
 
 dependencies {
     api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    api 'org.springframework:spring-jdbc:5.1.8.RELEASE'
+    api 'org.springframework:spring-jdbc:6.0.23'
     api project(":eventuate-tram-consumer-common")
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

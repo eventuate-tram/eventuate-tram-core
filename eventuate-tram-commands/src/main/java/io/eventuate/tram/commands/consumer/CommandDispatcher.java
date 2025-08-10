@@ -55,7 +55,7 @@ public class CommandDispatcher {
             commandNameMapping.externalCommandTypeToCommandClassName(message.getRequiredHeader(CommandMessageHeaders.COMMAND_TYPE)));
 
     Optional<CommandHandler> possibleMethod = commandHandlers.findTargetMethod(message);
-    if (!possibleMethod.isPresent()) {
+    if (possibleMethod.isEmpty()) {
       throw new RuntimeException("No method for " + message);
     }
 

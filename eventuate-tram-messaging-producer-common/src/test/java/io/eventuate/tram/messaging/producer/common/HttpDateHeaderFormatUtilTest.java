@@ -1,19 +1,19 @@
 package io.eventuate.tram.messaging.producer.common;
 
 import io.eventuate.tram.messaging.producer.HttpDateHeaderFormatUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HttpDateHeaderFormatUtilTest {
 
   @Test
   public void shouldFormatDateNow() {
-    Assert.assertNotNull((HttpDateHeaderFormatUtil.nowAsHttpDateString()));
+    assertNotNull((HttpDateHeaderFormatUtil.nowAsHttpDateString()));
   }
 
   @Test

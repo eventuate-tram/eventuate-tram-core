@@ -1,13 +1,13 @@
 package io.eventuate.tram.micronaut.consumer.jdbc;
 
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest
 public class EventuateMicronautSqlTableBasedDuplicateMessageDetectorTest {

@@ -6,7 +6,7 @@ import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.commands.consumer.CommandHandlersBuilder;
 import io.eventuate.tram.commands.consumer.CommandMessage;
 import io.eventuate.tram.messaging.common.Message;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withSuccess;
 import static io.eventuate.tram.testing.commands.CommandMessageHandlerUnitTestSupport.assertReplyTypeEquals;

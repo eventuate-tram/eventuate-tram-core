@@ -4,7 +4,7 @@ import io.eventuate.tram.consumer.common.*;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.micronaut.context.annotation.Factory;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.util.List;
 
 @Factory

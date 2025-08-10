@@ -7,3 +7,6 @@ dependencies {
     api project(":eventuate-tram-spring-reactive-consumer-jdbc")
     api project(":eventuate-tram-spring-reactive-consumer-kafka")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

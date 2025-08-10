@@ -1,3 +1,6 @@
 dependencies {
     implementation project(":eventuate-tram-jdbc-redis")
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

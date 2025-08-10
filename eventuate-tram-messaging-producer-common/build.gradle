@@ -3,4 +3,9 @@ dependencies {
     api project(":eventuate-tram-messaging")
 
     api "org.slf4j:slf4j-api:1.7.18"
+
+    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

@@ -9,7 +9,7 @@ import io.eventuate.tram.messaging.producer.jdbc.MessageProducerJdbcImpl;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class TramMessageProducerJdbcFactory {

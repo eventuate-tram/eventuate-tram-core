@@ -6,3 +6,6 @@ dependencies {
 
     api "org.slf4j:slf4j-api:1.7.18"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

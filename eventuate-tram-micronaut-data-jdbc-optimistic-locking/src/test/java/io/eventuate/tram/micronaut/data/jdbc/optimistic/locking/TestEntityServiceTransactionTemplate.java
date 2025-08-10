@@ -4,8 +4,8 @@ import io.eventuate.common.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityServiceTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TestEntityServiceTransactionTemplate extends AbstractTestEntityServiceTransactionTemplate {
