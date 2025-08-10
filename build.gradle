@@ -84,6 +84,7 @@ dockerCompose {
     environment.put "EVENTUATE_CDC_VERSION", eventuateCdcImageVersion
 
     removeOrphans = true
+    retainContainersOnStartupFailure = true
 
     mysqlbinlogkafka {
         projectName = null
