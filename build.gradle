@@ -57,6 +57,11 @@ subprojects { project ->
             languageVersion.set(JavaLanguageVersion.of(17));
         }
     }
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 300, 'seconds'
+        resolutionStrategy.cacheDynamicVersionsFor 300, 'seconds'
+    }
 }
 
 gradle.projectsEvaluated {
