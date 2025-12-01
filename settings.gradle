@@ -87,6 +87,7 @@ include 'eventuate-tram-spring-logging'
 include 'eventuate-tram-spring-testing-support-messaging'
 include 'eventuate-tram-spring-testing-support-kafka-producer'
 include 'eventuate-tram-spring-testing-support-outbox-commands'
+include 'eventuate-tram-spring-testing-support-producer-kafka'
 
 include "eventuate-tram-spring-jdbc-activemq"
 include "eventuate-tram-spring-jdbc-rabbitmq"

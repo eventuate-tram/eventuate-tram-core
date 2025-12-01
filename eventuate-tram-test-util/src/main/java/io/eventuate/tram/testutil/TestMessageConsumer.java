@@ -60,4 +60,12 @@ public class TestMessageConsumer implements MessageHandler {
     }
     fail("Does not contain message: " + message);
   }
+
+  public boolean hasMessages() {
+    return !messages.isEmpty();
+  }
+
+  public void assertHasMessages() {
+    Eventually.eventually(() -> assertTrue(hasMessages(), "Expected to receive a message"));
+  }
 }

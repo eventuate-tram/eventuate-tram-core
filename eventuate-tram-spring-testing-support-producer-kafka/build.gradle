@@ -1,0 +1,22 @@
+dependencies {
+
+    compileOnly project(":eventuate-tram-commands")
+    compileOnly project(":eventuate-tram-events")
+    compileOnly "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
+
+    testImplementation project(":eventuate-tram-commands")
+    testImplementation project(":eventuate-tram-events")
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation project(":eventuate-tram-spring-consumer-kafka")
+    testImplementation project(":eventuate-tram-test-util")
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -11,3 +11,5 @@ bin
 .DS_Store
 .java-version
 .vscode
+.claude/issues
+.claude/sessions
