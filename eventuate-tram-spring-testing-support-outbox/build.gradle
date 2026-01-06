@@ -16,4 +16,9 @@ dependencies {
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    onlyIf {
+        // Skip tests when USE_DB_ID is set (testcontainers don't support DB-based ID generation)
+        // or when DATABASE is mssql (testcontainers use vanilla databases, not mssql)
+        !System.getenv('USE_DB_ID') && System.getenv('DATABASE') != 'mssql'
+    }
 }
