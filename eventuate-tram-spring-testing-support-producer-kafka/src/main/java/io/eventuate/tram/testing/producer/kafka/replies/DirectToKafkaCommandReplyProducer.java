@@ -3,12 +3,17 @@ package io.eventuate.tram.testing.producer.kafka.replies;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.consumer.CommandHandlerParams;
 import io.eventuate.tram.commands.consumer.CommandReplyProducer;
 import io.eventuate.tram.commands.consumer.CommandReplyToken;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageHeaderUtils;
 
 import java.util.List;
+import java.util.Optional;
+
+import static io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder.withSuccess;
 
 public class DirectToKafkaCommandReplyProducer {
 
@@ -28,5 +33,13 @@ public class DirectToKafkaCommandReplyProducer {
 
   public List<Message> sendReplies(CommandReplyToken commandReplyToken, List<Message> replies) {
     return commandReplyProducer.sendReplies(commandReplyToken, replies);
+  }
+
+  public <C extends Command> List<Message> sendReply(Message commandMessage, Class<C> commandClass, Object reply) {
+    CommandHandlerParams commandHandlerParams = new CommandHandlerParams(commandMessage, commandClass, Optional.empty());
+    CommandReplyToken commandReplyToken = new CommandReplyToken(
+        commandHandlerParams.getCorrelationHeaders(),
+        commandHandlerParams.getDefaultReplyChannel().orElse(null));
+    return sendReplies(commandReplyToken, withSuccess(reply));
   }
 }

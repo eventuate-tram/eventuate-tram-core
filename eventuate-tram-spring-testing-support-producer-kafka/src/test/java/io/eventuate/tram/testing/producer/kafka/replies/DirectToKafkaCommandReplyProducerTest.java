@@ -1,10 +1,15 @@
 package io.eventuate.tram.testing.producer.kafka.replies;
 
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaNativeCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaNativeContainer;
+import io.eventuate.tram.commands.common.Command;
+import io.eventuate.tram.commands.common.CommandMessageHeaders;
+import io.eventuate.tram.commands.common.ReplyMessageHeaders;
 import io.eventuate.tram.commands.consumer.CommandHandlerReplyBuilder;
 import io.eventuate.tram.commands.consumer.CommandReplyToken;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
+import io.eventuate.tram.messaging.producer.MessageBuilder;
 import io.eventuate.tram.spring.consumer.common.TramNoopDuplicateMessageDetectorConfiguration;
 import io.eventuate.tram.spring.consumer.kafka.EventuateTramKafkaMessageConsumerConfiguration;
 import io.eventuate.tram.messaging.common.Message;
@@ -112,5 +117,30 @@ public class DirectToKafkaCommandReplyProducerTest {
     Message receivedMessage = testConsumer.assertHasMessage();
 
     assertEquals("test-command-123", receivedMessage.getRequiredHeader("command_id"));
+  }
+
+  public record TestCommand(String customerId) implements Command {
+  }
+
+  public record TestReply(String result) {
+  }
+
+  @Test
+  public void shouldSendReplyFromCommandMessage() {
+    String replyChannel = "TestReplyChannel-" + System.currentTimeMillis();
+
+    Message commandMessage = MessageBuilder.withPayload(JSonMapper.toJson(new TestCommand("customer-123")))
+        .withHeader(CommandMessageHeaders.COMMAND_TYPE, TestCommand.class.getName())
+        .withHeader(CommandMessageHeaders.REPLY_TO, replyChannel)
+        .withHeader(ReplyMessageHeaders.IN_REPLY_TO, "original-message-id")
+        .build();
+
+    TestMessageConsumer testConsumer = TestMessageConsumer.subscribeTo(messageConsumer, replyChannel);
+
+    commandReplyProducer.sendReply(commandMessage, TestCommand.class, new TestReply("success"));
+
+    Message receivedMessage = testConsumer.assertHasMessage();
+    assertNotNull(receivedMessage);
+    assertEquals(replyChannel, receivedMessage.getRequiredHeader(Message.DESTINATION));
   }
 }
