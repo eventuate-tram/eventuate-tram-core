@@ -2,7 +2,7 @@ dependencies {
 
     compileOnly project(":eventuate-tram-commands")
     compileOnly project(":eventuate-tram-events")
-    compileOnly "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
     compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
 
     testImplementation project(":eventuate-tram-commands")
