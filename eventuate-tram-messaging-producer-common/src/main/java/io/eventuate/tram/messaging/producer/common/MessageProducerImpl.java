@@ -3,13 +3,12 @@ package io.eventuate.tram.messaging.producer.common;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
-import io.eventuate.tram.messaging.producer.HttpDateHeaderFormatUtil;
+import io.eventuate.tram.messaging.producer.MessageHeaderUtils;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public final class MessageProducerImpl implements MessageProducer {
   private Logger logger = LoggerFactory.getLogger(getClass());
@@ -40,10 +39,7 @@ public final class MessageProducerImpl implements MessageProducer {
 
   protected void prepareMessageHeaders(String destination, Message message) {
     implementation.setMessageIdIfNecessary(message);
-    message.getHeaders().put(Message.DESTINATION, channelMapping.transform(destination));
-    message.getHeaders().put(Message.DATE, HttpDateHeaderFormatUtil.nowAsHttpDateString());
-    if (message.getHeaders().get(Message.PARTITION_ID) == null)
-      message.getHeaders().put(Message.PARTITION_ID, UUID.randomUUID().toString());
+    MessageHeaderUtils.setDestinationDateAndPartitionIdHeaders(channelMapping.transform(destination), message);
   }
 
   protected void send(Message message) {

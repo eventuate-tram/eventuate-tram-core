@@ -5,11 +5,10 @@ import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.tram.events.common.DomainEvent;
 import io.eventuate.tram.events.common.EventUtil;
-import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageHeaderUtils;
 import io.eventuate.tram.messaging.producer.MessageProducer;
 
 import java.util.Map;
-import java.util.UUID;
 
 public class DirectToKafkaDomainEventPublisher {
 
@@ -18,7 +17,7 @@ public class DirectToKafkaDomainEventPublisher {
   public DirectToKafkaDomainEventPublisher(String bootstrapServer) {
     var eventuateKafkaProducer = new EventuateKafkaProducer(bootstrapServer, EventuateKafkaProducerConfigurationProperties.empty());
     messageProducer = (destination, message) -> {
-      message.getHeaders().put(Message.ID, UUID.randomUUID().toString());
+      MessageHeaderUtils.prepareMessageHeaders(destination, message);
       eventuateKafkaProducer.send(destination, "1", JSonMapper.toJson(message));
     };
   }

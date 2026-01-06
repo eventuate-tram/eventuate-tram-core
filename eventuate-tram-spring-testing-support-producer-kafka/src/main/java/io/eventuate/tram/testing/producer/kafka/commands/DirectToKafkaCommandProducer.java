@@ -6,10 +6,9 @@ import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfiguration
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.commands.common.DefaultCommandNameMapping;
 import io.eventuate.tram.commands.producer.CommandProducerImpl;
-import io.eventuate.tram.messaging.common.Message;
+import io.eventuate.tram.messaging.producer.MessageHeaderUtils;
 
 import java.util.Map;
-import java.util.UUID;
 
 public class DirectToKafkaCommandProducer {
 
@@ -18,7 +17,7 @@ public class DirectToKafkaCommandProducer {
   public DirectToKafkaCommandProducer(String bootstrapServer) {
     var eventuateKafkaProducer = new EventuateKafkaProducer(bootstrapServer, EventuateKafkaProducerConfigurationProperties.empty());
     this.commandProducer= new CommandProducerImpl((destination, message) -> {
-      message.getHeaders().put(Message.ID, UUID.randomUUID().toString());
+      MessageHeaderUtils.prepareMessageHeaders(destination, message);
       eventuateKafkaProducer.send(destination, "1", JSonMapper.toJson(message));
     }, new DefaultCommandNameMapping());
   }

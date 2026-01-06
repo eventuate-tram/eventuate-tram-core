@@ -68,4 +68,9 @@ public class TestMessageConsumer implements MessageHandler {
   public void assertHasMessages() {
     Eventually.eventually(() -> assertTrue(hasMessages(), "Expected to receive a message"));
   }
+
+  public Message assertHasMessage() {
+    assertHasMessages();
+    return messages.peek();
+  }
 }
