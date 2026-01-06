@@ -1,8 +1,3 @@
 dependencies {
-    implementation project(":eventuate-tram-spring-producer-jdbc")
-    implementation project(":eventuate-tram-commands")
-    implementation "org.assertj:assertj-core:$assertjVersion"
-}
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
+    api project(":eventuate-tram-spring-testing-support-outbox")
 }

@@ -1,0 +1,16 @@
+dependencies {
+    implementation project(":eventuate-tram-spring-producer-jdbc")
+    implementation project(":eventuate-tram-commands")
+    implementation "org.assertj:assertj-core:$assertjVersion"
+    implementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation project(":eventuate-tram-spring-flyway")
+    testImplementation project(":eventuate-tram-spring-commands")
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
