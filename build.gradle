@@ -23,13 +23,6 @@ apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
 
 allprojects {
 
-    pluginManager.withPlugin('io.github.gradle-nexus.publish-plugin') {
-        nexusPublishing {
-            connectTimeout = Duration.ofMinutes(15)
-            clientTimeout = Duration.ofMinutes(15)
-        }
-    }
-
     repositories {
         mavenCentral()
         maven { url "https://repo.spring.io/milestone" }
