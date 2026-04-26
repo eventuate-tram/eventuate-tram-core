@@ -8,10 +8,12 @@ import io.eventuate.util.test.async.Eventually;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestMessageConsumer implements MessageHandler {
@@ -35,12 +37,14 @@ public class TestMessageConsumer implements MessageHandler {
     messages.add(message);
   }
 
+  private Optional<Message> findReplyMessage(String messageId) {
+    return Arrays.stream(messages.toArray(new Message[0]))
+            .filter(m -> m.getHeader(ReplyMessageHeaders.IN_REPLY_TO).map(messageId::equals).orElse(false))
+            .findFirst();
+  }
+
   public boolean containsReplyTo(String messageId) {
-    for (Message m : messages.toArray(new Message[0])) {
-      if (m.getHeader(ReplyMessageHeaders.IN_REPLY_TO).map(x -> x.equals(messageId)).orElse(false))
-        return true;
-    }
-    return false;
+    return findReplyMessage(messageId).isPresent();
   }
 
   public void assertHasReplyTo(String messageId) {
@@ -72,5 +76,13 @@ public class TestMessageConsumer implements MessageHandler {
   public Message assertHasMessage() {
     assertHasMessages();
     return messages.peek();
+  }
+
+  public <T> void assertHasReplyTo(String messageId, Class<T> replyClass) {
+    Eventually.eventually(() -> {
+      Message found = findReplyMessage(messageId).orElse(null);
+      assertNotNull(found, "No reply to " + messageId);
+      assertEquals(replyClass.getName(), found.getHeader(ReplyMessageHeaders.REPLY_TYPE).orElse(null));
+    });
   }
 }
