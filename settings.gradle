@@ -98,5 +98,3 @@ include "eventuate-tram-spring-jdbc-redis"
 include 'eventuate-tram-spring-consumer-activemq'
 include 'eventuate-tram-spring-consumer-rabbitmq'
 include 'eventuate-tram-spring-consumer-redis'
-
-include 'eventuate-tram-bom'

@@ -9,7 +9,7 @@ dependencies {
     implementation "org.junit.jupiter:junit-jupiter:$junitVersion"
 
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation project(":eventuate-tram-spring-in-memory")
 }
 tasks.withType(Test).configureEach {

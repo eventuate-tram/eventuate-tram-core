@@ -7,9 +7,7 @@ dependencies {
 
     testImplementation "io.eventuate.cdc:eventuate-local-java-test-util:$eventuateCdcVersion"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
-
-    testImplementation "io.netty:netty-resolver-dns:4.1.79.Final"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 
 }
 

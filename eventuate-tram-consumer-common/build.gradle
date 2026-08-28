@@ -5,7 +5,7 @@ dependencies {
     api "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
     api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 
-    testImplementation 'com.google.guava:guava:19.0'
+    testImplementation "com.google.guava:guava:$guavaVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

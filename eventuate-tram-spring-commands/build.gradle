@@ -13,7 +13,7 @@ dependencies {
     testImplementation project(":eventuate-tram-spring-in-memory")
 
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation "io.eventuate.examples.common:eventuate-examples-common-money:$eventuateCommonExamplesVersion"
 
 }

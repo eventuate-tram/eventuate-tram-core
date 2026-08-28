@@ -1,6 +1,4 @@
 dependencies {
-    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
-
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
 }
 tasks.withType(Test).configureEach {

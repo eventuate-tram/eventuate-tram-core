@@ -5,7 +5,7 @@ dependencies {
 
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
-    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
+    implementation "org.junit.jupiter:junit-jupiter:$junitVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

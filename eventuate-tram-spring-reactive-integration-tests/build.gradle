@@ -7,7 +7,7 @@ dependencies {
     api project(":eventuate-tram-spring-reactive-events-subscriber")
     api project(":eventuate-tram-spring-reactive-commands")
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-r2dbc-test:$springBootVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
 }

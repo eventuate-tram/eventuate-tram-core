@@ -1,12 +1,14 @@
 dependencies {
-    implementation "org.flywaydb:flyway-core:$flywayVersion"
-    implementation "org.flywaydb:flyway-mysql:$flywayVersion"
+    api "org.flywaydb:flyway-core:$flywayVersion"
+    api "org.flywaydb:flyway-mysql:$flywayVersion"
+    api "org.flywaydb:flyway-database-postgresql:$flywayVersion"
 
-    implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-flyway:$springBootVersion"
     implementation "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     implementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-flyway-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"

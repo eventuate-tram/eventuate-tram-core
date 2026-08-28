@@ -14,7 +14,7 @@ dependencies {
 
     testImplementation project(":eventuate-tram-in-memory-test")
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 
 }
 tasks.withType(Test).configureEach {

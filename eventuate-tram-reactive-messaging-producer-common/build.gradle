@@ -4,7 +4,7 @@ dependencies {
 
     api "io.projectreactor:reactor-core:$reactorVersion"
 
-    api "org.slf4j:slf4j-api:1.7.18"
+    api "org.slf4j:slf4j-api:$slf4jVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

@@ -35,8 +35,8 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testRuntimeOnly 'io.micronaut.sql:micronaut-jdbc-hikari'
 
-    testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.33'
-    testRuntimeOnly ('org.postgresql:postgresql:9.4-1200-jdbc41') {
+    testRuntimeOnly "com.mysql:mysql-connector-j:$mysqlConnectorVersion"
+    testRuntimeOnly ("org.postgresql:postgresql:$postgresqlVersion") {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
 }

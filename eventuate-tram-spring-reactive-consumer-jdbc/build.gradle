@@ -5,7 +5,7 @@ dependencies {
     api project(":eventuate-tram-reactive-consumer-jdbc")
     api project(":eventuate-tram-reactive-consumer-common")
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-r2dbc-test:$springBootVersion"
 }
 
 test {

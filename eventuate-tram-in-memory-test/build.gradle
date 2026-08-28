@@ -2,7 +2,7 @@
 dependencies {
     api project(":eventuate-tram-in-memory")
 
-    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
+    implementation "org.junit.jupiter:junit-jupiter:$junitVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

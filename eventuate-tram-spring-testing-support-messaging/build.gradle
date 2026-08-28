@@ -7,10 +7,10 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
     compileOnly "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
 
-    implementation "com.jayway.jsonpath:json-path:2.6.0"
-    
-    implementation "org.hamcrest:hamcrest:2.2"
-    implementation "org.junit.jupiter:junit-jupiter-api:5.5.2"
+    implementation "com.jayway.jsonpath:json-path:$jsonPathVersion"
+
+    implementation "org.hamcrest:hamcrest:$hamcrestVersion"
+    implementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

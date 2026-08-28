@@ -1,7 +1,7 @@
 
 dependencies {
     api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    api 'org.springframework:spring-jdbc:6.0.23'
+    api "org.springframework:spring-jdbc:$springFrameworkVersion"
     api project(":eventuate-tram-consumer-common")
 }
 tasks.withType(Test).configureEach {

@@ -1,7 +1,7 @@
 dependencies {
     api project(":eventuate-tram-reactive-consumer-common")
     api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

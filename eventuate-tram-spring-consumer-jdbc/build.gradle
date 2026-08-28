@@ -6,7 +6,7 @@ dependencies {
 
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

@@ -6,7 +6,8 @@ dependencies {
     compileOnly project(":eventuate-tram-commands")
     compileOnly project(":eventuate-tram-events")
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-flyway-test:$springBootVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"

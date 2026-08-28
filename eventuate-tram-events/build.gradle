@@ -4,10 +4,7 @@ dependencies {
 
     api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
 
-    api "jakarta.annotation:jakarta.annotation-api:2.1.1"
-
-    implementation "org.junit.jupiter:junit-jupiter:5.13.4"
-
+    api "jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

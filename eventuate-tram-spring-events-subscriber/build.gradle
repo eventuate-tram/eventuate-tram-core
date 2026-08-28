@@ -8,7 +8,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
 
     testImplementation project(":eventuate-tram-test-util")
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation project(":eventuate-tram-spring-events-publisher")
     testImplementation project(":eventuate-tram-in-memory")
     testImplementation project(":eventuate-tram-spring-in-memory")

@@ -5,7 +5,7 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
 
     testImplementation project(":eventuate-tram-spring-in-memory")
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
