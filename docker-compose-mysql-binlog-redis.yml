@@ -11,7 +11,7 @@ services:
       - USE_DB_ID=${USE_DB_ID}
 
   redis:
-    image: redis:5.0.3
+    image: redis:7.4
     ports:
       - 6379:6379
 
