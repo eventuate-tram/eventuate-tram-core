@@ -71,7 +71,7 @@ gradle.projectsEvaluated {
     }
 
     task("aggregateJavaDocsJar", type: org.gradle.api.tasks.bundling.Jar, dependsOn: project.aggregateJavaDocs) {
-        classifier = 'javadoc'
+        archiveClassifier = 'javadoc'
         from 'build/docs/javadoc'
     }
 
