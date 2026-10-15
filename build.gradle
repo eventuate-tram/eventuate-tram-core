@@ -69,16 +69,6 @@ gradle.projectsEvaluated {
 
         destinationDir file("$buildDir/docs/javadoc")
     }
-
-    task("aggregateJavaDocsJar", type: org.gradle.api.tasks.bundling.Jar, dependsOn: project.aggregateJavaDocs) {
-        archiveClassifier = 'javadoc'
-        from 'build/docs/javadoc'
-    }
-
-    artifacts {
-        archives project.aggregateJavaDocsJar
-    }
-
 }
 
 dockerCompose {
