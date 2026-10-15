@@ -8,32 +8,41 @@ workflows:
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-kafka
           script: ./build-and-test-all-mysql-binlog-kafka.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-redis
           script: ./build-and-test-all-mysql-binlog-redis.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: postgres-wal-rabbitmq
           script: ./build-and-test-all-postgres-wal-rabbitmq.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: mssql-polling-activemq
           script: ./build-and-test-all-mssql-polling-activemq.sh
+          java_version_to_install: "17"
 
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-kafka-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-kafka.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: mysql-binlog-redis-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-mysql-binlog-redis.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: postgres-wal-rabbitmq-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-postgres-wal-rabbitmq.sh
+          java_version_to_install: "17"
       - eventuate-gradle-build-and-test/build-and-test:
           name: mssql-polling-activemq-dbid
           script: TEST_DB_ID=yes ./build-and-test-all-mssql-polling-activemq.sh
+          java_version_to_install: "17"
 
       - eventuate-gradle-build-and-test/build-and-test:
           name: deploy-artifacts
           script: ./deploy-artifacts.sh
+          java_version_to_install: "17"
           context:
             - publish
           requires:
