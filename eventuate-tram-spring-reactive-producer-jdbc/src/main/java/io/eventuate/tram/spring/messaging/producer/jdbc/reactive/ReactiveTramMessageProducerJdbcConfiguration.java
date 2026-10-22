@@ -1,9 +1,9 @@
 package io.eventuate.tram.spring.messaging.producer.jdbc.reactive;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.reactive.jdbc.EventuateCommonReactiveJdbcOperations;
-import io.eventuate.common.spring.jdbc.reactive.EventuateCommonReactiveDatabaseConfiguration;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.reactive.jdbc.EventuateCommonReactiveJdbcOperations;
+import io.eventuate.common.database.spring.jdbc.reactive.EventuateCommonReactiveDatabaseConfiguration;
 import io.eventuate.tram.messaging.common.ChannelMapping;
 import io.eventuate.tram.messaging.common.MessageInterceptor;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducer;

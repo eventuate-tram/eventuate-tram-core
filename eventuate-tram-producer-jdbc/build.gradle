@@ -2,9 +2,9 @@
 dependencies {
     api project(":eventuate-tram-messaging-producer-common")
 
-    api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-id:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-jdbc:$eventuateCommonDatabaseVersion"
+    api "io.eventuate.common.json:eventuate-common-json-mapper:$eventuateCommonJsonVersion"
+    api "io.eventuate.common.id:eventuate-common-id:$eventuateCommonIdVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

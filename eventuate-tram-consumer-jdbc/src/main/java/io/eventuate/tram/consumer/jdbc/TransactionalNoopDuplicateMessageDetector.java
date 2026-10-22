@@ -1,6 +1,6 @@
 package io.eventuate.tram.consumer.jdbc;
 
-import io.eventuate.common.jdbc.EventuateTransactionTemplate;
+import io.eventuate.common.database.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import org.slf4j.Logger;

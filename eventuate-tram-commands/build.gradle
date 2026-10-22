@@ -2,7 +2,7 @@
 dependencies {
     api project(":eventuate-tram-messaging")
 
-    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common.json:eventuate-common-json-mapper:$eventuateCommonJsonVersion"
 
     testImplementation project(":eventuate-tram-in-memory")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

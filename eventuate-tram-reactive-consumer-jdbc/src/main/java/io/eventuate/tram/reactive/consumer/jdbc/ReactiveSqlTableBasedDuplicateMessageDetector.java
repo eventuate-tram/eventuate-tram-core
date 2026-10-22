@@ -1,8 +1,8 @@
 package io.eventuate.tram.reactive.consumer.jdbc;
 
-import io.eventuate.common.jdbc.EventuateDuplicateKeyException;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
+import io.eventuate.common.database.jdbc.EventuateDuplicateKeyException;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
 import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.SubscriberIdAndMessage;
 import org.reactivestreams.Publisher;

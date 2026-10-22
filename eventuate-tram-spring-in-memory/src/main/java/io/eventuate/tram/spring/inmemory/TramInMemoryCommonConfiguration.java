@@ -1,8 +1,8 @@
 package io.eventuate.tram.spring.inmemory;
 
-import io.eventuate.common.inmemorydatabase.EventuateDatabaseScriptSupplier;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.inmemorydatabase.EventuateCommonInMemoryDatabaseConfiguration;
+import io.eventuate.common.database.inmemorydatabase.EventuateDatabaseScriptSupplier;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.inmemorydatabase.EventuateCommonInMemoryDatabaseConfiguration;
 import io.eventuate.tram.common.spring.inmemory.EventuateSpringTransactionSynchronizationManager;
 import io.eventuate.tram.inmemory.InMemoryMessageConsumer;
 import io.eventuate.tram.inmemory.InMemoryMessageProducer;

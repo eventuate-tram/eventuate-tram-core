@@ -2,8 +2,8 @@
 dependencies {
     api project(":eventuate-tram-messaging")
 
-    api "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common.coordination.leadership:eventuate-common-coordination-leadership:$eventuateCommonCoordinationLeadershipVersion"
+    api "io.eventuate.common.json:eventuate-common-json-mapper:$eventuateCommonJsonVersion"
 
     testImplementation "com.google.guava:guava:$guavaVersion"
 }

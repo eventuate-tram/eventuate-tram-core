@@ -1,6 +1,6 @@
 package io.eventuate.tram.spring.reactive.consumer.jdbc;
 
-import io.eventuate.common.spring.jdbc.reactive.EventuateCommonReactiveDatabaseConfiguration;
+import io.eventuate.common.database.spring.jdbc.reactive.EventuateCommonReactiveDatabaseConfiguration;
 import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetector;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.common.MessageImpl;

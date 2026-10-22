@@ -1,6 +1,6 @@
 package io.eventuate.tram.jdbc.optimistic.locking.common.test;
 
-import io.eventuate.common.jdbc.EventuateTransactionTemplate;
+import io.eventuate.common.database.jdbc.EventuateTransactionTemplate;
 
 public abstract class AbstractTestEntityServiceTransactionTemplate extends AbstractTestEntityService {
 

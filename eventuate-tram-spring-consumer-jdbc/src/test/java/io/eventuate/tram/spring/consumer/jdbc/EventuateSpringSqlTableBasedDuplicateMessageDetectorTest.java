@@ -1,6 +1,6 @@
 package io.eventuate.tram.spring.consumer.jdbc;
 
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.tram.consumer.common.DuplicateMessageDetector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

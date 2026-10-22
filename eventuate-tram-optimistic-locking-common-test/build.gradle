@@ -1,6 +1,6 @@
 dependencies {
     api project(":eventuate-tram-consumer-common")
-    api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-jdbc:$eventuateCommonDatabaseVersion"
     api "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
     
     api "io.micronaut:micronaut-core:$micronautVersion"

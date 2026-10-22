@@ -1,8 +1,8 @@
 package io.eventuate.tram.reactive.messaging.producer.jdbc;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.reactive.jdbc.EventuateCommonReactiveJdbcOperations;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.reactive.jdbc.EventuateCommonReactiveJdbcOperations;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.reactive.messaging.producer.common.ReactiveMessageProducerImplementation;
 import reactor.core.publisher.Mono;

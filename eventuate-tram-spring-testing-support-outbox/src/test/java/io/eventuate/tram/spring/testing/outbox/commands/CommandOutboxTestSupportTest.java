@@ -1,8 +1,8 @@
 package io.eventuate.tram.spring.testing.outbox.commands;
 
+import io.eventuate.common.database.testcontainers.DatabaseContainerFactory;
+import io.eventuate.common.database.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.common.testcontainers.DatabaseContainerFactory;
-import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.tram.commands.common.Command;
 import io.eventuate.tram.messaging.common.Message;

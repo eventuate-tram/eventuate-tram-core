@@ -1,7 +1,7 @@
 package io.eventuate.tram.spring.testing.outbox.messaging;
 
-import io.eventuate.common.testcontainers.DatabaseContainerFactory;
-import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
+import io.eventuate.common.database.testcontainers.DatabaseContainerFactory;
+import io.eventuate.common.database.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.tram.messaging.common.Message;
 import io.eventuate.tram.messaging.producer.MessageBuilder;

@@ -1,7 +1,7 @@
 version: '3'
 services:
   zookeeper:
-    image: eventuateio/eventuate-zookeeper:$EVENTUATE_COMMON_VERSION
+    image: eventuateio/eventuate-zookeeper:${EVENTUATE_COMMON_ZOOKEEPER_VERSION}
     ports:
       - 2181:2181
     environment:
@@ -23,7 +23,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   mysql:
-    image: eventuateio/eventuate-mysql8:$EVENTUATE_COMMON_VERSION
+    image: eventuateio/eventuate-mysql8:${EVENTUATE_COMMON_DATABASE_VERSION}
     ports:
       - 3306:3306
     environment:

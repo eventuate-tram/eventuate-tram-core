@@ -1,8 +1,8 @@
 package io.eventuate.tram.spring.flyway;
 
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.testcontainers.DatabaseContainerFactory;
-import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.database.testcontainers.DatabaseContainerFactory;
+import io.eventuate.common.database.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

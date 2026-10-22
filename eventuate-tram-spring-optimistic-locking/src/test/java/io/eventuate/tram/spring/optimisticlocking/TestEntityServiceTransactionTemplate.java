@@ -1,6 +1,6 @@
 package io.eventuate.tram.spring.optimisticlocking;
 
-import io.eventuate.common.jdbc.EventuateTransactionTemplate;
+import io.eventuate.common.database.jdbc.EventuateTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.AbstractTestEntityServiceTransactionTemplate;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;

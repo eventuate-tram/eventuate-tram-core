@@ -3,8 +3,8 @@ dependencies {
     api project(":eventuate-tram-producer-jdbc")
     api project(":eventuate-tram-spring-messaging-producer-common")
 
-    api "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.id:eventuate-common-spring-id:$eventuateCommonIdVersion"
+    api "io.eventuate.common.database:eventuate-common-spring-jdbc:$eventuateCommonDatabaseVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

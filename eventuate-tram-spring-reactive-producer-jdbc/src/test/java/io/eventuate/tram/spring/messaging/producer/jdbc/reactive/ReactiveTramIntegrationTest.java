@@ -1,6 +1,6 @@
 package io.eventuate.tram.spring.messaging.producer.jdbc.reactive;
 
-import io.eventuate.common.spring.jdbc.reactive.EventuateCommonReactiveMysqlConfiguration;
+import io.eventuate.common.database.spring.jdbc.reactive.EventuateCommonReactiveMysqlConfiguration;
 import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import io.eventuate.tram.messaging.consumer.MessageHandler;
 import io.eventuate.tram.messaging.producer.MessageBuilder;

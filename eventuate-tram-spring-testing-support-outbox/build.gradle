@@ -9,11 +9,12 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-flyway-test:$springBootVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
     testImplementation project(":eventuate-tram-spring-flyway")
     testImplementation project(":eventuate-tram-spring-commands")
     testImplementation project(":eventuate-tram-spring-events-publisher")
+    testImplementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()

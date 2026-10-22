@@ -1,7 +1,7 @@
 package io.eventuate.tram.spring.flyway;
 
-import io.eventuate.common.flyway.TemplatedMessageTableCreator;
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.database.flyway.TemplatedMessageTableCreator;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 

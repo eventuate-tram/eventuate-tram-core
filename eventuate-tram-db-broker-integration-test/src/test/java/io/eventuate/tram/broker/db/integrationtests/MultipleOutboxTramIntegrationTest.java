@@ -1,9 +1,9 @@
 package io.eventuate.tram.broker.db.integrationtests;
 
 import io.eventuate.cdc.testcontainers.EventuateCdcContainer;
-import io.eventuate.common.testcontainers.EventuateMySqlContainer;
-import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
+import io.eventuate.common.database.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
+import io.eventuate.common.zookeeper.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;

@@ -2,7 +2,7 @@
 dependencies {
     api project(":eventuate-tram-reactive-producer-jdbc")
 
-    api "io.eventuate.common:eventuate-common-spring-reactive-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-spring-reactive-jdbc:$eventuateCommonDatabaseVersion"
 
     testImplementation project(":eventuate-tram-spring-consumer-kafka")
     testImplementation "org.springframework.boot:spring-boot-starter-data-r2dbc-test:$springBootVersion"

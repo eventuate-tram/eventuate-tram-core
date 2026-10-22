@@ -2,7 +2,7 @@
 dependencies {
     compileOnly project(":eventuate-tram-events")
     implementation project(":eventuate-tram-messaging")
-    implementation "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    implementation "io.eventuate.common.json:eventuate-common-json-mapper:$eventuateCommonJsonVersion"
     
     compileOnly "org.springframework.boot:spring-boot-starter:$springBootVersion"
     compileOnly "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"

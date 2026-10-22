@@ -1,6 +1,6 @@
 package io.eventuate.tram.spring.optimisticlocking;
 
-import io.eventuate.common.spring.jdbc.EventuateTransactionTemplateConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateTransactionTemplateConfiguration;
 import io.eventuate.tram.jdbc.optimistic.locking.common.test.TestEntityRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;

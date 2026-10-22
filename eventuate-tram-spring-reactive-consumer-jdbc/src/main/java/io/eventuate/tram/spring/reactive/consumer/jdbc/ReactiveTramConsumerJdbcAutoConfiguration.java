@@ -1,10 +1,10 @@
 package io.eventuate.tram.spring.reactive.consumer.jdbc;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.common.spring.jdbc.EventuateSchemaConfiguration;
-import io.eventuate.common.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.spring.jdbc.EventuateSchemaConfiguration;
+import io.eventuate.common.database.spring.jdbc.reactive.EventuateSpringReactiveJdbcStatementExecutor;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.tram.consumer.common.reactive.ReactiveDuplicateMessageDetector;
 import io.eventuate.tram.reactive.consumer.jdbc.ReactiveSqlTableBasedDuplicateMessageDetector;
 import org.springframework.beans.factory.annotation.Value;

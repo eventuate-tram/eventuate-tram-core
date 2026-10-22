@@ -10,7 +10,8 @@ dependencies {
 
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
+    testImplementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
 
 
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"

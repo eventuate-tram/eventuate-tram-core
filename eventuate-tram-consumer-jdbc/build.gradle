@@ -1,6 +1,6 @@
 
 dependencies {
-    api "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-jdbc:$eventuateCommonDatabaseVersion"
     api "org.springframework:spring-jdbc:$springFrameworkVersion"
     api project(":eventuate-tram-consumer-common")
 }

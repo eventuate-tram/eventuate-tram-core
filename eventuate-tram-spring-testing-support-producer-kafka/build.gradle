@@ -12,7 +12,7 @@ dependencies {
     testImplementation project(":eventuate-tram-spring-consumer-kafka")
     testImplementation project(":eventuate-tram-test-util")
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
 
 }

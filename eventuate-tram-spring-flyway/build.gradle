@@ -4,14 +4,15 @@ dependencies {
     api "org.flywaydb:flyway-database-postgresql:$flywayVersion"
 
     api "org.springframework.boot:spring-boot-starter-flyway:$springBootVersion"
-    implementation "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    implementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
+    implementation "io.eventuate.common.database:eventuate-common-jdbc:$eventuateCommonDatabaseVersion"
+    implementation "io.eventuate.common.database:eventuate-common-flyway:$eventuateCommonDatabaseVersion"
 
     testImplementation "org.springframework.boot:spring-boot-starter-flyway-test:$springBootVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    testImplementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
     testRuntimeOnly "org.flywaydb:flyway-sqlserver:$flywayVersion"
 
 }

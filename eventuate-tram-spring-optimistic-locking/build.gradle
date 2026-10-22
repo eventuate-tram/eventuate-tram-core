@@ -3,7 +3,7 @@ dependencies {
     api project (":eventuate-tram-consumer-common")
     api project(":eventuate-tram-optimistic-locking-common-test")
     api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-spring-jdbc:$eventuateCommonDatabaseVersion"
     api "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
 
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa-test:$springBootVersion"

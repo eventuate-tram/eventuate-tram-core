@@ -4,7 +4,7 @@ dependencies {
 
     api "io.projectreactor:reactor-core:$reactorVersion"
 
-    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common.json:eventuate-common-json-mapper:$eventuateCommonJsonVersion"
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
